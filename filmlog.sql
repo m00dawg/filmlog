@@ -6,8 +6,8 @@ CREATE TABLE Cameras (
 
 CREATE TABLE FilmBrands(
     filmBrandID TINYINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
-    name varchar(64) NOT NULL,
-    UNIQUE name_uq (name)
+    brand varchar(64) NOT NULL,
+    UNIQUE brand_uq (brand)
 ) ENGINE='InnoDB';
 
 INSERT INTO FilmBrands VALUES (1, 'Kodak');
@@ -40,16 +40,29 @@ INSERT INTO FilmTypes (filmBrandID, name, iso, kind) VALUES (3, 'Delta', 400, 'B
 INSERT INTO FilmTypes (filmBrandID, name, iso, kind) VALUES (3, 'Delta', 3200, 'Black & White Negative');
 INSERT INTO FilmTypes (filmBrandID, name, iso, kind) VALUES (3, 'HP5+', 400, 'Black & White Negative');
 
+CREATE TABLE Projects(
+    projectID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    name varchar(64) NOT NULL,
+    UNIQUE KEY name_uq (name)
+) ENGINE='InnoDB';
+
+INSERT INTO Projects (name) VALUES ('Black and White Practice');
+INSERT INTO Projects (name) VALUES ('Medium Format Practice');
+INSERT INTO Projects (name) VALUES ('Alaska 2017');
+
 CREATE TABLE Films (
-    filmID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    filmID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,    
+    projectID INT UNSIGNED NOT NULL,
     cameraID TINYINT UNSIGNED DEFAULT NULL,
     filmTypeID SMALLINT UNSIGNED NOT NULL,
     fileDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fileNo varchar(32) NOT NULL,
     title varchar(64) NOT NULL,
     development varchar(128) NOT NULL,
+    KEY films_projectID_fk (projectID),
     KEY films_cameraID_fk (cameraID),
     KEY films_filmTypeID_fk (filmTypeID),
+    CONSTRAINT films_projectID_fk FOREIGN KEY (projectID) REFERENCES Projects (projectID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT films_cameraID_fk FOREIGN KEY (cameraID) REFERENCES Cameras (cameraID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT films_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
@@ -59,11 +72,17 @@ CREATE TABLE Exposures(
     exposureNumber TINYINT UNSIGNED NOT NULL,
     shutter VARCHAR(12) DEFAULT NULL,
     fStop DECIMAL(3,1) DEFAULT NULL, 
-    PRIMARY KEY (filmID, exposureID),
+    PRIMARY KEY (filmID, exposureNumber),
     CONSTRAINT exposures_filmID_fk FOREIGN KEY (filmID) REFERENCES Films (filmID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
-CREATE TABLE ExposureFilters
+CREATE TABLE Filters(
+    filterID SMALLINT UNSIGNED NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    code VARCHAR(8) NOT NULL
+) ENGINE='InnoDB';
+
+CREATE TABLE ExposureFilters(
     filmID INT UNSIGNED NOT NULL,
     exposureNumber TINYINT UNSIGNED NOT NULL,
     filterID SMALLINT UNSIGNED NOT NULL

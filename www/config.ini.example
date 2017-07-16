@@ -1,0 +1,3 @@
+[database]
+url=mysql+mysqldb://user:pass@host/db?charset=utf
+pool_recycle=3600

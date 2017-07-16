@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-header">Projects</h1>
+
+  <table class="table table-striped table-bordered" id="projects">
+    <tr>
+        <th>Name</th>
+        <th>Rolls / Sheets</th>
+    </tr>
+    {% for project in projects %}
+        <tr>
+            <td>{{ project.name }}</td>
+            <td></td>
+        </tr>
+    {% else %}
+      <tr><td colspan="5">No Projects Found</td></tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}
