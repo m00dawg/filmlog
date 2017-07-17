@@ -34,12 +34,14 @@ def projects():
         projects = engine.execute(qry).fetchall()
         return render_template('projects.html', projects=projects)
 
-@app.route('/project/<int:projectID>',  methods = ['POST', 'GET'])
-def project():
+@app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
+def project(projectID):
     if request.method == 'GET':
-        qry = text("""SELECT title FROM Films WHERE projectID = :projectID""")
+        qry = text("""SELECT name FROM Projects WHERE projectID = :projectID""")
+        project = engine.execute(qry, projectID=projectID).fetchone()
+        qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
         films = engine.execute(qry, projectID=projectID).fetchall()
-        return render_template('projects.html', projects=projects)
+        return render_template('project.html', project=project, films=films)
 
 @app.route('/filmtypes',  methods = ['GET'])
 def filmtypes():

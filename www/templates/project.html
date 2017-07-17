@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-header">{{ project.name }}</h1>
+
+  <table class="table table-striped table-bordered" id="films">
+    <tr>
+        <th>Name</th>
+        <th>File No.</th>
+        <th>File Date</th>
+    </tr>
+    {% for film in films %}
+        <tr>
+            <td>{{ film.title }}</td>
+            <td>{{ film.fileNo }}</td>
+            <td>{{ film.fileDate }}</td>
+        </tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}
