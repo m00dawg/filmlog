@@ -11,7 +11,7 @@
     </tr>
     {% for film in films %}
         <tr>
-            <td>{{ film.title }}</td>
+            <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
             <td>{{ film.fileNo }}</td>
             <td>{{ film.fileDate }}</td>
         </tr>

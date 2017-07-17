@@ -7,11 +7,13 @@
     <tr>
         <th>Name</th>
         <th>Rolls / Sheets</th>
+        <th>Created On</th>
     </tr>
     {% for project in projects %}
         <tr>
-            <td>{{ project.name }}</td>
-            <td></td>
+          <td><a href="projects/{{ project.projectID}}">{{ project.name }}</a></td>
+          <td>{{ project.filmCount }}</td>
+          <td>{{ project.createdOn }}</td>
         </tr>
     {% else %}
       <tr><td colspan="5">No Projects Found</td></tr>
