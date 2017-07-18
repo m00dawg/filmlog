@@ -3,23 +3,26 @@
 {% block content %}
   <h1 class="page-header">{{ project.name }}</h1>
 
-  <table class="table table-striped table-bordered" id="films">
-    <tr>
-        <th>Name</th>
-        <th>File No.</th>
-        <th>File Date</th>
-    </tr>
-    {% for film in films %}
-        <tr>
-            <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
-            <td>{{ film.fileNo }}</td>
-            <td>{{ film.fileDate }}</td>
-        </tr>
-    {% endfor %}
-  </table>
+  <h3>Rolls / Films</h3>
+  <div class="panel panel-default">
+    <table class="table table-striped table-bordered" id="films">
+      <tr>
+          <th>Name</th>
+          <th>File No.</th>
+          <th>File Date</th>
+      </tr>
+      {% for film in films %}
+          <tr>
+              <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
+              <td>{{ film.fileNo }}</td>
+              <td>{{ film.fileDate }}</td>
+          </tr>
+      {% endfor %}
+    </table>
+  </div>
 
   <div class="panel panel-primary">
-    <div class="panel-heading">Add Exposure</div>
+    <div class="panel-heading">Add Roll/Film</div>
     <div class="panel-body">
       <form role="form" class="form-horizontal"
         action="/projects/{{ project.projectID }}"
@@ -27,7 +30,7 @@
         <div class="form-group">
           <div class="col-sm-3">
             <label>Name</label>
-            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Number">
+            <input type="text" class="form-control" placeholder="My Film Roll" name="name" aria-describedby="Number">
           </div>
           <div class="col-sm-3">
             <label>File No.</label>
@@ -36,6 +39,7 @@
           <div class="col-sm-3">
             <label>Film</label>
             <select class="form-control" name="filmType">
+                <option value=''>Select Film </option>
                 {% for film in filmTypes %}
                   <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.name }} {{ film.iso }}</option>
                 {% endfor %}
@@ -44,7 +48,7 @@
           <div class="col-sm-3">
             <label>Camera</label>
             <select class="form-control" name="camera">
-                <option value=''> </option>
+                <option value=''>Select Camera</option>
                 {% for camera in cameras %}
                   <option value="{{ camera.cameraID }}">{{ camera.name }}</option>
                 {% endfor %}
