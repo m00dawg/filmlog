@@ -18,4 +18,43 @@
     {% endfor %}
   </table>
 
+  <div class="panel panel-primary">
+    <div class="panel-heading">Add Exposure</div>
+    <div class="panel-body">
+      <form role="form" class="form-horizontal"
+        action="/projects/{{ project.projectID }}"
+        method="POST">
+        <div class="form-group">
+          <div class="col-sm-3">
+            <label>Name</label>
+            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Number">
+          </div>
+          <div class="col-sm-3">
+            <label>File No.</label>
+            <input type="text" class="form-control" placeholder="ABC123" name="fileNo" aria-describedby="FileNo">
+          </div>
+          <div class="col-sm-3">
+            <label>Film</label>
+            <select class="form-control" name="filmType">
+                {% for film in filmTypes %}
+                  <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.name }} {{ film.iso }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label>Camera</label>
+            <select class="form-control" name="camera">
+                <option value=''> </option>
+                {% for camera in cameras %}
+                  <option value="{{ camera.cameraID }}">{{ camera.name }}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="button-bar">
+          <button class="btn btn-success" action="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}

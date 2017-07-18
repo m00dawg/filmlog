@@ -1,7 +1,7 @@
 # TODO
 # - Reports
 
-import os
+import os, re
 import ConfigParser
 from flask import Flask
 from flask import request, render_template, redirect, url_for
@@ -30,36 +30,77 @@ def index():
 
 @app.route('/projects',  methods = ['POST', 'GET'])
 def projects():
-    if request.method == 'GET':
-        qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects""")
-        projects = engine.execute(qry).fetchall()
-        return render_template('projects.html', projects=projects)
+    qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects""")
+    projects = engine.execute(qry).fetchall()
+    return render_template('projects.html', projects=projects)
 
 @app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
 def project(projectID):
     if request.method == 'GET':
         qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
         project = engine.execute(qry, projectID=projectID).fetchone()
+
         qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
         films = engine.execute(qry, projectID=projectID).fetchall()
-        return render_template('project.html', project=project, films=films)
+
+        qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+            JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+        filmTypes = engine.execute(qry).fetchall()
+
+        qry = text("""SELECT cameraID, name FROM Cameras""")
+        cameras = engine.execute(qry).fetchall()
+
+        return render_template('project.html',
+            project = project,
+            films = films,
+            filmTypes = filmTypes,
+            cameras = cameras)
 
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):
     if request.method == 'POST':
         lensID = None
-        if request.form['lens'] != 'None':
+        aperture = None
+        shutter = None
+        notes = None
+
+        if re.search(r'^1\/', request.form['shutter']):
+            shutter = re.sub(r'^1\/', r'', request.form['shutter'])
+        elif re.search(r'"', request.form['shutter']):
+            shutter = re.sub(r'"', r'', shutter)
+        elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
+            shutter = 0
+        elif request.form['shutter'] != '':
+            shutter = request.form['shutter']
+
+        if request.form['lens'] != '':
             lensID = request.form['lens']
 
+        if request.form['aperture'] != '':
+            aperture = request.form['aperture']
+
+        if request.form['notes'] != '':
+            notes = request.form['notes']
+
         qry = text("""INSERT INTO Exposures
-            (filmID, exposureNumber, lensID, shutter, aperture)
-            VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture)""")
+            (filmID, exposureNumber, lensID, shutter, aperture, notes)
+            VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :notes)""")
         result = engine.execute(qry,
             filmID = filmID,
             exposureNumber = request.form['exposureNumber'],
             lensID = lensID,
-            shutter = request.form['shutter'],
-            aperture = request.form['aperture'])
+            shutter = shutter,
+            aperture = aperture,
+            notes = notes)
+
+        qry = text("""INSERT INTO ExposureFilters
+            (filmID, exposureNumber, filterID)
+            VALUES (:filmID, :exposureNumber, :filterID)""")
+        for filterID in request.form.getlist('filters'):
+            engine.execute(qry,
+                filmID = filmID,
+                exposureNumber = request.form['exposureNumber'],
+                filterID = filterID)
 
     # Reads
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
