@@ -48,14 +48,14 @@
               {{ exposure.shutter|abs }}"
             {% endif %}
           </td>
-          <td>{{ exposure.fStop }}</td>
-          <td>Lens</td>
+          <td>{{ exposure.aperture }}</td>
+          <td>{{ exposure.lens }}</td>
           <td>
             {% for filter in exposure.filters %}
               {{ filter.code }}
             {% endfor %}
           </td>
-          <td>Notes</td>
+          <td>{{ exposure.notes }}</td>
         </tr>
       {% endfor %}
     </table>
@@ -64,7 +64,9 @@
 <div class="panel panel-primary">
   <div class="panel-heading">Add Exposure</div>
   <div class="panel-body">
-    <form>
+    <form role="form" class="form-horizontal"
+      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      method="POST">
       <div class="form-group">
         <div class="col-sm-2">
           <label>Exposure #</label>
@@ -79,19 +81,28 @@
           <input type="text" class="form-control" placeholder="Aperture" name="aperture" aria-describedby="Aperture">
         </div>
         <div class="col-sm-2">
-          <label>Filters</label><br />
-          <input type="checkbox" name="filters" value="1"> CP<br />
-          <input type="checkbox" name="filters" value="2"> UV<br />
-          <input type="checkbox" name="filters" value="3"> Yellow 8<br />
-          <input type="checkbox" name="filters" value="4"> Red 25<br />
+          <label>Lens</label>
+          <select class="form-control" name="lens">
+              <option value='None'> </option>
+              {% for lens in lenses %}
+                <option value="{{ lens.lensID }}">{{ lens.name }}</option>
+              {% endfor %}
+          </select>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-2">
+          <label>Filters</label><br />
+          {% for filter in filters %}
+            <input type="checkbox"
+                   name="filters"
+                   value="{{ filter.filterID }}">{{ filter.name }}<br />
+          {% endfor %}
+        </div>
+        <div class="col-sm-2">
           <label>Notes</label><br />
-          <input type="text" class="form-control" placeholder="Notes" name="notes" aria-describedby="Notes">
+          <input type="text" class="form-control"
+            placeholder="Notes" name="notes" aria-describedby="Notes">
         </div>
       </div>
-    </div>
-    <div class="form-group">
       <div class="button-bar">
         <button class="btn btn-success" action="submit">Save</button>
       </div>
