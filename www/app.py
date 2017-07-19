@@ -41,6 +41,26 @@ def projects():
 
 @app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
 def project(projectID):
+    if request.method == 'POST':
+        fileDate = None
+
+        if request.form['fileDate'] != '':
+            fileDate = request.form['fileDate']
+
+        qry = text("""INSERT INTO Films
+            (projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso, development, notes)
+            VALUES (:projectID, :cameraID, :title, :fileNo, :fileDate, :filmTypeID, :iso, :development, :notes)""")
+        result = engine.execute(qry,
+            projectID = projectID,
+            cameraID = request.form['camera'],
+            title = request.form['title'],
+            fileNo = request.form['fileNo'],
+            fileDate = fileDate,
+            filmTypeID = request.form['filmType'],
+            iso = request.form['shotISO'],
+            development = request.form['development'],
+            notes = request.form['notes'])
+
     qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
     project = engine.execute(qry, projectID=projectID).fetchone()
 
