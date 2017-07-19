@@ -30,31 +30,35 @@ def index():
 
 @app.route('/projects',  methods = ['POST', 'GET'])
 def projects():
+    if request.method == 'POST':
+        qry = text("""INSERT INTO Projects
+            (name) VALUES (:name)""")
+        result = engine.execute(qry,
+            name = request.form['name'])
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects""")
     projects = engine.execute(qry).fetchall()
     return render_template('projects.html', projects=projects)
 
 @app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
 def project(projectID):
-    if request.method == 'GET':
-        qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
-        project = engine.execute(qry, projectID=projectID).fetchone()
+    qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
+    project = engine.execute(qry, projectID=projectID).fetchone()
 
-        qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
-        films = engine.execute(qry, projectID=projectID).fetchall()
+    qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
+    films = engine.execute(qry, projectID=projectID).fetchall()
 
-        qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-            JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-        filmTypes = engine.execute(qry).fetchall()
+    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    filmTypes = engine.execute(qry).fetchall()
 
-        qry = text("""SELECT cameraID, name FROM Cameras""")
-        cameras = engine.execute(qry).fetchall()
+    qry = text("""SELECT cameraID, name FROM Cameras""")
+    cameras = engine.execute(qry).fetchall()
 
-        return render_template('project.html',
-            project = project,
-            films = films,
-            filmTypes = filmTypes,
-            cameras = cameras)
+    return render_template('project.html',
+        project = project,
+        films = films,
+        filmTypes = filmTypes,
+        cameras = cameras)
 
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):
