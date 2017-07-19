@@ -49,7 +49,7 @@ def project(projectID):
 
         qry = text("""INSERT INTO Films
             (projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso, development, notes)
-            VALUES (:projectID, :cameraID, :title, :fileNo, :fileDate, :filmTypeID, :iso, :development, :notes)""")
+            VALUES (:projectID, :cameraID, :title, UPPER(:fileNo), :fileDate, :filmTypeID, :iso, :development, :notes)""")
         result = engine.execute(qry,
             projectID = projectID,
             cameraID = request.form['camera'],
