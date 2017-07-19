@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="page-header"><h1>{{ film.title }} <small>{{ film.project }}</small></h1></div>
+  <div class="page-header">
+    <h1>
+      {{ film.title }} <small>{{ film.project }}</small>
+      <a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}?print=true">
+        <button type="button" class="btn btn-default btn-sm">Print</button>
+      </a>
+    </h1>
+  </div>
 
   <div class="panel panel-default">
     <div class="panel-heading">Rolls/Films</div>
@@ -112,7 +119,8 @@
         </div>
         <div class="col-sm-2">
           <label>Notes</label><br />
-          <input type="text" class="form-control" placeholder="Overexposed" name="notes" aria-describedby="Notes">
+          <input type="text" class="form-control"
+            placeholder="Notes" name="notes" aria-describedby="Notes">
         </div>
       </div>
       <div class="button-bar">
@@ -128,4 +136,5 @@
   <div class="panel-heading">Notes</div>
   {{ film.notes }}
 </div>
+
 {% endblock %}

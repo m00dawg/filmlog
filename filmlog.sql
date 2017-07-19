@@ -1,7 +1,3 @@
-DROP DATABASE FilmLogDev;
-CREATE DATABASE FilmLogDev;
-USE FilmLogDev;
-
 CREATE TABLE Cameras (
     cameraID TINYINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     filmSize ENUM('35mm', '120', '220', '4x5', '8x10') NOT NULL,
@@ -82,7 +78,7 @@ CREATE TABLE Exposures(
 ) ENGINE='InnoDB';
 
 CREATE TABLE Filters(
-    filterID SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
+    filterID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     code VARCHAR(8) NOT NULL
 ) ENGINE='InnoDB';
