@@ -29,4 +29,5 @@ body{
 .table-condensed > tfoot > tr > td {
   padding: 0px;
   margin: 0px;
+  padding-left: 4px;
 }

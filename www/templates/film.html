@@ -37,6 +37,7 @@
         <th>Shutter</th>
         <th>Aperture</th>
         <th>Lens</th>
+        <th>Flash</th>
         <th>Filters</th>
         <th>Notes</th>
       </tr>
@@ -64,6 +65,13 @@
           <td>
             {% if exposure.lens %}
               {{ exposure.lens }}
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.flash == 'No' %}
+              -
+            {% else %}
+              {{ exposure.flash }}
             {% endif %}
           </td>
           <td>
@@ -96,7 +104,7 @@
           <label>Shutter</label>
           <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter">
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-1">
           <label>Aperture</label>
           <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture">
         </div>
@@ -108,6 +116,10 @@
                 <option value="{{ lens.lensID }}">{{ lens.name }}</option>
               {% endfor %}
           </select>
+        </div>
+        <div class="col-sm-1">
+          <label>Flash</label>
+          <input type="checkbox" class="form-control" name="flash" value="Yes">
         </div>
         <div class="col-sm-2">
           <label>Filters</label><br />
@@ -134,7 +146,9 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">Notes</div>
-  {{ film.notes }}
+  <div class="filmNotes">
+    {{ film.notes }}
+  </div>
 </div>
 
 {% endblock %}

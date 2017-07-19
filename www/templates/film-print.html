@@ -34,6 +34,7 @@
         <th>Shutter</th>
         <th>Aperture</th>
         <th>Lens</th>
+        <th>Flash</th>
         <th>Filters</th>
         <th>Notes</th>
       </tr>
@@ -64,6 +65,13 @@
             {% endif %}
           </td>
           <td>
+            {% if exposure.flash == 'No' %}
+              -
+            {% else %}
+              {{ exposure.flash }}
+            {% endif %}
+          </td>
+          <td>
             {% for filter in exposure.filters %}
               {{ filter.code }}
             {% endfor %}
@@ -80,7 +88,9 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">Notes</div>
-  {{ film.notes }}
+  <div class="filmNotes">
+    {{ film.notes }}
+  </div>
 </div>
 
 {% endblock %}
