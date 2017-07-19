@@ -183,13 +183,24 @@ def film(projectID, filmID):
 
 @app.route('/filmtypes',  methods = ['GET'])
 def filmtypes():
-    if request.method == 'GET':
-        qry = text("""SELECT filmTypeID, brand, name, iso, kind
-                      FROM FilmTypes
-                      JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-        filmtypes = engine.execute(qry).fetchall()
-        return render_template('filmtypes.html', filmtypes=filmtypes)
+    qry = text("""SELECT filmTypeID, brand, name, iso, kind
+                  FROM FilmTypes
+                  JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    filmtypes = engine.execute(qry).fetchall()
+    return render_template('filmtypes.html', filmtypes=filmtypes)
 
+@app.route('/cameras',  methods = ['GET', 'POST'])
+def cameras():
+    if request.method == 'POST':
+        qry = text("""INSERT INTO Cameras
+            (name, filmSize) VALUES (:name, :filmSize)""")
+        result = engine.execute(qry,
+            name = request.form['name'],
+            filmSize = request.form['filmSize'])
+
+    qry = text("""SELECT cameraID, name, filmSize FROM Cameras""")
+    cameras = engine.execute(qry).fetchall()
+    return render_template('cameras.html', cameras=cameras)
 
 # Functions
 def result_to_dict(result):

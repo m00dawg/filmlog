@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-header">Cameras</h1>
+  <table class="table table-bordered" id="projects">
+    <tr>
+        <th>Name</th>
+        <th>Film Size</th>
+    </tr>
+    {% for camera in cameras %}
+        <tr>
+            <td>{{ camera.name }}</td>
+            <td>{{ camera.filmSize }}</td>
+        </tr>
+    {% else %}
+      <tr><td colspan="2">No Cameras Found</td></tr>
+    {% endfor %}
+  </table>
+
+  <div class="panel panel-primary">
+    <div class="panel-heading">Add Camera</div>
+    <div class="panel-body">
+      <form role="form" class="form-horizontal"
+        action="/cameras"
+        method="POST">
+        <div class="form-group">
+          <div class="col-sm-6">
+            <label>Name</label>
+            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Name">
+          </div>
+          <div class="col-sm-6">
+            <label>Film Size</label>
+            <select class="form-control" name="filmSize">
+                <option value='35mm'>35mm</option>
+                <option value='120'>120</option>
+                <option value='4x5'>4x5</option>
+                <option value='8x10'>8x10</option>
+            </select>
+          </div>
+        </div>
+        <div class="button-bar">
+          <button class="btn btn-success" action="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
