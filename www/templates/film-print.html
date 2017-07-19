@@ -1,0 +1,86 @@
+{% extends "print.html" %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>
+      {{ film.title }} <small>{{ film.project }}</small>
+    </h1>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Rolls/Films</div>
+    <table class="table table-condensed">
+      <tr>
+        <th>Film</th><td>{{ film.brand }} {{ film.filmName }}</td>
+        <th>Size</th><td> {{ film.filmSize }}</td>
+        <th>ISO</th><td>{{ film.filmISO }}, shot at {{ film.shotISO }}</td>
+      </tr>
+      <tr>
+        <th>Camera</th><td>{{ film.camera }}</td>
+        <th>File Date</th><td>{{ film.fileDate }}</td>
+        <th>File No</th><td>{{ film.fileNo }}</td>
+      </tr>
+      <tr>
+        <th>Development</th><td colspan="5">{{ film.development }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Exposures</strong></div>
+    <table class="table table-striped table-bordered table-condensed" id="exposures">
+      <tr>
+        <th>Number</th>
+        <th>Shutter</th>
+        <th>Aperture</th>
+        <th>Lens</th>
+        <th>Filters</th>
+        <th>Notes</th>
+      </tr>
+      {% for exposure in exposures %}
+        <tr>
+          <td class="print">{{ exposure.exposureNumber }}</td>
+          {# If shutter is larger than 0, consider it to be faster than 1 second
+             (e.g. 1/125). If it's zero, consider it a Bulb where the exact
+             speed is not known. If it's negative, the exposure is in seconds.
+          #}
+          <td>
+            {% if exposure.shutter > 0 %}
+              1/{{ exposure.shutter }}
+            {% elif exposure.shutter == 0 %}
+              B
+            {% elif exposure.shutter %}
+              {{ exposure.shutter|abs }}"
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.aperture %}
+              {{ exposure.aperture }}
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.lens %}
+              {{ exposure.lens }}
+            {% endif %}
+          </td>
+          <td>
+            {% for filter in exposure.filters %}
+              {{ filter.code }}
+            {% endfor %}
+          </td>
+          <td>
+            {% if exposure.notes %}
+              {{ exposure.notes }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Notes</div>
+  {{ film.notes }}
+</div>
+
+{% endblock %}

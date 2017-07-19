@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Film Log</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="all">
+<link href="/static/print.css" rel="stylesheet" media="all">
+</head>
+
+{% block body %}
+<body>
+  {% block container %}
+  <div class="container-fluid print">
+    {% block content %}
+    {% endblock %}
+  </div>
+  {% endblock %}
+</body>
+{% endblock %}
