@@ -28,15 +28,21 @@
         action="/projects/{{ project.projectID }}"
         method="POST">
         <div class="form-group">
-          <div class="col-sm-3">
-            <label>Name</label>
-            <input type="text" class="form-control" placeholder="My Film Roll" name="name" aria-describedby="Number">
+          <div class="col-sm-4">
+            <label>Title</label>
+            <input type="text" class="form-control" placeholder="My Film Roll" name="title" aria-describedby="Title">
           </div>
-          <div class="col-sm-3">
+          <div class="col-sm-4">
             <label>File No.</label>
             <input type="text" class="form-control" placeholder="ABC123" name="fileNo" aria-describedby="FileNo">
           </div>
-          <div class="col-sm-3">
+          <div class="col-sm-4">
+            <label>File Date</label>
+            <input type="text" class="form-control" placeholder="Blank Means Now" name="fileDate" aria-describedby="FileDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-4">
             <label>Film</label>
             <select class="form-control" name="filmType">
                 <option value=''>Select Film </option>
@@ -45,7 +51,11 @@
                 {% endfor %}
             </select>
           </div>
-          <div class="col-sm-3">
+          <div class="col-sm-4">
+            <label>Shot ISO</label>
+            <input type="text" class="form-control" placeholder="100" name="shotISO" aria-describedby="ShotISO">
+          </div>
+          <div class="col-sm-4">
             <label>Camera</label>
             <select class="form-control" name="camera">
                 <option value=''>Select Camera</option>
@@ -53,6 +63,18 @@
                   <option value="{{ camera.cameraID }}">{{ camera.name }}</option>
                 {% endfor %}
             </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-12">
+            <label>Development</label>
+            <input type="text" class="form-control" placeholder="Explanation on development process" name="development" aria-describedby="Development">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-12">
+            <label>Notes</label><br />
+            <textarea name="notes" rows="4" class="form-control"></textarea>
           </div>
         </div>
         <div class="button-bar">

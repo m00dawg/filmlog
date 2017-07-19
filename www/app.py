@@ -30,31 +30,58 @@ def index():
 
 @app.route('/projects',  methods = ['POST', 'GET'])
 def projects():
+    if request.method == 'POST':
+        qry = text("""INSERT INTO Projects (name) VALUES (:name)""")
+        result = engine.execute(qry,
+            name = request.form['name'])
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects""")
     projects = engine.execute(qry).fetchall()
     return render_template('projects.html', projects=projects)
 
 @app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
 def project(projectID):
-    if request.method == 'GET':
-        qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
-        project = engine.execute(qry, projectID=projectID).fetchone()
+    if request.method == 'POST':
+        development = None
+        notes = None
+        fileDate = None
+        if request.form['development'] != '':
+            development = request.form['development']
+        if request.form['notes'] != '':
+            notes = request.form['notes']
+        if request.form['fileDate'] != '':
+            fileDate = request.form['fileDate']
+        qry = text("""INSERT INTO Films
+            (projectID, cameraID, filmTypeID, iso, fileNo, title, development, notes)
+            VALUES (:projectID, :cameraID, :filmTypeID, :iso, :fileNo, :title, :development, :notes)""")
+        result = engine.execute(qry,
+            projectID = projectID,
+            cameraID = request.form['camera'],
+            filmTypeID = request.form['filmType'],
+            iso = request.form['shotISO'],
+            fileNo = request.form['fileNo'],
+            title = request.form['title'],
+            development = development,
+            notes = notes)
 
-        qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
-        films = engine.execute(qry, projectID=projectID).fetchall()
 
-        qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-            JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-        filmTypes = engine.execute(qry).fetchall()
+    qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
+    project = engine.execute(qry, projectID=projectID).fetchone()
 
-        qry = text("""SELECT cameraID, name FROM Cameras""")
-        cameras = engine.execute(qry).fetchall()
+    qry = text("""SELECT filmID, title, fileNo, fileDate FROM Films WHERE projectID = :projectID""")
+    films = engine.execute(qry, projectID=projectID).fetchall()
 
-        return render_template('project.html',
-            project = project,
-            films = films,
-            filmTypes = filmTypes,
-            cameras = cameras)
+    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    filmTypes = engine.execute(qry).fetchall()
+
+    qry = text("""SELECT cameraID, name FROM Cameras""")
+    cameras = engine.execute(qry).fetchall()
+
+    return render_template('project.html',
+        project = project,
+        films = films,
+        filmTypes = filmTypes,
+        cameras = cameras)
 
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):

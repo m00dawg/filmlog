@@ -20,4 +20,23 @@
     {% endfor %}
   </table>
 
+  <div class="panel panel-primary">
+    <div class="panel-heading">Add Project</div>
+    <div class="panel-body">
+      <form role="form" class="form-horizontal"
+        action="/projects"
+        method="POST">
+        <div class="form-group">
+          <div class="col-sm-6">
+            <label>Name</label>
+            <input type="text" class="form-control" placeholder="My Project" name="name" aria-describedby="Name">
+          </div>
+        </div>
+        <div class="button-bar">
+          <button class="btn btn-success" action="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 {% endblock %}
