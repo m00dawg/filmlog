@@ -92,7 +92,7 @@ def film(projectID, filmID):
         if re.search(r'^1\/', request.form['shutter']):
             shutter = re.sub(r'^1\/', r'', request.form['shutter'])
         elif re.search(r'"', request.form['shutter']):
-            shutter = re.sub(r'"', r'', shutter)
+            shutter = re.sub(r'"', r'', request.form['shutter'])
         elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
             shutter = 0
         elif request.form['shutter'] != '':
