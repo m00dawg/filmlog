@@ -104,7 +104,7 @@ def film(projectID, filmID):
         if request.form['lens'] != '':
             lensID = request.form['lens']
 
-        if request.form.get['flash'] != None:
+        if request.form.get('flash') != None:
             flash = 'Yes'
 
         if request.form['notes'] != '':
