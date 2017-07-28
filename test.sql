@@ -42,11 +42,11 @@ INSERT INTO Filters vALUES (2, 'Yellow 8', 'YEL8', 2);
 INSERT INTO Filters VALUES (3, 'Red 25', 'RED25', 8);
 INSERT INTO Filters VALUES (4, 'UV / Haze', 'UV', 1);
 
-INSERT INTO Exposures VALUES (1, 1, 1, '125', 8, null);
+INSERT INTO Exposures VALUES (1, 1, 1, '125', 8, 'No', null);
 INSERT INTO ExposureFilters VALUES (1, 1, 1);
 INSERT INTO ExposureFilters VALUES (1, 1, 2);
-INSERT INTO Exposures VALUES (1, 2, 1, '250', 16, null);
+INSERT INTO Exposures VALUES (1, 2, 1, '250', 16, 'No', null);
 INSERT INTO ExposureFilters VALUES (1, 1, 3);
-INSERT INTO Exposures VALUES (1, 3, 1, '1000', 5.8, null);
-INSERT INTO Exposures VALUES (1, 4, 1, '0', 5.8, null);
-INSERT INTO Exposures VALUES (1, 5, 1, '-1', 5.8, null);
+INSERT INTO Exposures VALUES (1, 3, 1, '1000', 5.8, 'Yes', null);
+INSERT INTO Exposures VALUES (1, 4, 1, '0', 5.8, 'Yes', null);
+INSERT INTO Exposures VALUES (1, 5, 1, '-1', 5.8, 'No',  null);

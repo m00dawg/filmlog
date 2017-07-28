@@ -7,6 +7,22 @@ body{
   margin-left: 20px;
 }
 
+@media print {
+
+  #task-summary .success td {
+    background-color: #DFF0D7 !important;
+
+    /* add this line for better support in chrome */
+    -webkit-print-color-adjust:exact;
+  }
+}
+
+
+/* Chrome hack to print background shades for the tables */
+body, span, div, table, tr, tbody, tfoot, td, hr {
+    -webkit-print-color-adjust: exact;
+}
+
 .print{
   font-size: 11px;
 }
@@ -30,4 +46,8 @@ body{
   padding: 0px;
   margin: 0px;
   padding-left: 4px;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9 !important;
 }
