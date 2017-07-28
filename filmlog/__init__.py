@@ -236,3 +236,7 @@ def _jinja2_filter_date(date, fmt=None):
         return 'Unknown'
     format='%Y-%m-%d'
     return date.strftime(format)
+
+
+if __name__ == "__main__":
+    application.run(host='0.0.0.0')
