@@ -15,7 +15,7 @@
           <tr>
               <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
               <td>{{ film.fileNo }}</td>
-              <td>{{ film.fileDate }}</td>
+              <td>{{ film.fileDate|to_date }}</td>
           </tr>
       {% endfor %}
     </table>
@@ -63,6 +63,20 @@
                   <option value="{{ camera.cameraID }}">{{ camera.name }}</option>
                 {% endfor %}
             </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-4">
+              <label>Loaded</label>
+              <input type="text" class="form-control" placeholder="YYYY-MM-DD" name="loaded" aria-describedby="Loaded On">
+          </div>
+          <div class="col-sm-4">
+              <label>Unloaded</label>
+              <input type="text" class="form-control" placeholder="YYYY-MM-DD" name="unloaded" aria-describedby="Unloaded On">
+          </div>
+          <div class="col-sm-4">
+              <label>Developed</label>
+              <input type="text" class="form-control" placeholder="YYYY-MM-DD" name="developed" aria-describedby="Developed On">
           </div>
         </div>
         <div class="form-group">

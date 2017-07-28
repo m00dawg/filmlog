@@ -11,7 +11,7 @@
   </div>
 
   <div class="panel panel-default">
-    <div class="panel-heading">Rolls/Films</div>
+    <div class="panel-heading"><strong>Overview</strong></div>
     <table class="table">
       <tr>
         <th>Film</th><td>{{ film.brand }} {{ film.filmName }}</td>
@@ -22,6 +22,11 @@
         <th>Camera</th><td>{{ film.camera }}</td>
         <th>File Date</th><td>{{ film.fileDate }}</td>
         <th>File No</th><td>{{ film.fileNo }}</td>
+      </tr>
+      <tr>
+        <th>Loaded</th><td>{{ film.loaded|to_date }}</td>
+        <th>Unloaded</th><td>{{ film.unloaded|to_date }}</td>
+        <th>Developed</th><td>{{ film.developed|to_date }}</td>
       </tr>
       <tr>
         <th>Development</th><td colspan="5">{{ film.development }}</td>

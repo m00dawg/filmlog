@@ -12,6 +12,7 @@ from sqlalchemy.dialects.mysql import INTEGER, SMALLINT
 from sqlalchemy.sql import select, text, func
 from datetime import date
 
+
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.ini'))
 
@@ -43,13 +44,25 @@ def projects():
 def project(projectID):
     if request.method == 'POST':
         fileDate = None
+        loaded = None
+        unloaded = None
+        developed = None
 
         if request.form['fileDate'] != '':
             fileDate = request.form['fileDate']
+        if request.form['loaded'] != '':
+            loaded = request.form['loaded']
+        if request.form['unloaded'] != '':
+            unloaded = request.form['unloaded']
+        if request.form['developed'] != '':
+            developed = request.form['developed']
 
         qry = text("""INSERT INTO Films
-            (projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso, development, notes)
-            VALUES (:projectID, :cameraID, :title, UPPER(:fileNo), :fileDate, :filmTypeID, :iso, :development, :notes)""")
+            (projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso,
+             loaded, unloaded, developed, development, notes)
+            VALUES (:projectID, :cameraID, :title, UPPER(:fileNo),
+                    :fileDate, :filmTypeID, :iso, :loaded, :unloaded,
+                    :developed, :development, :notes)""")
         result = engine.execute(qry,
             projectID = projectID,
             cameraID = request.form['camera'],
@@ -58,6 +71,9 @@ def project(projectID):
             fileDate = fileDate,
             filmTypeID = request.form['filmType'],
             iso = request.form['shotISO'],
+            loaded = loaded,
+            unloaded = unloaded,
+            developed = developed,
             development = request.form['development'],
             notes = request.form['notes'])
 
@@ -135,7 +151,8 @@ def film(projectID, filmID):
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
         FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
         Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
-        development, Cameras.name AS camera, Cameras.cameraID AS cameraID, notes
+        loaded, unloaded, developed, development, Cameras.name AS camera,
+        Cameras.cameraID AS cameraID, notes
         FROM Films
         JOIN Projects ON Projects.projectID = Films.projectID
         JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
@@ -212,3 +229,10 @@ def cameras():
 # Functions
 def result_to_dict(result):
     return [dict(row) for row in result]
+
+@app.template_filter('to_date')
+def _jinja2_filter_date(date, fmt=None):
+    if date is None:
+        return 'Unknown'
+    format='%Y-%m-%d'
+    return date.strftime(format)
