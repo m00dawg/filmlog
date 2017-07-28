@@ -181,6 +181,13 @@ def film(projectID, filmID):
     return render_template(template,
         film=film, filters=filters, lenses=lenses, exposures=exposures)
 
+@app.route('/filters',  methods = ['GET'])
+def filters():
+    qry = text("""SELECT filterID, name, code, factor
+                  FROM Filters""")
+    filters = engine.execute(qry).fetchall()
+    return render_template('filters.html', filters=filters)
+
 @app.route('/filmtypes',  methods = ['GET'])
 def filmtypes():
     qry = text("""SELECT filmTypeID, brand, name, iso, kind

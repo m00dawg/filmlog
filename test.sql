@@ -37,9 +37,10 @@ INSERT INTO CameraLenses VALUES (2, 2);
 INSERT INTO Films (projectID, cameraID, filmTypeID, iso, fileNo, title, development, notes)
 VALUES (1, 1, 1, 100, 'test1', 'Test 1', 'ID-11', 'Some sample notes going here.');
 
-INSERT INTO Filters VALUES (1, 'Circular Polarizer', 'CP');
-INSERT INTO Filters vALUES (2, 'Yellow 8', 'YEL8');
-INSERT INTO Filters VALUES (3, 'Red 25', 'RED25');
+INSERT INTO Filters VALUES (1, 'Circular Polarizer', 'CP', 3);
+INSERT INTO Filters vALUES (2, 'Yellow 8', 'YEL8', 2);
+INSERT INTO Filters VALUES (3, 'Red 25', 'RED25', 8);
+INSERT INTO Filters VALUES (4, 'UV / Haze', 'UV', 1);
 
 INSERT INTO Exposures VALUES (1, 1, 1, '125', 8, null);
 INSERT INTO ExposureFilters VALUES (1, 1, 1);

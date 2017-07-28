@@ -81,7 +81,8 @@ CREATE TABLE Exposures(
 CREATE TABLE Filters(
     filterID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
-    code VARCHAR(8) NOT NULL
+    code VARCHAR(8) NOT NULL,
+    factor DECIMAL(4, 1) NOT NULL
 ) ENGINE='InnoDB';
 
 CREATE TABLE ExposureFilters(
