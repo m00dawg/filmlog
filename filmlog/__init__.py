@@ -239,4 +239,4 @@ def _jinja2_filter_date(date, fmt=None):
 
 
 if __name__ == "__main__":
-    application.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
