@@ -1,9 +1,10 @@
-from filmlog import app
 from flask import request, render_template, redirect, url_for
 from sqlalchemy.sql import select, text, func
 
-from filmlog import engine
-
+from filmlog import app
+#import filmlog.database
+from filmlog import database
+engine = database.engine
 
 @app.route('/',  methods = ['POST', 'GET'])
 def index():
