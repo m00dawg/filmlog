@@ -1,2 +1,3 @@
- - Regex for multi-second shutter (e.g. 8") does not work
  - EV option?
+ - Change filters to use stops instead of filter factor
+ - Differnce printable views depending on film type
