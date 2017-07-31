@@ -31,6 +31,7 @@
     </table>
   </div>
 
+  {% if exposures %}
   <div class="panel panel-default">
     <div class="panel-heading"><strong>Exposures</strong></div>
     <table class="table table-striped table-bordered table-condensed" id="exposures">
@@ -90,12 +91,15 @@
       {% endfor %}
     </table>
 </div>
+{% endif %}
 
+{% if film.notes %}
 <div class="panel panel-default">
   <div class="panel-heading">Notes</div>
   <div class="filmNotes">
     {{ film.notes }}
   </div>
 </div>
+{% endif %}
 
 {% endblock %}
