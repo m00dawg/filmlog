@@ -4,6 +4,8 @@ from sqlalchemy.sql import select, text, func
 from filmlog import app
 #import filmlog.database
 from filmlog import database
+from filmlog import functions
+
 engine = database.engine
 
 @app.route('/',  methods = ['POST', 'GET'])
@@ -163,14 +165,14 @@ def film(projectID, filmID):
         LEFT JOIN Lenses ON Lenses.lensID = Exposures.lensID
         WHERE filmID = :filmID""")
     exposuresResult = engine.execute(qry, filmID=filmID).fetchall()
-    exposures = result_to_dict(exposuresResult)
+    exposures = functions.result_to_dict(exposuresResult)
     for exposure in exposures:
         qry = text("""SELECT code FROM ExposureFilters
             JOIN Filters ON Filters.filterID = ExposureFilters.filterID
             WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
         filtersResult = engine.execute(qry, filmID=filmID,
             exposureNumber = exposure['exposureNumber']).fetchall()
-        exposureFilters = result_to_dict(filtersResult)
+        exposureFilters = functions.result_to_dict(filtersResult)
         exposure['filters'] = exposureFilters
 
     if request.args.get('print'):

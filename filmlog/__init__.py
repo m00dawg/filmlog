@@ -12,10 +12,6 @@ app.config['APPLICATION_ROOT'] = '/v1'
 # Views
 from filmlog import views
 
-# Functions
-def result_to_dict(result):
-    return [dict(row) for row in result]
-
 @app.template_filter('to_date')
 def _jinja2_filter_date(date, fmt=None):
     if date is None:
