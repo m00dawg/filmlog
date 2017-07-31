@@ -105,7 +105,11 @@
       <div class="form-group">
         <div class="col-sm-2">
           <label>Exposure #</label>
-          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number">
+          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
+            {% if last_exposure %}
+              value={{ last_exposure + 1 }}
+            {% endif %}
+          >
         </div>
         <div class="col-sm-2">
           <label>Shutter</label>

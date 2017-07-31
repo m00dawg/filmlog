@@ -1,10 +1,12 @@
 from flask import request, render_template, redirect, url_for
 from sqlalchemy.sql import select, text, func
+import os, re
 
 from filmlog import app
 #import filmlog.database
 from filmlog import database
 from filmlog import functions
+
 
 engine = database.engine
 
@@ -175,12 +177,21 @@ def film(projectID, filmID):
         exposureFilters = functions.result_to_dict(filtersResult)
         exposure['filters'] = exposureFilters
 
+    qry = text("""SELECT MAX(exposureNUmber) AS max FROM Exposures
+        WHERE filmID = :filmID""")
+    lastExposureResult = engine.execute(qry, filmID=filmID).first()
+    if not lastExposureResult[0]:
+        last_exposure = None
+    else:
+        last_exposure = lastExposureResult[0]
+
     if request.args.get('print'):
         template = 'film-print.html'
     else:
         template = 'film.html'
     return render_template(template,
-        film=film, filters=filters, lenses=lenses, exposures=exposures)
+        film=film, filters=filters, lenses=lenses, exposures=exposures,
+        last_exposure=last_exposure)
 
 @app.route('/filters',  methods = ['GET'])
 def filters():
