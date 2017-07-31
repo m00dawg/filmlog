@@ -186,9 +186,15 @@ def film(projectID, filmID):
         last_exposure = lastExposureResult[0]
 
     if request.args.get('print'):
-        template = 'film-print.html'
+        if film.filmSize == '35mm':
+            template = 'film/35mm-print.html'
+        if film.filmSize == '120':
+            template = 'film/120-print.html'
     else:
-        template = 'film.html'
+        if film.filmSize == '35mm':
+            template = 'film/35mm.html'
+        if film.filmSize == '120':
+            template = 'film/120.html'
     return render_template(template,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
         last_exposure=last_exposure)

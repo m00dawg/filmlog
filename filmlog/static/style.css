@@ -3,3 +3,7 @@
   margin-left: 4px;
   margin-right: 4px;
 }
+
+.table-striped-by-two > tbody > tr:nth-child(4n+2), tr:nth-child(4n+1) {
+  background-color: #f9f9f9;
+}
