@@ -55,9 +55,13 @@
             {% endfor %}
           </td>
         </tr>
-        {% if exposure.notes %}
-          <tr><td colspan="6">{{ exposure.notes }}</td></tr>
-        {% endif %}
+        <tr>
+          {% if exposure.notes %}
+            <td colspan="6">{{ exposure.notes }}</td>
+          {% else %}
+            <td colspan="6">&nbsp;</td>
+          {% endif %}
+        </tr>
       {% endfor %}
     </table>
 </div>
