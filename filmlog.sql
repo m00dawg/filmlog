@@ -94,7 +94,7 @@ CREATE TABLE ExposureFilters(
     filterID SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (filmID, exposureNumber, filterID),
     KEY filterID_idx (filterID),
-    CONSTRAINT ExposureFilters_filmID_fk FOREIGN KEY (filmID, exposureNumber) REFERENCES Exposures (filmID, exposureNumber) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT ExposureFilters_filmID_fk FOREIGN KEY (filmID, exposureNumber) REFERENCES Exposures (filmID, exposureNumber) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT ExposureFilters_filterID_fk FOREIGN KEY (filterID) REFERENCES Filters (filterID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 

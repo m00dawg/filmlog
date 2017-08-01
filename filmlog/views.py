@@ -85,53 +85,64 @@ def project(projectID):
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):
     if request.method == 'POST':
-        lensID = None
-        shutter = None
-        aperture = None
-        flash = 'No'
-        notes = None
+        if request.form['button'] == 'delete':
+            qry = text("""DELETE FROM Exposures
+                WHERE filmID = :filmID
+                AND exposureNumber = :exposureNumber""")
+            result = engine.execute(qry,
+                filmID = filmID,
+                exposureNumber = int(request.form['exposureNumber']))
 
-        if re.search(r'^1\/', request.form['shutter']):
-            shutter = re.sub(r'^1\/', r'', request.form['shutter'])
-        elif re.search(r'"', request.form['shutter']):
-            shutter = re.sub(r'"', r'', request.form['shutter'])
-        elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
-            shutter = 0
-        elif request.form['shutter'] != '':
-            shutter = request.form['shutter']
+        if request.form['button'] == 'edit':
+            button = 'edit'
+        if request.form['button'] == 'add':
+            lensID = None
+            shutter = None
+            aperture = None
+            flash = 'No'
+            notes = None
 
-        if request.form['aperture'] != '':
-            aperture = request.form['aperture']
+            if re.search(r'^1\/', request.form['shutter']):
+                shutter = re.sub(r'^1\/', r'', request.form['shutter'])
+            elif re.search(r'"', request.form['shutter']):
+                shutter = re.sub(r'"', r'', request.form['shutter'])
+            elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
+                shutter = 0
+            elif request.form['shutter'] != '':
+                shutter = request.form['shutter']
 
-        if request.form['lens'] != '':
-            lensID = request.form['lens']
+            if request.form['aperture'] != '':
+                aperture = request.form['aperture']
 
-        if request.form.get('flash') != None:
-            flash = 'Yes'
+            if request.form['lens'] != '':
+                lensID = request.form['lens']
 
-        if request.form['notes'] != '':
-            notes = request.form['notes']
+            if request.form.get('flash') != None:
+                flash = 'Yes'
 
-        qry = text("""INSERT INTO Exposures
-            (filmID, exposureNumber, lensID, shutter, aperture, flash, notes)
-            VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :flash, :notes)""")
-        result = engine.execute(qry,
-            filmID = filmID,
-            exposureNumber = request.form['exposureNumber'],
-            lensID = lensID,
-            shutter = shutter,
-            aperture = aperture,
-            flash = flash,
-            notes = notes)
+            if request.form['notes'] != '':
+                notes = request.form['notes']
 
-        qry = text("""INSERT INTO ExposureFilters
-            (filmID, exposureNumber, filterID)
-            VALUES (:filmID, :exposureNumber, :filterID)""")
-        for filterID in request.form.getlist('filters'):
-            engine.execute(qry,
+            qry = text("""INSERT INTO Exposures
+                (filmID, exposureNumber, lensID, shutter, aperture, flash, notes)
+                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :flash, :notes)""")
+            result = engine.execute(qry,
                 filmID = filmID,
                 exposureNumber = request.form['exposureNumber'],
-                filterID = filterID)
+                lensID = lensID,
+                shutter = shutter,
+                aperture = aperture,
+                flash = flash,
+                notes = notes)
+
+            qry = text("""INSERT INTO ExposureFilters
+                (filmID, exposureNumber, filterID)
+                VALUES (:filmID, :exposureNumber, :filterID)""")
+            for filterID in request.form.getlist('filters'):
+                engine.execute(qry,
+                    filmID = filmID,
+                    exposureNumber = request.form['exposureNumber'],
+                    filterID = filterID)
 
     # Reads
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
