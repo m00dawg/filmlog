@@ -55,7 +55,7 @@ CREATE TABLE Films (
     developed TIMESTAMP NULL,
     fileNo varchar(32) NOT NULL,
     title varchar(64) NOT NULL,
-    development varchar(128) NOT NULL,
+    development varchar(255) DEFAULT NULL,
     notes TEXT DEFAULT NULL,
     UNIQUE KEY (projectID, fileNo),
     UNIQUE KEY (projectID, title),
