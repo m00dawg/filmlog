@@ -15,6 +15,7 @@
         <th>Lens</th>
         <th>Flash</th>
         <th>Filters</th>
+        <th></th>
       </tr>
       {% for exposure in exposures %}
         <tr>
@@ -53,6 +54,15 @@
             {% for filter in exposure.filters %}
               {{ filter.code }}
             {% endfor %}
+          </td>
+          <td class="text-right">
+            <form role="form" class="form-horizontal"
+              action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+              method="POST">
+              <button name="button" value="edit" action="submit" class="btn btn-xs btn-primary">Edit</button>
+              <button name="button" value="delete" action="submit" class="btn btn-xs btn-danger">Delete</button>
+              <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
+            </form>
           </td>
         </tr>
         <tr>
