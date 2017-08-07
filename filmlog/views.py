@@ -94,7 +94,9 @@ def film(projectID, filmID):
                 exposureNumber = int(request.form['exposureNumber']))
 
         if request.form['button'] == 'edit':
-            button = 'edit'
+            return redirect('/projects/' + str(projectID)
+                + '/films/' + str(filmID)
+                + '/exposure/' + request.form['exposureNumber'])
         if request.form['button'] == 'add':
             lensID = None
             shutter = None
@@ -188,7 +190,7 @@ def film(projectID, filmID):
         exposureFilters = functions.result_to_dict(filtersResult)
         exposure['filters'] = exposureFilters
 
-    qry = text("""SELECT MAX(exposureNUmber) AS max FROM Exposures
+    qry = text("""SELECT MAX(exposureNumber) AS max FROM Exposures
         WHERE filmID = :filmID""")
     lastExposureResult = engine.execute(qry, filmID=filmID).first()
     if not lastExposureResult[0]:
@@ -211,6 +213,40 @@ def film(projectID, filmID):
     return render_template(template,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
         last_exposure=last_exposure, print_view=print_view)
+
+@app.route('/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
+def expsoure(projectID, filmID, exposureNumber):
+    qry = text("""SELECT filterID, name FROM Filters""")
+    filters = engine.execute(qry).fetchall()
+
+    qry = text("""SELECT cameraID FROM Films
+        WHERE projectID = :projectID AND filmID = :filmID""")
+    cameraID = engine.execute(qry, projectID=projectID, filmID=filmID).fetchone()
+
+    qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
+        JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
+        WHERE CameraLenses.cameraID = :cameraID""")
+    lenses = engine.execute(qry, cameraID=cameraID).fetchall()
+
+    qry = text("""SELECT shutter, aperture,
+        Lenses.name AS lens, flash, notes
+        FROM Exposures
+        LEFT JOIN Lenses ON Lenses.lensID = Exposures.lensID
+        WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
+    exposure = engine.execute(qry,
+        filmID=filmID, exposureNumber=exposureNumber).fetchone()
+    qry = text("""SELECT code FROM ExposureFilters
+        JOIN Filters ON Filters.filterID = ExposureFilters.filterID
+        WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
+    filtersResult = engine.execute(qry, filmID=filmID,
+        exposureNumber = exposureNumber).fetchall()
+    exposureFilters = functions.result_to_dict(filtersResult)
+
+    return render_template('film/exposure.html',
+        projectID=projectID, filmID=filmID, exposureNumber=exposureNumber,
+        filters=filters, lenses=lenses, exposure=exposure,
+        exposureFilters=exposureFilters)
+
 
 @app.route('/filters',  methods = ['GET'])
 def filters():

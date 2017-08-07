@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <h1>
+    Edit Exposure
+  </h1>
+</div>
+
+<div class="panel panel-default">
+  <table class="table table-striped table-bordered" id="exposures">
+    <tr>
+      <th>Number</th>
+      <th>Shutter</th>
+      <th>Aperture</th>
+      <th>Lens</th>
+      <th>Flash</th>
+      <th>Filters</th>
+      <th>Notes</th>
+      <th></th>
+    </tr>
+    <form role="form" class="form-horizontal"
+      action="/projects/{{ projectID }}/films/{{ filmID }}/exposure/{{ exposureNumber }}"
+      method="POST">
+    <tr>
+      <td>
+          <input
+            type="text"
+            class="form-control"
+            name="exposureNumber"
+            aria-describedby="Exposure Number"
+            size="2"
+            value="{{ exposureNumber }}">
+        </td>
+      {# If shutter is larger than 0, consider it to be faster than 1 second
+         (e.g. 1/125). If it's zero, consider it a Bulb where the exact
+         speed is not known. If it's negative, the exposure is in seconds.
+      #}
+      <td>
+        <input
+          type="text"
+          class="form-control"
+          name="shutter"
+          aria-describedby="Shutter"
+          size="8"
+          {% if exposure.shutter > 0 %}
+            value="1/{{ exposure.shutter }}"
+          {% elif exposure.shutter == 0 %}
+            value="B"
+          {% elif exposure.shutter %}
+            value="{{ exposure.shutter|abs }}"
+          {% endif %}
+          >
+      </td>
+      <td>
+        <input
+          type="text"
+          class="form-control"
+          name="aperture"
+          aria-describedby="Aperture"
+          size="8"
+          value="{{ exposure.aperture }}"
+          >
+      </td>
+      <td>
+        {% if exposure.lens %}
+          {{ exposure.lens }}
+        {% endif %}
+      </td>
+      <td>
+        {% if exposure.flash == 'No' %}
+          -
+        {% else %}
+          &#x2713;
+        {% endif %}
+      </td>
+      <td>
+        {% for filter in exposure.filters %}
+          {{ filter.code }}
+        {% endfor %}
+      </td>
+      <td>
+        {% if exposure.notes %}
+          {{ exposure.notes }}
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+{% endblock %}
