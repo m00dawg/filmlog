@@ -9,12 +9,14 @@
       <tr>
           <th>Name</th>
           <th>File No.</th>
+          <th>Film</th>
           <th>File Date</th>
       </tr>
       {% for film in films %}
           <tr>
               <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
               <td>{{ film.fileNo }}</td>
+              <td>{{ film.brand }} {{ film.filmName }} at {{ film.iso }}</td>
               <td>{{ film.fileDate|to_date }}</td>
           </tr>
       {% endfor %}
