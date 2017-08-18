@@ -89,7 +89,14 @@ def project(projectID):
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):
     if request.method == 'POST':
-        if request.form['button'] == 'delete':
+
+        #output = ""
+        #for thing in request.form:
+        #    output = output + thing
+        #output = output + request.form['button']
+        #return output
+
+        if request.form['button'] == 'deleteExposure':
             qry = text("""DELETE FROM Exposures
                 WHERE filmID = :filmID
                 AND exposureNumber = :exposureNumber""")
@@ -97,11 +104,55 @@ def film(projectID, filmID):
                 filmID = filmID,
                 exposureNumber = int(request.form['exposureNumber']))
 
-        if request.form['button'] == 'edit':
+        if request.form['button'] == 'editExposure':
             return redirect('/projects/' + str(projectID)
                 + '/films/' + str(filmID)
                 + '/exposure/' + request.form['exposureNumber'])
-        if request.form['button'] == 'add':
+
+        if request.form['button'] == 'editFilm':
+            fileDate = None
+            loaded = None
+            unloaded = None
+            developed = None
+
+            if request.form['fileDate'] != 'Unknown':
+                fileDate = request.form['fileDate']
+            if request.form['loaded'] != 'Unknown':
+                loaded = request.form['loaded']
+            if request.form['unloaded'] != 'Unknown':
+                unloaded = request.form['unloaded']
+            if request.form['developed'] != 'Unknown':
+                developed = request.form['developed']
+
+            qry = text("""UPDATE Films
+                SET title = :title,
+                    fileNo = :fileNo,
+                    fileDate = :fileDate,
+                    filmTypeID = :filmTypeID,
+                    cameraID = :cameraID,
+                    iso = :iso,
+                    loaded = :loaded,
+                    unloaded = :unloaded,
+                    developed = :developed,
+                    development = :development,
+                    notes = :notes
+                WHERE projectID = :projectID AND filmID = :filmID""")
+            result = engine.execute(qry,
+                projectID = projectID,
+                filmID = filmID,
+                cameraID = request.form['camera'],
+                title = request.form['title'],
+                fileNo = request.form['fileNo'],
+                fileDate = fileDate,
+                filmTypeID = request.form['filmType'],
+                iso = request.form['shotISO'],
+                loaded = loaded,
+                unloaded = unloaded,
+                developed = developed,
+                development = request.form['development'],
+                notes = request.form['notes'])
+
+        if request.form['button'] == 'addExposure':
             lensID = None
             shutter = None
             aperture = None
@@ -208,6 +259,22 @@ def film(projectID, filmID):
             template = 'film/35mm-print.html'
         if film.filmSize == '120':
             template = 'film/120-print.html'
+    elif request.args.get('edit'):
+        qry = text("""SELECT filmTypeID, cameraID FROM Films WHERE filmID = :filmID""")
+        filmDetailsResult = engine.execute(qry, filmID=filmID).first()
+        filmTypeID = filmDetailsResult[0]
+        cameraID = filmDetailsResult[1]
+
+        qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+            JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+        filmTypes = engine.execute(qry).fetchall()
+
+        qry = text("""SELECT cameraID, name FROM Cameras""")
+        cameras = engine.execute(qry).fetchall()
+
+        return render_template('film/edit.html',
+            film=film, filmTypeID=filmTypeID, cameraID=cameraID,
+            filmTypes=filmTypes, cameras=cameras)
     else:
         print_view = False
         if film.filmSize == '35mm':

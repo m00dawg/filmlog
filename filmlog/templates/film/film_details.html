@@ -3,9 +3,12 @@
   <h1>
     {{ film.title }} <small>{{ film.project }}</small>
     {% if not print_view %}
-    <a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}?print=true">
-      <button type="button" class="btn btn-default btn-sm">Print</button>
-    </a>
+      <a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}?edit=true">
+        <button type="button" class="btn btn-primary btn-sm">Edit</button>
+      </a>
+      <a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}?print=true">
+        <button type="button" class="btn btn-default btn-sm">Print</button>
+      </a>
     {% endif %}
   </h1>
 </div>

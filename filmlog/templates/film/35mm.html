@@ -65,8 +65,8 @@
             <form role="form" class="form-horizontal"
               action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
               method="POST">
-              <button name="button" value="edit" action="submit" class="btn btn-xs btn-primary">Edit</button>
-              <button name="button" value="delete" action="submit" class="btn btn-xs btn-danger">Delete</button>
+              <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
+              <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
               <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
             </form>
           </td>
@@ -127,7 +127,7 @@
         </div>
       </div>
       <div class="button-bar">
-        <button class="btn btn-success" name="button" value="add" action="submit">Add</button>
+        <button class="btn btn-success" name="button" value="addExposure" action="submit">Add</button>
       </div>
     </div>
   </form>
