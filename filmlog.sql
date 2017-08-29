@@ -74,7 +74,7 @@ CREATE TABLE Exposures(
     shutter SMALLINT DEFAULT NULL,
     aperture DECIMAL(3,1) DEFAULT NULL,
     flash ENUM('Yes', 'No') NOT NULL DEFAULT 'No',
-    notes VARCHAR(64) DEFAULT NULL,
+    notes VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (filmID, exposureNumber),
     KEY lensID_idx (lensID),
     CONSTRAINT Exposures_filmID_fk FOREIGN KEY (filmID) REFERENCES Films (filmID) ON DELETE RESTRICT ON UPDATE CASCADE,
