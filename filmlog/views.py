@@ -259,6 +259,10 @@ def film(projectID, filmID):
             template = 'film/35mm-print.html'
         if film.filmSize == '120':
             template = 'film/120-print.html'
+        if film.filmSize == '4x5':
+            template = 'film/lf-print.html'
+        if film.filmSize == '8x10':
+            template = 'film/lf-print.html'
     elif request.args.get('edit'):
         qry = text("""SELECT filmTypeID, cameraID FROM Films WHERE filmID = :filmID""")
         filmDetailsResult = engine.execute(qry, filmID=filmID).first()
@@ -281,6 +285,10 @@ def film(projectID, filmID):
             template = 'film/35mm.html'
         if film.filmSize == '120':
             template = 'film/120.html'
+        if film.filmSize == '4x5':
+            template = 'film/lf.html';
+        if film.filmSize == '8x10':
+            template = 'film/lf.html';
     return render_template(template,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
         last_exposure=last_exposure, print_view=print_view)
