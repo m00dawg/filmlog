@@ -3,9 +3,12 @@
 {% block content %}
 
   {% include 'film/film_details.html' %}
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#">Exposures</a></li>
+    <li><a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
+  </ul>
   {% if exposures %}
   <div class="panel panel-default">
-    <div class="panel-heading"><strong>Exposures</strong></div>
     <table class="table table-striped-by-two table-bordered" id="exposures">
       <tr>
         <th>Number</th>

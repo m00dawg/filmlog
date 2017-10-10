@@ -293,6 +293,32 @@ def film(projectID, filmID):
         film=film, filters=filters, lenses=lenses, exposures=exposures,
         last_exposure=last_exposure, print_view=print_view)
 
+@app.route('/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
+def prints(projectID, filmID):
+
+    # Stolen from film route - needs to be a function?
+    # Reads
+    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
+        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
+        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
+        loaded, unloaded, developed, development, Cameras.name AS camera,
+        Cameras.cameraID AS cameraID, notes
+        FROM Films
+        JOIN Projects ON Projects.projectID = Films.projectID
+        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
+        WHERE Films.projectID = :projectID AND filmID = :filmID""")
+    film = engine.execute(qry, projectID=projectID, filmID=filmID).fetchone()
+
+    # If we do not find a roll of film for the project, bail out so we
+    # don't display any exposures. Preventing shenaigans with cross
+    # project access.
+    if not film:
+        abort(404)
+
+    return render_template('film/prints.html', film=film)
+
 @app.route('/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(projectID, filmID, exposureNumber):
     qry = text("""SELECT filterID, name FROM Filters""")
