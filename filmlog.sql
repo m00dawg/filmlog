@@ -74,6 +74,8 @@ CREATE TABLE Exposures(
     shutter SMALLINT DEFAULT NULL,
     aperture DECIMAL(3,1) DEFAULT NULL,
     flash ENUM('Yes', 'No') NOT NULL DEFAULT 'No',
+    metering ENUM('Incident', 'Reflective') DEFAULT NULL,
+    developed VARCHAR(255) DEFAULT NULL,
     notes VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (filmID, exposureNumber),
     KEY lensID_idx (lensID),

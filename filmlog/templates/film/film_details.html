@@ -31,8 +31,10 @@
         <th>Unloaded</th><td>{{ film.unloaded|to_date }}</td>
         <th>Developed</th><td>{{ film.developed|to_date }}</td>
       </tr>
-      <tr>
-        <th>Development</th><td colspan="5">{{ film.development }}</td>
-      </tr>
+      {% if film.development %}
+        <tr>
+          <th>Development</th><td colspan="5">{{ film.development }}</td>
+        </tr>
+      {% endif %}
     </table>
   </div>

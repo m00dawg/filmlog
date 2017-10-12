@@ -9,23 +9,16 @@
   </ul>
   {% if exposures %}
   <div class="panel panel-default">
-    <table class="table table-striped-by-two table-bordered" id="exposures">
-      <tr>
-        <th>Number</th>
-        <th>Shutter</th>
-        <th>Aperture</th>
-        <th>Lens</th>
-        <th>Flash</th>
-        <th>Filters</th>
-        <th></th>
-      </tr>
       {% for exposure in exposures %}
+      <br />
+      <table class="table table-bordered" id="exposures{{ exposure.exposureNumber }}">
         <tr>
-          <td>{{ exposure.exposureNumber }}</td>
+          <th>Exposure</th><td>{{ exposure.exposureNumber }}</td>
           {# If shutter is larger than 0, consider it to be faster than 1 second
              (e.g. 1/125). If it's zero, consider it a Bulb where the exact
              speed is not known. If it's negative, the exposure is in seconds.
           #}
+          <th>Shutter</th>
           <td>
             {% if exposure.shutter > 0 %}
               1/{{ exposure.shutter }}
@@ -35,16 +28,21 @@
               {{ exposure.shutter|abs }}"
             {% endif %}
           </td>
+          <th>Aperture</th>
           <td>
             {% if exposure.aperture %}
               {{ exposure.aperture }}
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>Lens</th>
           <td>
             {% if exposure.lens %}
               {{ exposure.lens }}
             {% endif %}
           </td>
+          <th>Flash</th>
           <td>
             {% if exposure.flash == 'No' %}
               -
@@ -52,21 +50,14 @@
               &#x2713;
             {% endif %}
           </td>
+          <th>Filters</th>
           <td>
             {% for filter in exposure.filters %}
               {{ filter.code }}
             {% endfor %}
           </td>
-          <td class="text-right">
-            <form role="form" class="form-horizontal"
-              action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-              method="POST">
-              <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
-              <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
-              <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
-            </form>
-          </td>
         </tr>
+        <tr><th colspan="6">Notes</th></tr>
         <tr>
           {% if exposure.notes %}
             <td colspan="6">{{ exposure.notes }}</td>
@@ -74,8 +65,15 @@
             <td colspan="6">&nbsp;</td>
           {% endif %}
         </tr>
-      {% endfor %}
     </table>
+    <form role="form" class="form-horizontal"
+      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      method="POST">
+      <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
+      <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
+      <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
+    </form>
+    {% endfor %}
 </div>
 {% endif %}
 
