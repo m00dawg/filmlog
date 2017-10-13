@@ -9,7 +9,8 @@
   </ul>
   {% if exposures %}
   <div class="panel panel-default">
-      {% for exposure in exposures %}
+    {% for exposure in exposures %}
+      <div class="col-sm-6 panel">
       <br />
       <table class="table table-bordered" id="exposures{{ exposure.exposureNumber }}">
         <tr >
@@ -18,6 +19,14 @@
              (e.g. 1/125). If it's zero, consider it a Bulb where the exact
              speed is not known. If it's negative, the exposure is in seconds.
           #}
+        </tr>
+        <tr>
+          <th>Subject</th>
+          <td>Placeholder</th>
+        </tr>
+        <tr>
+          <th>Film</th>
+          <td>Ektar at 100</th>
         </tr>
         <tr>
           <th>Shutter</th>
@@ -81,11 +90,12 @@
       <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
       <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
     </form>
+    </div>
     {% endfor %}
 </div>
 {% endif %}
 
-<div class="panel panel-primary">
+<div class="panel panel-primary col-sm-12">
   <div class="panel-heading">Add Exposure</div>
   <div class="panel-body">
     <form role="form" class="form-horizontal"

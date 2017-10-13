@@ -17,14 +17,14 @@
     <div class="panel-heading"><strong>Overview</strong></div>
     <table class="table">
       <tr>
-        <th>Film</th><td>{{ film.brand }} {{ film.filmName }}</td>
-        <th>Size</th><td> {{ film.filmSize }}</td>
-        <th>ISO</th><td>{{ film.filmISO }}, shot at {{ film.shotISO }}</td>
-      </tr>
-      <tr>
         <th>Camera</th><td>{{ film.camera }}</td>
         <th>File Date</th><td>{{ film.fileDate|to_date }}</td>
         <th>File No</th><td>{{ film.fileNo }}</td>
+      </tr>
+      <tr>
+        <th>Film</th><td>{{ film.brand }} {{ film.filmName }}</td>
+        <th>Size</th><td> {{ film.filmSize }}</td>
+        <th>ISO</th><td>{{ film.filmISO }}, shot at {{ film.shotISO }}</td>
       </tr>
       <tr>
         <th>Loaded</th><td>{{ film.loaded|to_date }}</td>
