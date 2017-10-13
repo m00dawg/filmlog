@@ -12,12 +12,14 @@
       {% for exposure in exposures %}
       <br />
       <table class="table table-bordered" id="exposures{{ exposure.exposureNumber }}">
-        <tr>
+        <tr >
           <th>Exposure</th><td>{{ exposure.exposureNumber }}</td>
           {# If shutter is larger than 0, consider it to be faster than 1 second
              (e.g. 1/125). If it's zero, consider it a Bulb where the exact
              speed is not known. If it's negative, the exposure is in seconds.
           #}
+        </tr>
+        <tr>
           <th>Shutter</th>
           <td>
             {% if exposure.shutter > 0 %}
@@ -28,6 +30,8 @@
               {{ exposure.shutter|abs }}"
             {% endif %}
           </td>
+        </tr>
+        <tr>
           <th>Aperture</th>
           <td>
             {% if exposure.aperture %}
@@ -42,6 +46,8 @@
               {{ exposure.lens }}
             {% endif %}
           </td>
+        </tr>
+        <tr>
           <th>Flash</th>
           <td>
             {% if exposure.flash == 'No' %}
@@ -50,6 +56,8 @@
               &#x2713;
             {% endif %}
           </td>
+        </tr>
+        <tr>
           <th>Filters</th>
           <td>
             {% for filter in exposure.filters %}
@@ -57,15 +65,15 @@
             {% endfor %}
           </td>
         </tr>
-        <tr><th colspan="6">Notes</th></tr>
         <tr>
-          {% if exposure.notes %}
-            <td colspan="6">{{ exposure.notes }}</td>
-          {% else %}
-            <td colspan="6">&nbsp;</td>
-          {% endif %}
+          <th>Development</th>
+          <td>{{ exposure.development }}</td>
+        <tr>
+          <th>Notes</th>
+          <td>{{ exposure.notes }}</td>
         </tr>
     </table>
+
     <form role="form" class="form-horizontal"
       action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">

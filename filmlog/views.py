@@ -74,7 +74,8 @@ def project(projectID):
     films = engine.execute(qry, projectID=projectID).fetchall()
 
     qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        ORDER BY brand, name""")
     filmTypes = engine.execute(qry).fetchall()
 
     qry = text("""SELECT cameraID, name FROM Cameras""")
@@ -364,7 +365,8 @@ def filters():
 def filmtypes():
     qry = text("""SELECT filmTypeID, brand, name, iso, kind
                   FROM FilmTypes
-                  JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+                  JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+                  ORDER BY brand, name, iso""")
     filmtypes = engine.execute(qry).fetchall()
     return render_template('filmtypes.html', filmtypes=filmtypes)
 
