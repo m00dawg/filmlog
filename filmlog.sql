@@ -35,12 +35,20 @@ CREATE TABLE FilmTypes (
     CONSTRAINT filmtypes_filmBrandID FOREIGN KEY (filmBrandID) REFERENCES FilmBrands (filmBrandID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
+CREATE TABLE Binders(
+    binderID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    name varchar(64) NOT NULL
+) ENGINE='InnoDB';
+
 CREATE TABLE Projects(
     projectID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    binderID SMALLINT UNSIGNED NOT NULL,
     filmCount TINYINT UNSIGNED NOT NULL DEFAULT 0,
     createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name varchar(64) NOT NULL,
-    UNIQUE KEY name_uq (name)
+    UNIQUE KEY name_uq (name),
+    KEY projects_binderID_fk (binderID),
+    CONSTRAINT projects_binderID_fk FOREIGN KEY (binderID) REFERENCES Binders (binderID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Films (
@@ -53,6 +61,7 @@ CREATE TABLE Films (
     loaded TIMESTAMP NULL,
     unloaded TIMESTAMP NULL,
     developed TIMESTAMP NULL,
+    exposures TINYINT UNSIGNED NOT NULL DEFAULT 0,
     fileNo varchar(32) NOT NULL,
     title varchar(64) NOT NULL,
     development varchar(255) DEFAULT NULL,
@@ -115,6 +124,22 @@ CREATE TRIGGER FilmCountDecrement
         FOR EACH ROW
         BEGIN
             UPDATE Projects SET filmCount = filmCount - 1 WHERE projectID = OLD.projectID;
+        END;
+//
+
+CREATE TRIGGER ExposureCountIncrement
+    BEFORE INSERT ON Exposures
+        FOR EACH ROW
+        BEGIN
+            UPDATE Films SET exposures = exposures + 1 WHERE filmID = NEW.filmID;
+        END;
+//
+
+CREATE TRIGGER ExposureCountDecrement
+    BEFORE DELETE ON Exposues
+        FOR EACH ROW
+        BEGIN
+            UPDATE Films SET exposures = exposures - 1 WHERE filmID = OLD.filmID;
         END;
 //
 

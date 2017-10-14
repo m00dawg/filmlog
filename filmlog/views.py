@@ -66,10 +66,14 @@ def project(projectID):
     qry = text("""SELECT projectID, name FROM Projects WHERE projectID = :projectID""")
     project = engine.execute(qry, projectID=projectID).fetchone()
 
-    qry = text("""SELECT filmID, title, fileNo, fileDate, Films.iso AS iso, brand, FilmTypes.name AS filmName
+    qry = text("""SELECT filmID, title, fileNo, fileDate,
+        Films.iso AS iso, brand, FilmTypes.name AS filmName,
+        exposures,
+        Cameras.name AS camera
         FROM Films
         JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        JOIN Cameras ON Cameras.cameraID = Films.cameraID
         WHERE projectID = :projectID ORDER BY fileNo""")
     films = engine.execute(qry, projectID=projectID).fetchall()
 
