@@ -21,14 +21,12 @@
           <th>Subject</th>
           <td>{{ exposure.subject }}</th>
         </tr>
+        {% if exposure.filmType %}
         <tr>
           <th>Film</th>
-          {% if exposure.filmType %}
-            <td>{{ exposure.filmBrand }} {{ exposure.filmType }} {{ exposure.filmISO }} at {{ exposure.shotISO }}</th>
-          {% else %}
-            <td>{{ film.brand }} {{ film.filmName }} {{ film.filmISO }} at {{ film.shotISO }}</td>
-          {% endif %}
+          <td>{{ exposure.filmBrand }} {{ exposure.filmType }} {{ exposure.filmISO }} at {{ exposure.shotISO }}</th>
         </tr>
+        {% endif %}
         <tr>
           <th>Shutter</th>
           <td>
