@@ -85,9 +85,12 @@
             {% endfor %}
           </td>
         </tr>
+        {% if exposure.development %}
         <tr>
           <th>Development</th>
           <td>{{ exposure.development }}</td>
+        </tr>
+        {% endif %}
         <tr>
           <th>Notes</th>
           <td>{{ exposure.notes }}</td>
