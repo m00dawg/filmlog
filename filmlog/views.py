@@ -94,13 +94,6 @@ def project(projectID):
 @app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 def film(projectID, filmID):
     if request.method == 'POST':
-
-        #output = ""
-        #for thing in request.form:
-        #    output = output + thing
-        #output = output + request.form['button']
-        #return output
-
         if request.form['button'] == 'deleteExposure':
             qry = text("""DELETE FROM Exposures
                 WHERE filmID = :filmID
@@ -161,7 +154,10 @@ def film(projectID, filmID):
             lensID = None
             shutter = None
             aperture = None
+            metering = None
             flash = 'No'
+            subject = None
+            development = None
             notes = None
 
             if re.search(r'^1\/', request.form['shutter']):
@@ -179,22 +175,34 @@ def film(projectID, filmID):
             if request.form['lens'] != '':
                 lensID = request.form['lens']
 
+            if request.form['metering'] != '':
+                metering = request.form['metering']
+
             if request.form.get('flash') != None:
                 flash = 'Yes'
+
+            if request.form['subject'] != '':
+                subject = request.form['subject']
+
+            if request.form['development'] != '':
+                development = request.form['development']
 
             if request.form['notes'] != '':
                 notes = request.form['notes']
 
             qry = text("""INSERT INTO Exposures
-                (filmID, exposureNumber, lensID, shutter, aperture, flash, notes)
-                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :flash, :notes)""")
+                (filmID, exposureNumber, lensID, shutter, aperture, metering, flash, subject, development, notes)
+                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :metering, :flash, :subject, :development, :notes)""")
             result = engine.execute(qry,
                 filmID = filmID,
                 exposureNumber = request.form['exposureNumber'],
                 lensID = lensID,
                 shutter = shutter,
                 aperture = aperture,
+                metering = metering,
                 flash = flash,
+                subject = subject,
+                development = development,
                 notes = notes)
 
             qry = text("""INSERT INTO ExposureFilters
@@ -235,9 +243,14 @@ def film(projectID, filmID):
     lenses = engine.execute(qry, cameraID=film.cameraID).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
-        Lenses.name AS lens, flash, notes
+        Lenses.name AS lens, flash, metering, subject, notes, development,
+        Exposures.iso AS shotISO,
+        FilmTypes.name AS filmType, FilmTypes.iso AS filmISO,
+        FilmBrands.brand AS filmBrand
         FROM Exposures
         LEFT JOIN Lenses ON Lenses.lensID = Exposures.lensID
+        LEFT OUTER JOIN FilmTypes ON FilmTypes.filmTypeID = Exposures.filmTypeID
+        LEFT OUTER JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
         WHERE filmID = :filmID""")
     exposuresResult = engine.execute(qry, filmID=filmID).fetchall()
     exposures = functions.result_to_dict(exposuresResult)
