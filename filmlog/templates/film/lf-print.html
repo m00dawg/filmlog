@@ -6,23 +6,31 @@
 
   {% if exposures %}
   <div class="panel panel-default">
-    <div class="panel-heading"><strong>Exposures</strong></div>
-    <table class="table table-striped-by-two table-bordered table-condensed" id="exposures">
-      <tr>
-        <th>Number</th>
-        <th>Shutter</th>
-        <th>Aperture</th>
-        <th>Lens</th>
-        <th>Flash</th>
-        <th>Filters</th>
-      </tr>
-      {% for exposure in exposures %}
-        <tr>
-          <td>{{ exposure.exposureNumber }}</td>
+    {% for exposure in exposures %}
+      <div class="col-sm-6 panel">
+      <br />
+      <table class="table table-bordered" id="exposures{{ exposure.exposureNumber }}">
+        <tr >
+          <th>Exposure</th><td>{{ exposure.exposureNumber }}</td>
           {# If shutter is larger than 0, consider it to be faster than 1 second
              (e.g. 1/125). If it's zero, consider it a Bulb where the exact
              speed is not known. If it's negative, the exposure is in seconds.
           #}
+        </tr>
+        <tr>
+          <th>Subject</th>
+          <td>{{ exposure.subject }}</th>
+        </tr>
+        <tr>
+          <th>Film</th>
+          {% if exposure.filmType %}
+            <td>{{ exposure.filmBrand }} {{ exposure.filmType }} {{ exposure.filmISO }} at {{ exposure.shotISO }}</th>
+          {% else %}
+            <td>{{ film.brand }} {{ film.filmName }} {{ film.filmISO }} at {{ film.shotISO }}</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <th>Shutter</th>
           <td>
             {% if exposure.shutter > 0 %}
               1/{{ exposure.shutter }}
@@ -32,16 +40,25 @@
               {{ exposure.shutter|abs }}"
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>Aperture</th>
           <td>
             {% if exposure.aperture %}
               {{ exposure.aperture }}
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>Lens</th>
           <td>
             {% if exposure.lens %}
               {{ exposure.lens }}
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>Flash</th>
           <td>
             {% if exposure.flash == 'No' %}
               -
@@ -49,6 +66,19 @@
               &#x2713;
             {% endif %}
           </td>
+        </tr>
+        <tr>
+          <th>Metering</th>
+          <td>
+            {% if exposure.metering %}
+              {{ exposure.metering }}
+            {% else %}
+              Unknown
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Filters</th>
           <td>
             {% for filter in exposure.filters %}
               {{ filter.code }}
@@ -56,16 +86,18 @@
           </td>
         </tr>
         <tr>
-          {% if exposure.notes %}
-            <td colspan="6">{{ exposure.notes }}</td>
-          {% else %}
-            <td colspan="6">&nbsp;</td>
-          {% endif %}
+          <th>Development</th>
+          <td>{{ exposure.development }}</td>
+        <tr>
+          <th>Notes</th>
+          <td>{{ exposure.notes }}</td>
         </tr>
-      {% endfor %}
     </table>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 
 {% if film.notes %}
 <div class="panel panel-default">
