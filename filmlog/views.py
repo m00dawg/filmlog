@@ -156,6 +156,8 @@ def film(projectID, filmID):
             aperture = None
             metering = None
             flash = 'No'
+            filmType = None
+            shotISO = None
             subject = None
             development = None
             notes = None
@@ -181,6 +183,12 @@ def film(projectID, filmID):
             if request.form.get('flash') != None:
                 flash = 'Yes'
 
+            if request.form.get('filmType') != None:
+                filmType = request.form['filmType']
+
+            if request.form.get('shotISO') != None:
+                shotISO = request.form['shotISO']
+
             if request.form['subject'] != '':
                 subject = request.form['subject']
 
@@ -191,14 +199,16 @@ def film(projectID, filmID):
                 notes = request.form['notes']
 
             qry = text("""INSERT INTO Exposures
-                (filmID, exposureNumber, lensID, shutter, aperture, metering, flash, subject, development, notes)
-                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :metering, :flash, :subject, :development, :notes)""")
+                (filmID, exposureNumber, lensID, shutter, aperture, filmTypeID, iso, metering, flash, subject, development, notes)
+                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :filmType, :shotISO, :metering, :flash, :subject, :development, :notes)""")
             result = engine.execute(qry,
                 filmID = filmID,
                 exposureNumber = request.form['exposureNumber'],
                 lensID = lensID,
                 shutter = shutter,
                 aperture = aperture,
+                filmType = filmType,
+                shotISO = shotISO,
                 metering = metering,
                 flash = flash,
                 subject = subject,
@@ -241,6 +251,11 @@ def film(projectID, filmID):
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
         WHERE CameraLenses.cameraID = :cameraID""")
     lenses = engine.execute(qry, cameraID=film.cameraID).fetchall()
+
+
+    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    filmTypes = engine.execute(qry).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
         Lenses.name AS lens, flash, metering, subject, notes, development,
@@ -287,10 +302,6 @@ def film(projectID, filmID):
         filmTypeID = filmDetailsResult[0]
         cameraID = filmDetailsResult[1]
 
-        qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-            JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-        filmTypes = engine.execute(qry).fetchall()
-
         qry = text("""SELECT cameraID, name FROM Cameras""")
         cameras = engine.execute(qry).fetchall()
 
@@ -309,7 +320,7 @@ def film(projectID, filmID):
             template = 'film/lf.html';
     return render_template(template,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
-        last_exposure=last_exposure, print_view=print_view)
+        last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes)
 
 @app.route('/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
 def prints(projectID, filmID):

@@ -117,7 +117,7 @@
       action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
       <div class="form-group">
-        <div class="col-sm-2">
+        <div class="col-sm-3">
           <label>Exposure #</label>
           <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
             {% if last_exposure %}
@@ -125,15 +125,15 @@
             {% endif %}
           >
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
           <label>Shutter</label>
           <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter">
         </div>
-        <div class="col-sm-1">
+        <div class="col-sm-3">
           <label>Aperture</label>
           <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture">
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
           <label>Lens</label>
           <select class="form-control" name="lens">
               <option value=''> </option>
@@ -142,7 +142,22 @@
               {% endfor %}
           </select>
         </div>
-        <div class="col-sm-1">
+
+        <div class="col-sm-3">
+          <label>Film</label>
+          <select class="form-control" name="filmType">
+              <option value=''></option>
+              {% for film in filmTypes %}
+                <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.name }} {{ film.iso }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <label>Shot ISO</label>
+          <input type="text" class="form-control" placeholder="100" name="shotISO" aria-describedby="ShotISO">
+        </div>
+
+        <div class="col-sm-2">
           <label>Metering</label>
           <select class="form-control" name="metering">
             <option value=''> </option>
@@ -150,7 +165,7 @@
             <option value='Reflective'>Reflective</option>
           </select>
         </div>
-        <div class="col-sm-1">
+        <div class="col-sm-2">
           <label>Flash</label>
           <input type="checkbox" class="form-control" name="flash" value="Yes">
         </div>
