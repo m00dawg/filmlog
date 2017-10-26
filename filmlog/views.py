@@ -183,10 +183,10 @@ def film(projectID, filmID):
             if request.form.get('flash') != None:
                 flash = 'Yes'
 
-            if request.form.get('filmType') != None:
+            if request.form.get('filmType') != '':
                 filmType = request.form['filmType']
 
-            if request.form.get('shotISO') != None:
+            if request.form.get('shotISO') != '':
                 shotISO = request.form['shotISO']
 
             if request.form['subject'] != '':
