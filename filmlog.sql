@@ -37,7 +37,10 @@ CREATE TABLE FilmTypes (
 
 CREATE TABLE Binders(
     binderID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
-    name varchar(64) NOT NULL
+    binderCode varchar(32) NOT NULL,
+    name varchar(64) NOT NULL,
+    startDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    endDate TIMESTAMP NULL
 ) ENGINE='InnoDB';
 
 CREATE TABLE Projects(
