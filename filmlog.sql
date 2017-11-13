@@ -35,6 +35,15 @@ CREATE TABLE FilmTypes (
     CONSTRAINT filmtypes_filmBrandID FOREIGN KEY (filmBrandID) REFERENCES FilmBrands (filmBrandID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
+CREATE TABLE FilmStock (
+    filmTypeID SMALLINT UNSIGNED NOT NULL,
+    filmSize ENUM('35mm', '120', '220', '4x5', '8x10') NOT NULL,
+    exposures TINYINT UNSIGNED NOT NULL,
+    qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (filmTypeID, filmSize),
+    CONSTRAINT filmstock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE='InnoDB';
+
 CREATE TABLE Binders(
     binderID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     binderCode varchar(32) NOT NULL,
