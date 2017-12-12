@@ -83,7 +83,7 @@
       action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
       <div class="form-group">
-        <div class="col-sm-2">
+        <div class="col-sm-1">
           <label>Exposure #</label>
           <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
             {% if last_exposure %}
@@ -111,6 +111,14 @@
         <div class="col-sm-1">
           <label>Flash</label>
           <input type="checkbox" class="form-control" name="flash" value="Yes">
+        </div>
+        <div class="col-sm-1">
+          <label>Metering</label>
+          <select class="form-control" name="metering">
+            <option value=''> </option>
+            <option value='Incident'>Incident</option>
+            <option value='Reflective'>Reflective</option>
+          </select>
         </div>
         <div class="col-sm-2">
           <label>Filters</label><br />
