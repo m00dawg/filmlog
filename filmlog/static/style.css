@@ -11,3 +11,20 @@
 .table-striped-by-two tr:nth-child(4n+4) {
   background-color: #f9f9f9;
 }
+
+.flexthis{
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flexthis .col-md-4{
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}

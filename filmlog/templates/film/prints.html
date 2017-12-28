@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% include 'film/film_details.html' %}
+  <ul class="nav nav-tabs">
+    <li><a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
+    <li class="active"><a href="#">Darkroom Prints</a></li>
+  </ul>
+
+  <div class="panel panel-default">
+    <table class="table table-striped-by-two table-bordered" id="exposures">
+      <tr>
+        <th>Number</th>
+        <th>Paper</th>
+        <th>Type</th>
+        <th>Aperture</th>
+        <th>Head Height</th>
+        <th>Exposure Time</th>
+        <th>Size</th>
+        <th>Contrast Filters</th>
+      </tr>
+      {% for exposure in exposures %}
+        <tr>
+          <td>{{ exposure.exposureNumber }}</td>
+          {# If shutter is larger than 0, consider it to be faster than 1 second
+             (e.g. 1/125). If it's zero, consider it a Bulb where the exact
+             speed is not known. If it's negative, the exposure is in seconds.
+          #}
+          <td>
+            {% if exposure.shutter > 0 %}
+              1/{{ exposure.shutter }}
+            {% elif exposure.shutter == 0 %}
+              B
+            {% elif exposure.shutter %}
+              {{ exposure.shutter|abs }}"
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.aperture %}
+              {{ exposure.aperture }}
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.lens %}
+              {{ exposure.lens }}
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.flash == 'No' %}
+              -
+            {% else %}
+              &#x2713;
+            {% endif %}
+          </td>
+          <td>
+            {% for filter in exposure.filters %}
+              {{ filter.code }}
+            {% endfor %}
+          </td>
+          <td class="text-right">
+            <form role="form" class="form-horizontal"
+              action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+              method="POST">
+              <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
+              <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
+              <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
+            </form>
+          </td>
+        </tr>
+        <tr>
+          {% if exposure.notes %}
+            <td colspan="6">{{ exposure.notes }}</td>
+          {% else %}
+            <td colspan="6">&nbsp;</td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </table>
+</div>
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Add Print</div>
+  <div class="panel-body">
+    <form role="form" class="form-horizontal"
+      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      method="POST">
+      <div class="form-group">
+        <div class="col-sm-2">
+          <label>Exposure #</label>
+          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number">
+        </div>
+        <div class="col-sm-2">
+          <label>Paper</label>
+          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter">
+        </div>
+        <div class="col-sm-1">
+          <label>Type</label>
+          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture">
+        </div>
+        <div class="col-sm-2">
+          <label>Lens</label>
+          <select class="form-control" name="lens">
+              <option value=''> </option>
+              {% for lens in lenses %}
+                <option value="{{ lens.lensID }}">{{ lens.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1">
+          <label>Flash</label>
+          <input type="checkbox" class="form-control" name="flash" value="Yes">
+        </div>
+        <div class="col-sm-2">
+          <label>Filters</label><br />
+          {% for filter in filters %}
+            <input type="checkbox"
+                   name="filters"
+                   value="{{ filter.filterID }}">{{ filter.name }}<br />
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-12">
+          <label>Notes</label><br />
+          <textarea type="text" class="form-control" placeholder="Notes" name="notes" aria-describedby="Notes"></textarea>
+        </div>
+      </div>
+      <div class="button-bar">
+        <button class="btn btn-success" name="button" value="addExposure" action="submit">Add</button>
+      </div>
+    </div>
+  </form>
+
+  </div>
+</div>
+
+{% if film.notes %}
+<div class="panel panel-default">
+  <div class="panel-heading">Notes</div>
+  <div class="filmNotes">
+    {{ film.notes }}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
