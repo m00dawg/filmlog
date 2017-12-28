@@ -7,28 +7,6 @@ body{
   margin-left: 20px;
 }
 
-/* Special div to make alignment work for printing, particularly large format
-   sheets where the information for each exposure is varied resulting in a
-   varied height. */
-.flexrow{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-}
-
-.flexrow .col-md-4{
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-
-/* End special div */
-
 @media print {
 
   #task-summary .success td {

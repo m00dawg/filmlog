@@ -12,7 +12,11 @@
   background-color: #f9f9f9;
 }
 
-.flexthis{
+
+/* Special div to make alignment work for printing, particularly large format
+   sheets where the information for each exposure is varied resulting in a
+   varied height. */
+.flexrow{
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -22,9 +26,11 @@
   flex-wrap: wrap;
 }
 
-.flexthis .col-md-4{
+.flexrow .col-md-4{
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
 }
+
+/* End special div */

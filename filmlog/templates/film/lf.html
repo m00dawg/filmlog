@@ -10,6 +10,9 @@
   {% if exposures %}
   <div class="panel panel-default">
     {% for exposure in exposures %}
+      {% if loop.index % 2 != 0 %}
+        <div class="flexrow">
+      {% endif %}
       <div class="col-sm-6 panel">
       <br />
       <table class="table table-bordered" id="exposures{{ exposure.exposureNumber }}">
@@ -106,6 +109,9 @@
       <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
     </form>
     </div>
+    {% if loop.index % 2 == 0 %}
+      </div>
+    {% endif %}
     {% endfor %}
 </div>
 {% endif %}
