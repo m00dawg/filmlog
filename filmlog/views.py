@@ -74,7 +74,7 @@ def project(projectID):
         JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
         JOIN Cameras ON Cameras.cameraID = Films.cameraID
-        WHERE projectID = :projectID ORDER BY fileNo""")
+        WHERE projectID = :projectID ORDER BY fileDate""")
     films = engine.execute(qry, projectID=projectID).fetchall()
 
     qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
@@ -195,7 +195,7 @@ def film(projectID, filmID):
             if request.form.get('development') != '':
                 development = request.form.get('development')
 
-            if request.form['notes'] != '':
+            if request.form.get('notes') != '':
                 notes = request.form['notes']
 
             qry = text("""INSERT INTO Exposures
