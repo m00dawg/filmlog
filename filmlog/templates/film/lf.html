@@ -5,7 +5,7 @@
   {% include 'film/film_details.html' %}
   <ul class="nav nav-tabs">
     <li class="active"><a href="#">Exposures</a></li>
-    <li><a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
+    <li><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
   </ul>
   {% if exposures %}
   <div class="panel panel-default">
@@ -102,7 +102,7 @@
     </table>
 
     <form role="form" class="form-horizontal"
-      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
       <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
       <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
@@ -120,7 +120,7 @@
   <div class="panel-heading">Add Exposure</div>
   <div class="panel-body">
     <form role="form" class="form-horizontal"
-      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
       <div class="form-group">
         <div class="col-sm-3">

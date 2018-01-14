@@ -16,7 +16,7 @@
       </tr>
       {% for film in films %}
           <tr>
-              <td><a href="/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
+              <td><a href="/binders/{{ binderID }}/projects/{{ project.projectID }}/films/{{ film.filmID }}">{{ film.title }}</a></td>
               <td>{{ film.fileNo }}</td>
               <td>{{ film.exposures }}</td>
               <td>{{ film.camera }}</td>
@@ -31,7 +31,7 @@
     <div class="panel-heading">Add Roll/Film</div>
     <div class="panel-body">
       <form role="form" class="form-horizontal"
-        action="/projects/{{ project.projectID }}"
+        action="/binders/{{ binderID }}/projects/{{ project.projectID }}"
         method="POST">
         <div class="form-group">
           <div class="col-sm-4">

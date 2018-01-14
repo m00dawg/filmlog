@@ -37,8 +37,7 @@ CREATE TABLE FilmTypes (
 
 CREATE TABLE FilmStock (
     filmTypeID SMALLINT UNSIGNED NOT NULL,
-    filmSize ENUM('35mm', '120', '220', '4x5', '8x10') NOT NULL,
-    exposures TINYINT UNSIGNED NOT NULL,
+    filmSize ENUM('35mm 24', '35mm 36', '35mm 100\' Bulk Roll', '120', '220', '4x5', '8x10') NOT NULL,
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (filmTypeID, filmSize),
     CONSTRAINT filmstock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -46,10 +45,9 @@ CREATE TABLE FilmStock (
 
 CREATE TABLE Binders(
     binderID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
-    binderCode varchar(32) NOT NULL,
     name varchar(64) NOT NULL,
-    startDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    endDate TIMESTAMP NULL
+    projectCount TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE='InnoDB';
 
 CREATE TABLE Projects(
@@ -128,6 +126,23 @@ CREATE TABLE ExposureFilters(
 
 -- Triggers
 DELIMITER //
+CREATE TRIGGER ProjectCountIncrement
+    BEFORE INSERT ON Projects
+        FOR EACH ROW
+        BEGIN
+            UPDATE Binders SET projectCount = projectCount + 1
+            WHERE binderID = NEW.binderID;
+        END;
+//
+CREATE TRIGGER ProjectCountDecrement
+    BEFORE DELETE ON Projects
+        FOR EACH ROW
+        BEGIN
+            UPDATE Binders SET projectCount = projectCount - 1
+            WHERE binderID = OLD.binderID;
+        END;
+//
+
 CREATE TRIGGER FilmCountIncrement
     BEFORE INSERT ON Films
         FOR EACH ROW

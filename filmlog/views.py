@@ -15,19 +15,35 @@ def index():
     if request.method == 'GET':
         return render_template('index.html')
 
-@app.route('/projects',  methods = ['POST', 'GET'])
-def projects():
+@app.route('/binders',  methods = ['POST', 'GET'])
+def binders():
     if request.method == 'POST':
-        qry = text("""INSERT INTO Projects
+        qry = text("""INSERT INTO Binders
             (name) VALUES (:name)""")
         result = engine.execute(qry,
             name = request.form['name'])
-    qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects""")
-    projects = engine.execute(qry).fetchall()
-    return render_template('projects.html', projects=projects)
+    qry = text("""SELECT binderID, name, projectCount, createdOn
+        FROM Binders""")
+    binders = engine.execute(qry).fetchall()
+    return render_template('binders.html', binders=binders)
 
-@app.route('/projects/<int:projectID>',  methods = ['POST', 'GET'])
-def project(projectID):
+@app.route('/binders/<int:binderID>/projects',  methods = ['POST', 'GET'])
+def projects(binderID):
+    if request.method == 'POST':
+        qry = text("""INSERT INTO Projects
+            (binderID, name) VALUES (:binderID, :name)""")
+        result = engine.execute(qry,
+            binderID = binderID,
+            name = request.form['name'])
+    qry = text("""SELECT binderID, name FROM Binders WHERE binderID = :binderID""")
+    binder = engine.execute(qry, binderID=binderID).fetchone()
+    qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects
+        WHERE binderID = :binderID""")
+    projects = engine.execute(qry, binderID=binderID).fetchall()
+    return render_template('projects.html', binder=binder, projects=projects)
+
+@app.route('/binders/<int:binderID>/projects/<int:projectID>',  methods = ['POST', 'GET'])
+def project(binderID, projectID):
     if request.method == 'POST':
         fileDate = None
         loaded = None
@@ -86,13 +102,14 @@ def project(projectID):
     cameras = engine.execute(qry).fetchall()
 
     return render_template('project.html',
+        binderID = binderID,
         project = project,
         films = films,
         filmTypes = filmTypes,
         cameras = cameras)
 
-@app.route('/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
-def film(projectID, filmID):
+@app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
+def film(binderID, projectID, filmID):
     if request.method == 'POST':
         if request.form['button'] == 'deleteExposure':
             qry = text("""DELETE FROM Exposures
@@ -103,7 +120,8 @@ def film(projectID, filmID):
                 exposureNumber = int(request.form['exposureNumber']))
 
         if request.form['button'] == 'editExposure':
-            return redirect('/projects/' + str(projectID)
+            return redirect('/binders/' + str(binderID)
+                + '/projects/' + str(projectID)
                 + '/films/' + str(filmID)
                 + '/exposure/' + request.form['exposureNumber'])
 
@@ -252,7 +270,6 @@ def film(projectID, filmID):
         WHERE CameraLenses.cameraID = :cameraID""")
     lenses = engine.execute(qry, cameraID=film.cameraID).fetchall()
 
-
     qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
     filmTypes = engine.execute(qry).fetchall()
@@ -306,6 +323,7 @@ def film(projectID, filmID):
         cameras = engine.execute(qry).fetchall()
 
         return render_template('film/edit.html',
+            binderID=binderID,
             film=film, filmTypeID=filmTypeID, cameraID=cameraID,
             filmTypes=filmTypes, cameras=cameras)
     else:
@@ -319,11 +337,12 @@ def film(projectID, filmID):
         if film.filmSize == '8x10':
             template = 'film/lf.html';
     return render_template(template,
+        binderID=binderID,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
         last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes)
 
-@app.route('/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
-def prints(projectID, filmID):
+@app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
+def prints(binderID, projectID, filmID):
 
     # Stolen from film route - needs to be a function?
     # Reads
@@ -348,8 +367,8 @@ def prints(projectID, filmID):
 
     return render_template('film/prints.html', film=film)
 
-@app.route('/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
-def expsoure(projectID, filmID, exposureNumber):
+@app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
+def expsoure(binderID, projectID, filmID, exposureNumber):
     qry = text("""SELECT filterID, name FROM Filters""")
     filters = engine.execute(qry).fetchall()
 
@@ -377,6 +396,7 @@ def expsoure(projectID, filmID, exposureNumber):
     exposureFilters = functions.result_to_dict(filtersResult)
 
     return render_template('film/exposure.html',
+        binderID=binderID,
         projectID=projectID, filmID=filmID, exposureNumber=exposureNumber,
         filters=filters, lenses=lenses, exposure=exposure,
         exposureFilters=exposureFilters)
@@ -410,3 +430,44 @@ def cameras():
     qry = text("""SELECT cameraID, name, filmSize FROM Cameras""")
     cameras = engine.execute(qry).fetchall()
     return render_template('cameras.html', cameras=cameras)
+
+@app.route('/filmstock',  methods = ['GET', 'POST'])
+def filmstock():
+    if request.method == 'POST':
+        if request.form.get('button') == 'increment':
+            if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
+                qry = text("""UPDATE FilmStock SET qty = qty + 1
+                    WHERE filmTypeID = :filmTypeID
+                    AND filmSize = :filmSize""")
+                result = engine.execute(qry,
+                    filmTypeID=request.form.get('filmTypeID'),
+                    filmSize=request.form.get('filmSize'))
+        if request.form.get('button') == 'decrement':
+            if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
+                qry = text("""SELECT qty FROM FilmStock
+                    WHERE filmTypeID = :filmTypeID
+                    AND filmSize = :filmSize""")
+                result = engine.execute(qry,
+                    filmTypeID=request.form.get('filmTypeID'),
+                    filmSize=request.form.get('filmSize')).fetchone()
+                if result.qty == 1:
+                    qry = text(""" DELETE FROM FilmStock
+                        WHERE filmTypeID = :filmTypeID
+                        AND filmSize = :filmSize""")
+                    engine.execute(qry,
+                        filmTypeID=request.form.get('filmTypeID'),
+                        filmSize=request.form.get('filmSize'))
+                else:
+                    qry = text("""UPDATE FilmStock SET qty = qty - 1
+                        WHERE filmTypeID = :filmTypeID
+                        AND filmSize = :filmSize""")
+                    result = engine.execute(qry,
+                        filmTypeID=request.form.get('filmTypeID'),
+                        filmSize=request.form.get('filmSize'))
+    qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
+        FilmBrands.brand AS brand, FilmTypes.name AS type
+        FROM FilmStock
+        JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    stock = engine.execute(qry).fetchall()
+    return render_template('filmstock.html', stock=stock)
