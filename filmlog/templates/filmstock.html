@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-header">Film Stock</h1>
+
+  <table class="table table-striped table-bordered" id="binders">
+    <tr>
+        <th>Film</th>
+        <th>Size</th>
+        <th>Qty</th>
+        <th></th>
+    </tr>
+    {% for film in stock %}
+        <tr>
+          <td>{{ film.brand }} {{ film.type }}
+          <td>{{ film.filmSize }}</td>
+          <td>{{ film.qty }}</td>
+          <td class="text-right">
+            <form role="form" class="form-horizontal"
+              action="/filmstock"
+              method="POST">
+              <button name="button" value="increment" action="submit" class="btn btn-xs btn-primary">Increment</button>
+              <button name="button" value="decrement" action="submit" class="btn btn-xs btn-danger">Decrement</button>
+              <input type="hidden" name="filmTypeID" value="{{ film.filmTypeID }}" >
+              <input type="hidden" name="filmSize" value="{{ film.filmSize }}" >
+            </form>
+          </td>
+        </tr>
+    {% else %}
+      <tr><td colspan="3">No Films Found</td></tr>
+    {% endfor %}
+
+  </table>
+
+  <div class="panel panel-primary">
+    <div class="panel-heading">Add Binder</div>
+    <div class="panel-body">
+      <form role="form" class="form-horizontal"
+        action="/binders"
+        method="POST">
+        <div class="form-group">
+          <div class="col-sm-6">
+            <label>Name</label>
+            <input type="text" class="form-control" placeholder="My Binder" name="name" aria-describedby="Name">
+          </div>
+        </div>
+        <div class="button-bar">
+          <button class="btn btn-success" action="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
