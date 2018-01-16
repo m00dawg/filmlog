@@ -33,19 +33,38 @@
   </table>
 
   <div class="panel panel-primary">
-    <div class="panel-heading">Add Binder</div>
+    <div class="panel-heading">Add Filmstock</div>
     <div class="panel-body">
       <form role="form" class="form-horizontal"
-        action="/binders"
+        action="/filmstock"
         method="POST">
         <div class="form-group">
-          <div class="col-sm-6">
-            <label>Name</label>
-            <input type="text" class="form-control" placeholder="My Binder" name="name" aria-describedby="Name">
+          <div class="col-sm-4">
+            <label>Films</label>
+            <select class="form-control" name="filmTypeID">
+                {% for film in films %}
+                  <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.type }} {{ film.iso }}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label>Size</label>
+            <select class="form-control" name="filmSize">
+                <option value="35mm 24">35mm 24</option>
+                <option value="35mm 36">35mm 36</option>
+                <option value="120">120</option>
+                <option value="220">220</option>
+                <option value="4x5">4x5</option>
+                <option value="8x10">8x10</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label>Qty</label>
+            <input type="text" class="form-control" placeholder="" name="qty" aria-describedby="Quantity">
           </div>
         </div>
         <div class="button-bar">
-          <button class="btn btn-success" action="submit">Save</button>
+          <button class="btn btn-success" name="button" value="add" action="submit" >Add</button>
         </div>
       </form>
     </div>

@@ -464,10 +464,29 @@ def filmstock():
                     result = engine.execute(qry,
                         filmTypeID=request.form.get('filmTypeID'),
                         filmSize=request.form.get('filmSize'))
+        if request.form.get('button') == 'add':
+            qty = request.form.get('qty')
+            if request.form.get('filmTypeID') != '':
+                if qty != '':
+                    qty = int(qty)
+                    if qty > 0:
+                        qry = text("""REPLACE INTO FilmStock
+                            (filmTypeID, filmSize, qty)
+                            VALUES (:filmTypeID, :filmSize, :qty)""")
+                        result = engine.execute(qry,
+                            filmTypeID=request.form.get('filmTypeID'),
+                            filmSize=request.form.get('filmSize'),
+                            qty=request.form.get('qty'))
+
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
-        FilmBrands.brand AS brand, FilmTypes.name AS type
+        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
         FROM FilmStock
         JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
     stock = engine.execute(qry).fetchall()
-    return render_template('filmstock.html', stock=stock)
+    qry = text("""SELECT FilmTypes.filmTypeID AS filmTypeID,
+        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
+        FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+    films = engine.execute(qry).fetchall()
+    return render_template('filmstock.html', stock=stock, films=films)
