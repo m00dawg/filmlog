@@ -6,13 +6,15 @@
   <table class="table table-striped table-bordered" id="binders">
     <tr>
         <th>Film</th>
+        <th>ISO</th>
         <th>Size</th>
         <th>Qty</th>
         <th></th>
     </tr>
     {% for film in stock %}
         <tr>
-          <td>{{ film.brand }} {{ film.type }}
+          <td>{{ film.brand }} {{ film.type }}</td>
+          <td>{{ film.iso }}</td>
           <td>{{ film.filmSize }}</td>
           <td>{{ film.qty }}</td>
           <td class="text-right">
