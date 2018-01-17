@@ -482,7 +482,8 @@ def filmstock():
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
         FROM FilmStock
         JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        ORDER BY filmSize, brand, type, iso""")
     stock = engine.execute(qry).fetchall()
     qry = text("""SELECT FilmTypes.filmTypeID AS filmTypeID,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
