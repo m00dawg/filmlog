@@ -7,7 +7,6 @@ from filmlog import app
 from filmlog import database
 from filmlog import functions
 
-
 engine = database.engine
 
 @app.route('/',  methods = ['POST', 'GET'])
