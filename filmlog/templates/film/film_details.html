@@ -38,3 +38,9 @@
       {% endif %}
     </table>
   </div>
+
+    <ul class="nav nav-tabs">
+      <li {% if view == 'exposures' %} class="active" {% endif %}><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
+
+      <li {% if view == 'prints' %} class="active" {% endif %}><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
+    </ul>

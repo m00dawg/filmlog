@@ -3,10 +3,7 @@
 {% block content %}
 
   {% include 'film/film_details.html' %}
-  <ul class="nav nav-tabs">
-    <li class="active"><a href="#">Exposures</a></li>
-    <li><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
-  </ul>
+
   {% if exposures %}
   <div class="panel panel-default">
     {% for exposure in exposures %}

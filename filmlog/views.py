@@ -338,7 +338,8 @@ def film(binderID, projectID, filmID):
     return render_template(template,
         binderID=binderID,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
-        last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes)
+        last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes,
+        view='exposures')
 
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
 def prints(binderID, projectID, filmID):
@@ -364,7 +365,10 @@ def prints(binderID, projectID, filmID):
     if not film:
         abort(404)
 
-    return render_template('film/prints.html', film=film)
+    return render_template('film/prints.html',
+        binderID=binderID,
+        film=film,
+        view='prints')
 
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):

@@ -3,10 +3,6 @@
 {% block content %}
 
   {% include 'film/film_details.html' %}
-  <ul class="nav nav-tabs">
-    <li><a href="/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
-    <li class="active"><a href="#">Darkroom Prints</a></li>
-  </ul>
 
   <div class="panel panel-default">
     <table class="table table-striped-by-two table-bordered" id="exposures">
@@ -16,6 +12,7 @@
         <th>Type</th>
         <th>Aperture</th>
         <th>Head Height</th>
+        <th>Lens</th>
         <th>Exposure Time</th>
         <th>Size</th>
         <th>Contrast Filters</th>
