@@ -8,7 +8,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 config = ConfigParser.ConfigParser()
-config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.ini'))
+config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../config.ini'))
 
 #if(config.get('global', 'docker') == 1):
 #    db_url=os.environ.get('FILMLOG_DB_URL')

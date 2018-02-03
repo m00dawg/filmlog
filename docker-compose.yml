@@ -19,8 +19,8 @@ services:
         ports:
             - "5000:5000"
         volumes:
-            - .:/srv/filmlog.org
-        environment:
-            FILMLOG_DB_URL: mysql+mysqldb://filmlog:filmlogpw@mariadb/filmlog?charset=utf
+            - ./filmlog:/srv/filmlog.org/filmlog/
+#        environment:
+#            FILMLOG_DB_URL: mysql+mysqldb://filmlog:filmlogpw@mariadb/filmlog?charset=utf
 volumes:
     db_data:
