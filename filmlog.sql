@@ -168,7 +168,7 @@ CREATE TRIGGER ExposureCountIncrement
 //
 
 CREATE TRIGGER ExposureCountDecrement
-    BEFORE DELETE ON Exposues
+    BEFORE DELETE ON Exposures
         FOR EACH ROW
         BEGIN
             UPDATE Films SET exposures = exposures - 1 WHERE filmID = OLD.filmID;
