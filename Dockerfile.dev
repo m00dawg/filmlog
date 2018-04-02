@@ -10,7 +10,7 @@ COPY requirements.txt /
 RUN pip install -r requirements.txt
 COPY . /srv/filmlog.org
 WORKDIR /srv/filmlog.org
-COPY ./docker/config.ini ./config.ini
+COPY ./docker/config.ini.dev ./config.ini
 CMD python wsgi.py
 #CMD flask run --host=0.0.0.0
 #CMD ./run.sh

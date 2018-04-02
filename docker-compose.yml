@@ -1,17 +1,17 @@
 version: '3'
 services:
-    mariadb:
-        image: mariadb
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD: rootpw
-            MYSQL_DATABASE: FilmLog
-            MYSQL_USER: filmlog
-            MYSQL_PASSWORD: filmlogpw
-        volumes:
-            - db_data:/var/lib/mysql
-        ports:
-            - "3306:3306"
+#    mariadb:
+#        image: mariadb
+#        restart: always
+#        environment:
+#            MYSQL_ROOT_PASSWORD: rootpw
+#            MYSQL_DATABASE: FilmLog
+#            MYSQL_USER: filmlog
+#            MYSQL_PASSWORD: filmlogpw
+#        volumes:
+#            - db_data:/var/lib/mysql
+#        ports:
+#            - "3306:3306"
     filmlog:
         depends_on:
             - mariadb
