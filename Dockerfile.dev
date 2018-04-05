@@ -12,6 +12,7 @@ COPY . /srv/filmlog.org
 WORKDIR /srv/filmlog.org
 COPY ./docker/config.ini.dev ./config.ini
 CMD python wsgi.py
+
 #CMD flask run --host=0.0.0.0
 #CMD ./run.sh
 #CMD ./wsgi.sh

@@ -13,8 +13,8 @@ services:
 #        ports:
 #            - "3306:3306"
     filmlog:
-        depends_on:
-            - mariadb
+#        depends_on:
+#            - mariadb
         build: .
         ports:
             - "5000:5000"

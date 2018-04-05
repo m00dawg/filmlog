@@ -1,6 +1,8 @@
 CREATE TABLE Users (
-    userid INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    userID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     email varchar(255) NOT NULL,
+    password varbinary(32) NOT NULL,
+    salt char(8) NOT NULL,
     UNIQUE email_uq (email)
 ) ENGINE='InnoDB';
 
@@ -38,15 +40,15 @@ CREATE TABLE FilmTypes (
     filmBrandID TINYINT UNSIGNED NOT NULL,
     name varchar(64) NOT NULL,
     iso smallint unsigned,
-    kind ENUM ('Color Negative', 'Black & White Negative', 'Color Slide'),
+    kind ENUM ('Color Negative', 'Black & White Negative', 'Color Slide', 'Black & White Slide'),
     UNIQUE brand_name_iso_uq (filmBrandID, name, iso),
     KEY filmtypes_filmBrandID_fk (filmBrandID),
     CONSTRAINT filmtypes_filmBrandID FOREIGN KEY (filmBrandID) REFERENCES FilmBrands (filmBrandID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
-CREATE TABLE FilmStock (
+CREATE TABLE FilmStock(
     filmTypeID SMALLINT UNSIGNED NOT NULL,
-    filmSize ENUM('35mm 24', '35mm 36', '35mm 100\' Bulk Roll', '120', '220', '4x5', '8x10') NOT NULL,
+    filmSize ENUM('35mm 24', '35mm 36', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (filmTypeID, filmSize),
     CONSTRAINT filmstock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -101,6 +103,7 @@ CREATE TABLE Films (
     CONSTRAINT Films_lensID_fk FOREIGN KEY (lensID) REFERENCES Lenses (lensID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
+-- Both Roll and Sheet
 CREATE TABLE Exposures(
     filmID INT UNSIGNED NOT NULL,
     exposureNumber TINYINT UNSIGNED NOT NULL,
@@ -111,6 +114,7 @@ CREATE TABLE Exposures(
     aperture DECIMAL(4,1) UNSIGNED DEFAULT NULL,
     flash ENUM('Yes', 'No') NOT NULL DEFAULT 'No',
     metering ENUM('Incident', 'Reflective') DEFAULT NULL,
+    stability ENUM('Handheld', 'Tripod') DEFAULT NULL,
     subject VARCHAR(128) DEFAULT NULL,
     developed VARCHAR(255) DEFAULT NULL,
     notes VARCHAR(255) DEFAULT NULL,
@@ -126,7 +130,8 @@ CREATE TABLE Filters(
     filterID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     code VARCHAR(8) NOT NULL,
-    factor DECIMAL(4, 1) NOT NULL
+    factor DECIMAL(4, 1) NOT NULL,
+    ev DECIMAL(3,1) NOT NULL
 ) ENGINE='InnoDB';
 
 CREATE TABLE ExposureFilters(
@@ -185,7 +190,7 @@ INSERT INTO PaperFilters (name) VALUES ('Split-Grade');
 CREATE TABLE Prints (
     printID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     filmID INT UNSIGNED NOT NULL,
-    exposureNumber tinyint(3) unsigned NOT NULL,
+    exposureNumber TINYINT UNSIGNED NOT NULL,
     paperID TINYINT UNSIGNED NOT NULL,
     paperFilterID TINYINT UNSIGNED NOT NULL,
     aperture decimal(3,1) DEFAULT NULL,
@@ -196,7 +201,7 @@ CREATE TABLE Prints (
     notes TEXT DEFAULT NULL,
     KEY paperID_fk (paperID),
     KEY paperFilterID_fk (paperFilterID),
-    KEY film_exposure_idx (filmID, exposureNumber),
+    KEY film_exposure_fk (filmID, exposureNumber),
     CONSTRAINT prints_paperID FOREIGN KEY (paperID) REFERENCES Papers (paperID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT prints_paperFilterID FOREIGN KEY (paperFilterID) REFERENCES PaperFilters (paperFilterID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT prints_film_exposure FOREIGN KEY (filmID, exposureNumber) REFERENCES Exposures (filmID, exposureNumber)
