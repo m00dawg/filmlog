@@ -13,6 +13,7 @@
         <th>Shutter</th>
         <th>Aperture</th>
         <th>Lens</th>
+        <th>Metering</th>
         <th>Flash</th>
         <th>Filters</th>
       </tr>
@@ -40,6 +41,11 @@
           <td>
             {% if exposure.lens %}
               {{ exposure.lens }}
+            {% endif %}
+          </td>
+          <td>
+            {% if exposure.metering %}
+              {{ exposure.metering }}
             {% endif %}
           </td>
           <td>
