@@ -370,24 +370,21 @@ def prints(binderID, projectID, filmID):
         film=film,
         view='prints')
 
+# Edit Exposure
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):
     qry = text("""SELECT filterID, name FROM Filters""")
     filters = engine.execute(qry).fetchall()
 
-    qry = text("""SELECT cameraID FROM Films
-        WHERE projectID = :projectID AND filmID = :filmID""")
-    cameraID = engine.execute(qry, projectID=projectID, filmID=filmID).fetchone()
-
     qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
-        WHERE CameraLenses.cameraID = :cameraID""")
-    lenses = engine.execute(qry, cameraID=cameraID).fetchall()
+        JOIN Films ON Films.cameraID = CameraLenses.cameraID
+        WHERE projectID = :projectID AND filmID = :filmID""")
+    lenses = engine.execute(qry, projectID=projectID, filmID=filmID).fetchall()
 
-    qry = text("""SELECT shutter, aperture,
-        Lenses.name AS lens, flash, notes
+    qry = text("""SELECT exposureNumber, shutter, aperture,
+        lensID, flash, notes
         FROM Exposures
-        LEFT JOIN Lenses ON Lenses.lensID = Exposures.lensID
         WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
     exposure = engine.execute(qry,
         filmID=filmID, exposureNumber=exposureNumber).fetchone()
@@ -398,9 +395,9 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         exposureNumber = exposureNumber).fetchall()
     exposureFilters = functions.result_to_dict(filtersResult)
 
-    return render_template('film/exposure.html',
+    return render_template('film/35mm-edit-exposure.html',
         binderID=binderID,
-        projectID=projectID, filmID=filmID, exposureNumber=exposureNumber,
+        projectID=projectID, filmID=filmID,
         filters=filters, lenses=lenses, exposure=exposure,
         exposureFilters=exposureFilters)
 

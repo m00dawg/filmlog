@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Edit Exposure</div>
+  <div class="panel-body">
+    <form role="form" class="form-horizontal"
+      action="/binders/{{ binderID }}/projects/{{ projectID }}/films/{{ filmID }}"
+      method="POST">
+      <div class="form-group">
+        <div class="col-sm-1">
+          <label>Exposure #</label>
+          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
+              value={{ exposure.exposureNumber }}
+          >
+        </div>
+        <div class="col-sm-2">
+          <label>Shutter</label>
+          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter"
+            value={{ exposure.shutter }}
+          >
+        </div>
+        <div class="col-sm-1">
+          <label>Aperture</label>
+          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture"
+            value={{ exposure.aperture }}
+          >
+        </div>
+        <div class="col-sm-2">
+          <label>Lens</label>
+          <select class="form-control" name="lens">
+              <option value=''> </option>
+              {% for lens in lenses %}
+                <option value="{{ lens.lensID }}"
+                  {% if lens.lensID == exposure.lensID %}
+                    selected
+                  {% endif %}
+                >{{ lens.name }}</option>
+
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1">
+          <label>Flash</label>
+          <input type="checkbox" class="form-control" name="flash" value="Yes">
+        </div>
+        <div class="col-sm-1">
+          <label>Metering</label>
+          <select class="form-control" name="metering">
+            <option value=''> </option>
+            <option value='Incident'>Incident</option>
+            <option value='Reflective'>Reflective</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label>Filters</label><br />
+          {% for filter in filters %}
+            <input type="checkbox"
+                   name="filters"
+                   value="{{ filter.filterID }}">{{ filter.name }}<br />
+          {% endfor %}
+        </div>
+        <div class="col-sm-2">
+          <label>Notes</label><br />
+          <input type="text" class="form-control"
+            placeholder="Notes" name="notes" aria-describedby="Notes">
+        </div>
+      </div>
+      <div class="button-bar">
+        <button class="btn btn-success" name="button" value="addExposure" action="submit">Add</button>
+      </div>
+    </div>
+  </form>
+
+  </div>
+</div>
+
+{% endblock %}
