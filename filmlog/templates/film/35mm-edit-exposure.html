@@ -46,14 +46,26 @@
         </div>
         <div class="col-sm-1">
           <label>Flash</label>
-          <input type="checkbox" class="form-control" name="flash" value="Yes">
+          <input type="checkbox" class="form-control" name="flash" value="Yes"
+            {% if exposure.flash == 'Yes' %}
+              checked
+            {% endif %}
+          >
         </div>
         <div class="col-sm-1">
           <label>Metering</label>
           <select class="form-control" name="metering">
             <option value=''> </option>
-            <option value='Incident'>Incident</option>
-            <option value='Reflective'>Reflective</option>
+            <option value='Incident'
+              {% if exposure.metering == 'Incident' %}
+                selected
+              {% endif %}
+            >Incident</option>
+            <option value='Reflective'
+              {% if exposure.metering == 'Reflective' %}
+                selected
+              {% endif %}
+            >Reflective</option>
           </select>
         </div>
         <div class="col-sm-2">
@@ -61,13 +73,21 @@
           {% for filter in filters %}
             <input type="checkbox"
                    name="filters"
-                   value="{{ filter.filterID }}">{{ filter.name }}<br />
+                   value="{{ filter.filterID }}"
+              {% if filter.checked == 'checked' %}
+                checked
+              {% endif %}
+            >{{ filter.name }}<br />
           {% endfor %}
         </div>
         <div class="col-sm-2">
           <label>Notes</label><br />
           <input type="text" class="form-control"
-            placeholder="Notes" name="notes" aria-describedby="Notes">
+            placeholder="Notes" name="notes" aria-describedby="Notes"
+            {% if exposure.notes %}
+              value="{{ exposure.notes }}"
+            {% endif %}
+          >
         </div>
       </div>
       <div class="button-bar">

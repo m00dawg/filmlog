@@ -373,8 +373,12 @@ def prints(binderID, projectID, filmID):
 # Edit Exposure
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):
-    qry = text("""SELECT filterID, name FROM Filters""")
-    filters = engine.execute(qry).fetchall()
+    qry = text("""SELECT Filters.filterID, Filters.name,
+        IF(exposureNumber IS NOT NULL, 'checked', NULL) AS checked
+        FROM Filters
+        LEFT OUTER JOIN ExposureFilters ON ExposureFilters.filterID = Filters.filterID
+            AND filmID = :filmID AND exposureNumber = :exposureNumber""")
+    filters = engine.execute(qry, filmID=filmID, exposureNumber=exposureNumber).fetchall()
 
     qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
