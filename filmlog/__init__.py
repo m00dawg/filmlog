@@ -6,7 +6,6 @@ from flask_login import LoginManager, UserMixin
 import ConfigParser
 
 import os, re
-import ConfigParser
 
 app = Flask(__name__)
 
@@ -16,18 +15,8 @@ config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../config.
 app.secret_key = config.get('session','secret_key')
 #app.server_name = config.get('session', 'server_name')
 
-class User(UserMixin):
-    def __init__(self, userID):
-        self.id = userID
-
-    def get_id(self):
-        return unicode(self.id)
-
-    def get(userID):
-        return self.id
-
 # Views
-from filmlog import views, users
+from filmlog import views
 
 @app.template_filter('to_date')
 def _jinja2_filter_date(date, fmt=None):

@@ -7,33 +7,12 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 from filmlog import app
 from filmlog import database
 from filmlog import functions
-from filmlog import User
+from filmlog import users
 from filmlog import filmstock
 from filmlog import darkroom
 
 
 engine = database.engine
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = "login"
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id)
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    # do stuff
-    return redirect("/login")
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        user = User("1", "Tim")
-        login_user(user)
-        return redirect("/")
-    return render_template('users/login.html')
 
 
 @app.route('/',  methods = ['POST', 'GET'])

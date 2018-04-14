@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-header">Login</h1>
+<div class="panel panel-primary">
+  <div class="panel-body">
+    <form role="form" class="form-horizontal"
+      action="/login"
+      method="POST">
+      <div class="form-group">
+        <div class="col-sm-12">
+          <label>Username</label>
+          <input type="text" class="form-control" placeholder="Username" name="username" aria-describedby="Username">
+        </div>
+        <div class="col-sm-12">
+          <label>Password</label>
+          <input type="password" class="form-control" placeholder="Password" name="password" aria-describedby="Password">
+        </div>
+      </div>
+      <div class="button-bar">
+        <button class="btn btn-success" action="submit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

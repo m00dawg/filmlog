@@ -1,9 +1,10 @@
 CREATE TABLE Users (
     userID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    username varchar(64) NOT NULL,
     email varchar(255) NOT NULL,
-    password varbinary(32) NOT NULL,
-    salt char(8) NOT NULL,
-    UNIQUE email_uq (email)
+    password varbinary(128) NOT NULL,
+    UNIQUE email_uq (email),
+    UNIQUE username_uq (username)
 ) ENGINE='InnoDB';
 
 CREATE TABLE Cameras (

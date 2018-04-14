@@ -25,6 +25,11 @@
             <li class="active"><a href="/filters">Filters</a></li>
             <li class="active"><a href="/filmtypes">Films</a></li>
             <li class="active"><a href="/filmstock">Film Stock</a></li>
+            {% if current_user.is_authenticated %}
+              <li class="active"><a href="/logout">Logout</a></li>
+            {% else %}
+              <li class="active"><a href="/login">Login</a></li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -37,15 +42,6 @@
       <div class="col-md-12 main">
         <div id="content">
           <br />
-
-          {% if current_user.is_authenticated %}
-          <h1>IS AUTHENTICATED</h1>
-          {% else %}
-          <h1>NO</h1>
-          {% endif %}
-          {{ current_user }}
-          {{ current_user.userID }}
-
           {% block content %}
           {% endblock %}
         </div>
