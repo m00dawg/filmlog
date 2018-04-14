@@ -3,9 +3,11 @@ from sqlalchemy.sql import select, text, func
 import os, re
 
 from filmlog import app
-#import filmlog.database
 from filmlog import database
 from filmlog import functions
+
+from filmlog import filmstock
+from filmlog import darkroom
 
 engine = database.engine
 
@@ -341,35 +343,6 @@ def film(binderID, projectID, filmID):
         last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes,
         view='exposures')
 
-@app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
-def prints(binderID, projectID, filmID):
-
-    # Stolen from film route - needs to be a function?
-    # Reads
-    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
-        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
-        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
-        loaded, unloaded, developed, development, Cameras.name AS camera,
-        Cameras.cameraID AS cameraID, notes
-        FROM Films
-        JOIN Projects ON Projects.projectID = Films.projectID
-        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
-        WHERE Films.projectID = :projectID AND filmID = :filmID""")
-    film = engine.execute(qry, projectID=projectID, filmID=filmID).fetchone()
-
-    # If we do not find a roll of film for the project, bail out so we
-    # don't display any exposures. Preventing shenaigans with cross
-    # project access.
-    if not film:
-        abort(404)
-
-    return render_template('film/prints.html',
-        binderID=binderID,
-        film=film,
-        view='prints')
-
 # Edit Exposure
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):
@@ -465,87 +438,3 @@ def cameras():
     qry = text("""SELECT cameraID, name, filmSize FROM Cameras""")
     cameras = engine.execute(qry).fetchall()
     return render_template('cameras.html', cameras=cameras)
-
-@app.route('/filmstock',  methods = ['GET', 'POST'])
-def filmstock():
-    if request.method == 'POST':
-        if request.form.get('button') == 'increment':
-            if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
-                qry = text("""UPDATE FilmStock SET qty = qty + 1
-                    WHERE filmTypeID = :filmTypeID
-                    AND filmSize = :filmSize""")
-                result = engine.execute(qry,
-                    filmTypeID=request.form.get('filmTypeID'),
-                    filmSize=request.form.get('filmSize'))
-        if request.form.get('button') == 'decrement':
-            if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
-                qry = text("""SELECT qty FROM FilmStock
-                    WHERE filmTypeID = :filmTypeID
-                    AND filmSize = :filmSize""")
-                result = engine.execute(qry,
-                    filmTypeID=request.form.get('filmTypeID'),
-                    filmSize=request.form.get('filmSize')).fetchone()
-                if result.qty == 1:
-                    qry = text(""" DELETE FROM FilmStock
-                        WHERE filmTypeID = :filmTypeID
-                        AND filmSize = :filmSize""")
-                    engine.execute(qry,
-                        filmTypeID=request.form.get('filmTypeID'),
-                        filmSize=request.form.get('filmSize'))
-                else:
-                    qry = text("""UPDATE FilmStock SET qty = qty - 1
-                        WHERE filmTypeID = :filmTypeID
-                        AND filmSize = :filmSize""")
-                    result = engine.execute(qry,
-                        filmTypeID=request.form.get('filmTypeID'),
-                        filmSize=request.form.get('filmSize'))
-        if request.form.get('button') == 'add':
-            qty = request.form.get('qty')
-            if request.form.get('filmTypeID') != '':
-                if qty != '':
-                    qty = int(qty)
-                    if qty > 0:
-                        qry = text("""REPLACE INTO FilmStock
-                            (filmTypeID, filmSize, qty)
-                            VALUES (:filmTypeID, :filmSize, :qty)""")
-                        result = engine.execute(qry,
-                            filmTypeID=request.form.get('filmTypeID'),
-                            filmSize=request.form.get('filmSize'),
-                            qty=request.form.get('qty'))
-    qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
-        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
-        FROM FilmStock
-        JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        WHERE filmSize IN ("35mm 24", "35mm 36", "35mm 100' Bulk Roll")
-        ORDER BY filmSize, brand, type, iso""")
-    stock_35mm = engine.execute(qry).fetchall()
-
-    qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
-        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
-        FROM FilmStock
-        JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        WHERE filmSize IN ('120', '220')
-        ORDER BY filmSize, brand, type, iso""")
-    stock_mf = engine.execute(qry).fetchall()
-
-    qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
-        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
-        FROM FilmStock
-        JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        WHERE filmSize IN ('4x5', '8x10')
-        ORDER BY filmSize, brand, type, iso""")
-    stock_sheets = engine.execute(qry).fetchall()
-
-    qry = text("""SELECT FilmTypes.filmTypeID AS filmTypeID,
-        FilmBrands.brand AS brand, FilmTypes.name AS type, iso
-        FROM FilmTypes
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-    films = engine.execute(qry).fetchall()
-    return render_template('filmstock.html',
-                stock_35mm=stock_35mm,
-                stock_mf=stock_mf,
-                stock_sheets=stock_sheets,
-                films=films)
