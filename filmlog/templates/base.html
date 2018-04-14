@@ -37,6 +37,15 @@
       <div class="col-md-12 main">
         <div id="content">
           <br />
+
+          {% if current_user.is_authenticated %}
+          <h1>IS AUTHENTICATED</h1>
+          {% else %}
+          <h1>NO</h1>
+          {% endif %}
+          {{ current_user }}
+          {{ current_user.userID }}
+
           {% block content %}
           {% endblock %}
         </div>
