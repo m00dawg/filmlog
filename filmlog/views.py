@@ -373,6 +373,37 @@ def prints(binderID, projectID, filmID):
 # Edit Exposure
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):
+    if request.method == 'POST':
+        if request.form['button'] == 'updateExposure':
+            if request.form.get('flash') != None:
+                flash = 'Yes'
+            else:
+                flash = 'No'
+            qry = text("""UPDATE Exposures
+                SET exposureNumber = :exposureNumberNew,
+                    shutter = :shutter,
+                    aperture = :aperture,
+                    lensID = :lensID,
+                    flash = :flash,
+                    metering = :metering,
+                    notes = :notes
+                WHERE filmID = :filmID
+                AND exposureNumber = :exposureNumberOld""")
+            engine.execute(qry,
+                filmID = filmID,
+                exposureNumberNew = request.form.get('exposureNumber'),
+                exposureNumberOld = exposureNumber,
+                shutter = request.form.get('shutter'),
+                aperture = request.form.get('aperture'),
+                lensID = request.form.get('lensID'),
+                flash = flash,
+                metering = request.form.get('metering'),
+                notes = request.form.get('notes'))
+            return redirect('/binders/' + str(binderID)
+                + '/projects/' + str(projectID)
+                + '/films/' + str(filmID)
+                + '/exposure/' + request.form['exposureNumber'])
+
     qry = text("""SELECT Filters.filterID, Filters.name,
         IF(exposureNumber IS NOT NULL, 'checked', NULL) AS checked
         FROM Filters
@@ -387,7 +418,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
     lenses = engine.execute(qry, projectID=projectID, filmID=filmID).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
-        lensID, flash, notes
+        lensID, flash, notes, metering
         FROM Exposures
         WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
     exposure = engine.execute(qry,
@@ -399,7 +430,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         exposureNumber = exposureNumber).fetchall()
     exposureFilters = functions.result_to_dict(filtersResult)
 
-    return render_template('film/35mm-edit-exposure.html',
+    return render_template('film/edit-exposure.html',
         binderID=binderID,
         projectID=projectID, filmID=filmID,
         filters=filters, lenses=lenses, exposure=exposure,

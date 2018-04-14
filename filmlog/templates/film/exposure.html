@@ -1,90 +1,95 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="page-header">
-  <h1>
-    Edit Exposure
-  </h1>
-</div>
-
-<div class="panel panel-default">
-  <table class="table table-striped table-bordered" id="exposures">
-    <tr>
-      <th>Number</th>
-      <th>Shutter</th>
-      <th>Aperture</th>
-      <th>Lens</th>
-      <th>Flash</th>
-      <th>Filters</th>
-      <th>Notes</th>
-      <th></th>
-    </tr>
+<div class="panel panel-primary">
+  <div class="panel-heading">Edit Exposure</div>
+  <div class="panel-body">
     <form role="form" class="form-horizontal"
-      action="/projects/{{ projectID }}/films/{{ filmID }}/exposure/{{ exposureNumber }}"
+      action="/binders/{{ binderID }}/projects/{{ projectID }}/films/{{ filmID }}/exposure/{{ exposure.exposureNumber }}"
       method="POST">
-    <tr>
-      <td>
-          <input
-            type="text"
-            class="form-control"
-            name="exposureNumber"
-            aria-describedby="Exposure Number"
-            size="2"
-            value="{{ exposureNumber }}">
-        </td>
-      {# If shutter is larger than 0, consider it to be faster than 1 second
-         (e.g. 1/125). If it's zero, consider it a Bulb where the exact
-         speed is not known. If it's negative, the exposure is in seconds.
-      #}
-      <td>
-        <input
-          type="text"
-          class="form-control"
-          name="shutter"
-          aria-describedby="Shutter"
-          size="8"
-          {% if exposure.shutter > 0 %}
-            value="1/{{ exposure.shutter }}"
-          {% elif exposure.shutter == 0 %}
-            value="B"
-          {% elif exposure.shutter %}
-            value="{{ exposure.shutter|abs }}"
-          {% endif %}
+      <div class="form-group">
+        <div class="col-sm-1">
+          <label>Exposure #</label>
+          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
+              value={{ exposure.exposureNumber }}
           >
-      </td>
-      <td>
-        <input
-          type="text"
-          class="form-control"
-          name="aperture"
-          aria-describedby="Aperture"
-          size="8"
-          value="{{ exposure.aperture }}"
+        </div>
+        <div class="col-sm-2">
+          <label>Shutter</label>
+          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter"
+            value={{ exposure.shutter }}
           >
-      </td>
-      <td>
-        {% if exposure.lens %}
-          {{ exposure.lens }}
-        {% endif %}
-      </td>
-      <td>
-        {% if exposure.flash == 'No' %}
-          -
-        {% else %}
-          &#x2713;
-        {% endif %}
-      </td>
-      <td>
-        {% for filter in exposure.filters %}
-          {{ filter.code }}
-        {% endfor %}
-      </td>
-      <td>
-        {% if exposure.notes %}
-          {{ exposure.notes }}
-        {% endif %}
-      </td>
-    </tr>
-  </table>
+        </div>
+        <div class="col-sm-2">
+          <label>Aperture</label>
+          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture"
+            value={{ exposure.aperture }}
+          >
+        </div>
+        <div class="col-sm-2">
+          <label>Lens</label>
+          <select class="form-control" name="lens">
+              <option value=''> </option>
+              {% for lens in lenses %}
+                <option value="{{ lens.lensID }}"
+                  {% if lens.lensID == exposure.lensID %}
+                    selected
+                  {% endif %}
+                >{{ lens.name }}</option>
 
-{% endblock %}
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1">
+          <label>Flash</label>
+          <input type="checkbox" class="form-control" name="flash" value="Yes"
+            {% if exposure.flash == 'Yes' %}
+              checked
+            {% endif %}
+          >
+        </div>
+        <div class="col-sm-2">
+          <label>Metering</label>
+          <select class="form-control" name="metering">
+            <option value=''> </option>
+            <option value='Incident'
+              {% if exposure.metering == 'Incident' %}
+                selected
+              {% endif %}
+            >Incident</option>
+            <option value='Reflective'
+              {% if exposure.metering == 'Reflective' %}
+                selected
+              {% endif %}
+            >Reflective</option>
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label>Filters</label><br />
+          {% for filter in filters %}
+            <input type="checkbox"
+                   name="filters"
+                   value="{{ filter.filterID }}"
+              {% if filter.checked == 'checked' %}
+                checked
+              {% endif %}
+            >{{ filter.name }}<br />
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-12">
+          <label>Notes</label><br />
+          <input type="text" class="form-control"
+            placeholder="Notes" name="notes" aria-describedby="Notes"
+            {% if exposure.notes %}
+              value="{{ exposure.notes }}"
+            {% endif %}
+          >
+        </div>
+      </div>
+      <div class="button-bar">
+        <button class="btn btn-success" name="button" value="updateExposure" action="submit">Update</button>
+      </div>
+    </div>
+  </form>
+
+  </div>
+</div>
