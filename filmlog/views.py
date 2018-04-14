@@ -16,6 +16,7 @@ def index():
     if request.method == 'GET':
         return render_template('index.html')
 
+# Binder List
 @app.route('/binders',  methods = ['POST', 'GET'])
 def binders():
     if request.method == 'POST':
@@ -28,6 +29,7 @@ def binders():
     binders = engine.execute(qry).fetchall()
     return render_template('binders.html', binders=binders)
 
+# Project List
 @app.route('/binders/<int:binderID>/projects',  methods = ['POST', 'GET'])
 def projects(binderID):
     if request.method == 'POST':
@@ -41,7 +43,7 @@ def projects(binderID):
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects
         WHERE binderID = :binderID""")
     projects = engine.execute(qry, binderID=binderID).fetchall()
-    return render_template('projects.html', binder=binder, projects=projects)
+    return render_template('projects.html', binder=binder, binderID=binderID, projects=projects)
 
 @app.route('/binders/<int:binderID>/projects/<int:projectID>',  methods = ['POST', 'GET'])
 def project(binderID, projectID):
