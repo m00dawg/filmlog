@@ -171,80 +171,6 @@ def film(binderID, projectID, filmID):
                 development = request.form['development'],
                 notes = request.form['notes'])
 
-        if request.form['button'] == 'addExposure':
-            lensID = None
-            shutter = None
-            aperture = None
-            metering = None
-            flash = 'No'
-            filmType = None
-            shotISO = None
-            subject = None
-            development = None
-            notes = None
-
-            if re.search(r'^1\/', request.form['shutter']):
-                shutter = re.sub(r'^1\/', r'', request.form['shutter'])
-            elif re.search(r'"', request.form['shutter']):
-                shutter = re.sub(r'"', r'', request.form['shutter'])
-            elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
-                shutter = 0
-            elif request.form['shutter'] != '':
-                shutter = request.form['shutter']
-
-            if request.form['aperture'] != '':
-                aperture = request.form['aperture']
-
-            if request.form['lens'] != '':
-                lensID = request.form['lens']
-
-            if request.form['metering'] != '':
-                metering = request.form['metering']
-
-            if request.form.get('flash') != None:
-                flash = 'Yes'
-
-            if request.form.get('filmType') != '':
-                filmType = request.form.get('filmType')
-
-            if request.form.get('shotISO') != '':
-                shotISO = request.form.get('shotISO')
-
-            if request.form.get('subject') != '':
-                subject = request.form.get('subject')
-
-            if request.form.get('development') != '':
-                development = request.form.get('development')
-
-            if request.form.get('notes') != '':
-                notes = request.form['notes']
-
-            qry = text("""INSERT INTO Exposures
-                (filmID, exposureNumber, lensID, shutter, aperture, filmTypeID, iso, metering, flash, subject, development, notes)
-                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :filmType, :shotISO, :metering, :flash, :subject, :development, :notes)""")
-            result = engine.execute(qry,
-                filmID = filmID,
-                exposureNumber = request.form['exposureNumber'],
-                lensID = lensID,
-                shutter = shutter,
-                aperture = aperture,
-                filmType = filmType,
-                shotISO = shotISO,
-                metering = metering,
-                flash = flash,
-                subject = subject,
-                development = development,
-                notes = notes)
-
-            qry = text("""INSERT INTO ExposureFilters
-                (filmID, exposureNumber, filterID)
-                VALUES (:filmID, :exposureNumber, :filterID)""")
-            for filterID in request.form.getlist('filters'):
-                engine.execute(qry,
-                    filmID = filmID,
-                    exposureNumber = request.form['exposureNumber'],
-                    filterID = filterID)
-
     # Reads
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
         FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
@@ -302,7 +228,7 @@ def film(binderID, projectID, filmID):
         WHERE filmID = :filmID""")
     lastExposureResult = engine.execute(qry, filmID=filmID).first()
     if not lastExposureResult[0]:
-        last_exposure = None
+        last_exposure = 0
     else:
         last_exposure = lastExposureResult[0]
 
@@ -339,21 +265,97 @@ def film(binderID, projectID, filmID):
             template = 'film/lf.html';
         if film.filmSize == '8x10':
             template = 'film/lf.html';
+
+    # New Exposure (for next entry)
+    exposure = {
+        'exposureNumber':  last_exposure + 1
+    }
+
     return render_template(template,
-        binderID=binderID,
+        binderID=binderID, projectID=projectID, filmID=filmID,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
-        last_exposure=last_exposure, print_view=print_view, filmTypes=filmTypes,
+        last_exposure=last_exposure, exposure=exposure, print_view=print_view, filmTypes=filmTypes,
         view='exposures')
 
 # Edit Exposure
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 def expsoure(binderID, projectID, filmID, exposureNumber):
     if request.method == 'POST':
+        lensID = None
+        aperture = None
+        metering = None
+        flash = 'No'
+        filmType = None
+        shotISO = None
+        subject = None
+        development = None
+        notes = None
+        shutter = None
+
+        if re.search(r'^1\/', request.form['shutter']):
+            shutter = re.sub(r'^1\/', r'', request.form['shutter'])
+        elif re.search(r'"', request.form['shutter']):
+            shutter = re.sub(r'"', r'', request.form['shutter'])
+        elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
+            shutter = 0
+        elif request.form['shutter'] != '':
+            shutter = request.form['shutter']
+
+        if request.form['aperture'] != '':
+            aperture = request.form['aperture']
+
+        if request.form['lens'] != '':
+            lensID = request.form['lens']
+
+        if request.form['metering'] != '':
+            metering = request.form['metering']
+
+        if request.form.get('flash') != None:
+            flash = 'Yes'
+
+        if request.form.get('filmType') != '':
+            filmType = request.form.get('filmType')
+
+        if request.form.get('shotISO') != '':
+            shotISO = request.form.get('shotISO')
+
+        if request.form.get('subject') != '':
+            subject = request.form.get('subject')
+
+        if request.form.get('development') != '':
+            development = request.form.get('development')
+
+        if request.form.get('notes') != '':
+            notes = request.form['notes']
+
+        if request.form['button'] == 'addExposure':
+            qry = text("""INSERT INTO Exposures
+                (filmID, exposureNumber, lensID, shutter, aperture, filmTypeID, iso, metering, flash, subject, development, notes)
+                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :filmType, :shotISO, :metering, :flash, :subject, :development, :notes)""")
+            result = engine.execute(qry,
+                filmID = filmID,
+                exposureNumber = request.form['exposureNumber'],
+                lensID = lensID,
+                shutter = shutter,
+                aperture = aperture,
+                filmType = filmType,
+                shotISO = shotISO,
+                metering = metering,
+                flash = flash,
+                subject = subject,
+                development = development,
+                notes = notes)
+
+            qry = text("""INSERT INTO ExposureFilters
+                (filmID, exposureNumber, filterID)
+                VALUES (:filmID, :exposureNumber, :filterID)""")
+            for filterID in request.form.getlist('filters'):
+                engine.execute(qry,
+                    filmID = filmID,
+                    exposureNumber = request.form['exposureNumber'],
+                    filterID = filterID)
+
         if request.form['button'] == 'updateExposure':
-            if request.form.get('flash') != None:
-                flash = 'Yes'
-            else:
-                flash = 'No'
             qry = text("""UPDATE Exposures
                 SET exposureNumber = :exposureNumberNew,
                     shutter = :shutter,
@@ -361,23 +363,41 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
                     lensID = :lensID,
                     flash = :flash,
                     metering = :metering,
-                    notes = :notes
+                    notes = :notes,
+                    subject = :subject,
+                    development = :development
                 WHERE filmID = :filmID
                 AND exposureNumber = :exposureNumberOld""")
             engine.execute(qry,
                 filmID = filmID,
                 exposureNumberNew = request.form.get('exposureNumber'),
                 exposureNumberOld = exposureNumber,
-                shutter = request.form.get('shutter'),
-                aperture = request.form.get('aperture'),
-                lensID = request.form.get('lensID'),
+                shutter = shutter,
+                aperture = aperture,
+                lensID = lensID,
                 flash = flash,
-                metering = request.form.get('metering'),
-                notes = request.form.get('notes'))
-            return redirect('/binders/' + str(binderID)
-                + '/projects/' + str(projectID)
-                + '/films/' + str(filmID)
-                + '/exposure/' + request.form['exposureNumber'])
+                metering = metering,
+                notes = notes,
+                subject = subject,
+                development = development)
+
+            qry = text("""DELETE FROM ExposureFilters
+                WHERE filmID = :filmID
+                AND exposureNumber = :exposureNumber""")
+            engine.execute(qry, filmID = filmID,
+            exposureNumber = request.form['exposureNumber'])
+
+            qry = text("""INSERT INTO ExposureFilters
+                (filmID, exposureNumber, filterID)
+                VALUES (:filmID, :exposureNumber, :filterID)""")
+            for filterID in request.form.getlist('filters'):
+                engine.execute(qry,
+                    filmID = filmID,
+                    exposureNumber = request.form['exposureNumber'],
+                    filterID = filterID)
+        return redirect('/binders/' + str(binderID)
+            + '/projects/' + str(projectID)
+            + '/films/' + str(filmID))
 
     qry = text("""SELECT Filters.filterID, Filters.name,
         IF(exposureNumber IS NOT NULL, 'checked', NULL) AS checked
@@ -405,11 +425,16 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         exposureNumber = exposureNumber).fetchall()
     exposureFilters = functions.result_to_dict(filtersResult)
 
+    qry = text("""SELECT filmSize FROM Cameras
+        JOIN Films On Films.cameraID = Cameras.cameraID
+        WHERE filmID = :filmID""")
+    filmSize = engine.execute(qry, filmID=filmID).fetchone()
+
     return render_template('film/edit-exposure.html',
         binderID=binderID,
         projectID=projectID, filmID=filmID,
         filters=filters, lenses=lenses, exposure=exposure,
-        exposureFilters=exposureFilters)
+        exposureFilters=exposureFilters, filmSize=filmSize)
 
 
 @app.route('/filters',  methods = ['GET'])
