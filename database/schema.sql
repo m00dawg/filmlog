@@ -61,6 +61,7 @@ CREATE TABLE Binders(
     name varchar(64) NOT NULL,
     projectCount TINYINT UNSIGNED NOT NULL DEFAULT 0,
     createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY user_name_uq (userID, name),
     KEY userID_fk (userID),
     CONSTRAINT Binders_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
@@ -71,7 +72,7 @@ CREATE TABLE Projects(
     filmCount SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name varchar(64) NOT NULL,
-    UNIQUE KEY name_uq (name),
+    UNIQUE KEY binder_name_uq (binderID, name),
     KEY projects_binderID_fk (binderID),
     CONSTRAINT projects_binderID_fk FOREIGN KEY (binderID) REFERENCES Binders (binderID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
@@ -117,7 +118,7 @@ CREATE TABLE Exposures(
     metering ENUM('Incident', 'Reflective') DEFAULT NULL,
     stability ENUM('Handheld', 'Tripod') DEFAULT NULL,
     subject VARCHAR(128) DEFAULT NULL,
-    developed VARCHAR(255) DEFAULT NULL,
+    development VARCHAR(255) DEFAULT NULL,
     notes VARCHAR(255) DEFAULT NULL,
     PRIMARY KEY (filmID, exposureNumber),
     KEY filmTypeID_idx (filmTypeID),
@@ -260,5 +261,6 @@ CREATE TRIGGER ExposureCountDecrement
 //
 
 DELIMITER ;
+
 
 
