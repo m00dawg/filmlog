@@ -493,16 +493,6 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         filters=filters, lenses=lenses, exposure=exposure,
         exposureFilters=exposureFilters, filmSize=filmSize)
 
-
-@app.route('/filters',  methods = ['GET'])
-@login_required
-def filters():
-    qry = text("""SELECT filterID, name, code, factor
-                  FROM Filters
-                  WHERE userID = :userID""")
-    filters = engine.execute(qry, userID = current_user.get_id()).fetchall()
-    return render_template('filters.html', filters=filters)
-
 @app.route('/filmtypes',  methods = ['GET'])
 @login_required
 def filmtypes():
@@ -513,16 +503,24 @@ def filmtypes():
     filmtypes = engine.execute(qry).fetchall()
     return render_template('filmtypes.html', filmtypes=filmtypes)
 
-@app.route('/cameras',  methods = ['GET', 'POST'])
+@app.route('/gear',  methods = ['GET', 'POST'])
 @login_required
-def cameras():
+def gear():
     if request.method == 'POST':
         qry = text("""INSERT INTO Cameras
-            (name, filmSize) VALUES (:name, :filmSize)""")
+            (name, filmSize, userID) VALUES (:name, :filmSize, :userID)""")
         result = engine.execute(qry,
             name = request.form['name'],
-            filmSize = request.form['filmSize'])
+            filmSize = request.form['filmSize'],
+            userID = current_user.get_id())
 
-    qry = text("""SELECT cameraID, name, filmSize FROM Cameras""")
-    cameras = engine.execute(qry).fetchall()
-    return render_template('cameras.html', cameras=cameras)
+    qry = text("""SELECT cameraID, name, filmSize
+        FROM Cameras
+        WHERE userID = :userID""")
+    cameras = engine.execute(qry, userID = current_user.get_id()).fetchall()
+
+    qry = text("""SELECT filterID, name, code, factor
+                  FROM Filters
+                  WHERE userID = :userID""")
+    filters = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    return render_template('gear.html', cameras=cameras, filters=filters)

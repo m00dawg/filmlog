@@ -19,7 +19,7 @@ CREATE TABLE Cameras (
 CREATE TABLE Lenses(
     lensID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     userID INT UNSIGNED NOT NULL,
-    name VARCHAR(64) NOT NULL
+    name VARCHAR(64) NOT NULL,
     UNIQUE user_name_uq (userID, name),
     CONSTRAINT Lenses_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
@@ -57,7 +57,8 @@ CREATE TABLE FilmStock(
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (userID, filmTypeID, filmSize),
     KEY filmtypeID_fk (filmTypeID),
-    CONSTRAINT filmstock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT FilmStock_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FilmSTock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Binders(
@@ -140,9 +141,8 @@ CREATE TABLE Filters(
     factor DECIMAL(4, 1) NOT NULL,
     ev DECIMAL(3,1) NOT NULL,
     UNIQUE user_name (userID, name),
-    UNIQUE user_code (userID, code)
+    UNIQUE user_code (userID, code),
     CONSTRAINT Filters_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
-
 ) ENGINE='InnoDB';
 
 CREATE TABLE ExposureFilters(
