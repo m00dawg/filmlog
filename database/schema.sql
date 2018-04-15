@@ -12,13 +12,16 @@ CREATE TABLE Cameras (
     userID INT UNSIGNED NOT NULL,
     filmSize ENUM('35mm', '120', '220', '4x5', '8x10') NOT NULL,
     name varchar(64) NOT NULL,
-    KEY userID_fk (userID),
+    UNIQUE user_name_eq (userID, name),
     CONSTRAINT Cameras_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Lenses(
     lensID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    userID INT UNSIGNED NOT NULL,
     name VARCHAR(64) NOT NULL
+    UNIQUE user_name_uq (userID, name),
+    CONSTRAINT Lenses_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE CameraLenses(
@@ -49,9 +52,11 @@ CREATE TABLE FilmTypes (
 
 CREATE TABLE FilmStock(
     filmTypeID SMALLINT UNSIGNED NOT NULL,
+    userID INT UNSIGNED NOT NULL,
     filmSize ENUM('35mm 24', '35mm 36', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (filmTypeID, filmSize),
+    PRIMARY KEY (userID, filmTypeID, filmSize),
+    KEY filmtypeID_fk (filmTypeID),
     CONSTRAINT filmstock_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
@@ -62,7 +67,6 @@ CREATE TABLE Binders(
     projectCount TINYINT UNSIGNED NOT NULL DEFAULT 0,
     createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY user_name_uq (userID, name),
-    KEY userID_fk (userID),
     CONSTRAINT Binders_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
@@ -129,17 +133,22 @@ CREATE TABLE Exposures(
 ) ENGINE='InnoDB';
 
 CREATE TABLE Filters(
-    filterID SMALLINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    filterID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    userID INT UNSIGNED NOT NULL,
     name VARCHAR(64) NOT NULL,
     code VARCHAR(8) NOT NULL,
     factor DECIMAL(4, 1) NOT NULL,
-    ev DECIMAL(3,1) NOT NULL
+    ev DECIMAL(3,1) NOT NULL,
+    UNIQUE user_name (userID, name),
+    UNIQUE user_code (userID, code)
+    CONSTRAINT Filters_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
+
 ) ENGINE='InnoDB';
 
 CREATE TABLE ExposureFilters(
     filmID INT UNSIGNED NOT NULL,
     exposureNumber TINYINT UNSIGNED NOT NULL,
-    filterID SMALLINT UNSIGNED NOT NULL,
+    filterID INT UNSIGNED NOT NULL,
     PRIMARY KEY (filmID, exposureNumber, filterID),
     KEY filterID_idx (filterID),
     CONSTRAINT ExposureFilters_filmID_fk FOREIGN KEY (filmID, exposureNumber) REFERENCES Exposures (filmID, exposureNumber) ON DELETE CASCADE ON UPDATE CASCADE,

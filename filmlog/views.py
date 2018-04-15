@@ -142,7 +142,6 @@ def project(binderID, projectID):
 @login_required
 def film(binderID, projectID, filmID):
     # Check this is a valid film to show
-    # Reads
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
         FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
         Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
@@ -163,6 +162,8 @@ def film(binderID, projectID, filmID):
         binderID=binderID,
         filmID=filmID,
         userID=current_user.get_id()).fetchone()
+    if film is None:
+        abort(404)
 
     if request.method == 'POST':
         if request.form['button'] == 'deleteExposure':
@@ -221,14 +222,6 @@ def film(binderID, projectID, filmID):
                 developed = developed,
                 development = request.form['development'],
                 notes = request.form['notes'])
-
-
-
-    # If we do not find a roll of film for the project, bail out so we
-    # don't display any exposures. Preventing shenaigans with cross
-    # project access.
-    if not film:
-        abort(404)
 
     qry = text("""SELECT filterID, name FROM Filters""")
     filters = engine.execute(qry).fetchall()
@@ -320,6 +313,30 @@ def film(binderID, projectID, filmID):
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 @login_required
 def expsoure(binderID, projectID, filmID, exposureNumber):
+    # Check this is a valid film to show
+    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
+        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
+        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
+        loaded, unloaded, developed, development, Cameras.name AS camera,
+        Cameras.cameraID AS cameraID, notes
+        FROM Films
+        JOIN Projects ON Projects.projectID = Films.projectID
+        JOIN Binders ON Binders.binderID = Projects.binderID
+        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
+        WHERE Films.projectID = :projectID
+        AND filmID = :filmID
+        AND Projects.binderID = :binderID
+        AND Binders.userID = :userID""")
+    film = engine.execute(qry,
+        projectID=projectID,
+        binderID=binderID,
+        filmID=filmID,
+        userID=current_user.get_id()).fetchone()
+    if film is None:
+        abort(404)
+
     if request.method == 'POST':
         lensID = None
         aperture = None
@@ -481,8 +498,9 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
 @login_required
 def filters():
     qry = text("""SELECT filterID, name, code, factor
-                  FROM Filters""")
-    filters = engine.execute(qry).fetchall()
+                  FROM Filters
+                  WHERE userID = :userID""")
+    filters = engine.execute(qry, userID = current_user.get_id()).fetchall()
     return render_template('filters.html', filters=filters)
 
 @app.route('/filmtypes',  methods = ['GET'])
