@@ -20,14 +20,14 @@
     {% endfor %}
   </table>
 
-  <div class="panel panel-primary">
-    <div class="panel-heading">Add Binder</div>
-    <div class="panel-body">
+  <div class="card">
+    <div class="card-header"><strong>Add Binder</strong></div>
+    <div class="card-body">
       <form role="form" class="form-horizontal"
         action="/binders"
         method="POST">
         <div class="form-group">
-          <div class="col-sm-6">
+          <div class="col-6">
             <label>Name</label>
             <input type="text" class="form-control" placeholder="My Binder" name="name" aria-describedby="Name">
           </div>

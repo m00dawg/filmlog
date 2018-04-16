@@ -13,8 +13,8 @@
   </h1>
 </div>
 
-  <div class="panel panel-default">
-    <div class="panel-heading"><strong>Overview</strong></div>
+  <div class="card">
+    <div class="card-header"><strong>Overview</strong></div>
     <table class="table">
       <tr>
         <th>Camera</th><td>{{ film.camera }}</td>
@@ -38,9 +38,10 @@
       {% endif %}
     </table>
   </div>
-
-    <ul class="nav nav-tabs">
-      <li {% if view == 'exposures' %} class="active" {% endif %}><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
-
-      <li {% if view == 'prints' %} class="active" {% endif %}><a href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
-    </ul>
+  <br />
+  <div>
+      <ul class="nav nav-tabs">
+        <li class="nav-item"><a class="nav-link {% if view =='exposures' %} active {% endif %} " href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
+        <li class="nav-item"><a class="nav-link {% if view == 'prints' %} active {% endif %}" href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
+      </ul>
+  </div>

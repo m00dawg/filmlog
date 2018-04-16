@@ -27,13 +27,13 @@
     </table>
   </div>
 
-  <div class="panel panel-primary">
-    <div class="panel-heading">Add Roll/Film</div>
-    <div class="panel-body">
+  <div class="card">
+    <div class="card-header">Add Roll/Film</div>
+    <div class="card-body">
       <form role="form" class="form-horizontal"
         action="/binders/{{ binderID }}/projects/{{ project.projectID }}"
         method="POST">
-        <div class="form-group">
+        <div class="form-group row">
           <div class="col-sm-4">
             <label>Title</label>
             <input type="text" class="form-control" placeholder="My Film Roll" name="title" aria-describedby="Title">
@@ -47,7 +47,7 @@
             <input type="text" class="form-control" placeholder="Blank Means Now" name="fileDate" aria-describedby="FileDate">
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
           <div class="col-sm-4">
             <label>Film</label>
             <select class="form-control" name="filmType">
@@ -71,7 +71,7 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
           <div class="col-sm-4">
               <label>Loaded</label>
               <input type="text" class="form-control" placeholder="YYYY-MM-DD" name="loaded" aria-describedby="Loaded On">
@@ -85,13 +85,13 @@
               <input type="text" class="form-control" placeholder="YYYY-MM-DD" name="developed" aria-describedby="Developed On">
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
           <div class="col-sm-12">
             <label>Development</label>
             <input type="text" class="form-control" placeholder="Explanation on development process" name="development" aria-describedby="Development">
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
           <div class="col-sm-12">
             <label>Notes</label><br />
             <textarea name="notes" rows="4" class="form-control"></textarea>
