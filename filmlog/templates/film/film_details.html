@@ -40,8 +40,10 @@
   </div>
   <br />
   <div>
+    {% if not print_view %}
       <ul class="nav nav-tabs">
         <li class="nav-item"><a class="nav-link {% if view =='exposures' %} active {% endif %} " href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}">Exposures</a></li>
         <li class="nav-item"><a class="nav-link {% if view == 'prints' %} active {% endif %}" href="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints">Darkroom Prints</a></li>
       </ul>
+    {% endif %}
   </div>

@@ -33,7 +33,7 @@ body, span, div, table, tr, tbody, tfoot, td, hr {
   border-bottom: 1px solid #eee;
 }
 
-.panel-heading{
+.card-header{
   padding: 2px;
 }
 
