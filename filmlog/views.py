@@ -223,8 +223,9 @@ def film(binderID, projectID, filmID):
                 development = request.form['development'],
                 notes = request.form['notes'])
 
-    qry = text("""SELECT filterID, name FROM Filters""")
-    filters = engine.execute(qry).fetchall()
+    qry = text("""SELECT filterID, name FROM Filters
+        WHERE userID = :userID""")
+    filters = engine.execute(qry, userID = current_user(get_id)).fetchall()
 
     qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
