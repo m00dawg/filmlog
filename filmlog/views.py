@@ -22,57 +22,74 @@ def index():
 @app.route('/binders',  methods = ['POST', 'GET'])
 @login_required
 def binders():
+    userID = current_user.get_id()
     if request.method == 'POST':
+        connection = engine.connect()
+        transaction = connection.begin()
+        nextBinderID = next_id(connection, 'binderID', 'Binders')
         qry = text("""INSERT INTO Binders
-            (name, userID) VALUES (:name, :userID)""")
+            (binderID, userID, name) VALUES (:binderID, :userID, :name)""")
         result = engine.execute(qry,
-            name = request.form['name'],
-            userID = current_user.get_id())
+            binderID = nextBinderID,
+            userID = userID,
+            name = request.form['name'])
+        transaction.commit()
     qry = text("""SELECT binderID, name, projectCount, createdOn
         FROM Binders WHERE userID = :userID""")
-    binders = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    binders = engine.execute(qry, userID = userID).fetchall()
     return render_template('binders.html', binders=binders)
 
 # Project List
 @app.route('/binders/<int:binderID>/projects',  methods = ['POST', 'GET'])
 @login_required
 def projects(binderID):
+    userID = current_user.get_id()
+
     # Get current binder (and check to make sure a user isn't trying to
     # access someone else's binder)
     qry = text("""SELECT binderID, name FROM Binders
         WHERE binderID = :binderID AND userID = :userID""")
     binder = engine.execute(qry,
         binderID=binderID,
-        userID=current_user.get_id()).fetchone()
+        userID=userID).fetchone()
     if binder is None:
         abort(404)
 
     if request.method == 'POST':
+        connection = engine.connect()
+        transaction = connection.begin()
+        nextProjectID = next_id(connection, 'projectID', 'Projects')
         qry = text("""INSERT INTO Projects
-            (binderID, name) VALUES (:binderID, :name)""")
+            (projectID, binderID, userID, name)
+            VALUES (:projectID, :binderID, :userID, :name)""")
         result = engine.execute(qry,
+            projectID = nextProjectID,
             binderID = binderID,
+            userID = userID,
             name = request.form['name'])
 
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects
-        WHERE binderID = :binderID""")
-    projects = engine.execute(qry, binderID=binderID).fetchall()
+        WHERE binderID = :binderID
+        AND userID = :userID""")
+    projects = engine.execute(qry, binderID=binderID, userID = userID).fetchall()
     return render_template('projects.html', binder=binder, binderID=binderID, projects=projects)
 
 # Project Films List
 @app.route('/binders/<int:binderID>/projects/<int:projectID>',  methods = ['POST', 'GET'])
 @login_required
 def project(binderID, projectID):
+    userID = current_user.get_id()
     qry = text("""SELECT projectID, Projects.name AS name
         FROM Projects
         JOIN Binders ON Binders.binderID = Projects.binderID
+            AND Binders.userID = Projects.userID
         WHERE projectID = :projectID
         AND Projects.binderID = :binderID
-        AND userID = :userID""")
+        AND Projects.userID = :userID""")
     project = engine.execute(qry,
         projectID = projectID,
         binderID = binderID,
-        userID = current_user.get_id()).fetchone()
+        userID = userID).fetchone()
     if project is None:
         abort(404)
 
@@ -512,7 +529,7 @@ def gear():
         connection = engine.connect()
         transaction = connection.begin()
 
-        nextCameraID = functions.next_id(connection, 'cameraID', 'Cameras')
+        nextCameraID = next_id(connection, 'cameraID', 'Cameras')
         qry = text("""INSERT INTO Cameras
             (cameraID, userID, name, filmSize) VALUES (:cameraID, :userID, :name, :filmSize)""")
         result = connection.execute(qry,

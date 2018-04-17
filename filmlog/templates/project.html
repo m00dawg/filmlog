@@ -23,6 +23,8 @@
               <td>{{ film.brand }} {{ film.filmName }} at {{ film.iso }}</td>
               <td>{{ film.fileDate|to_date }}</td>
           </tr>
+      {% else %}
+        <tr><td colspan="6">No Films Found</td></tr>
       {% endfor %}
     </table>
   </div>

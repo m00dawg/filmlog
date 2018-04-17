@@ -8,3 +8,6 @@ Flask-Login
 mysqlclient
 werkzeug
 uwsgi
+jinja2
+itsdangerous
+click
