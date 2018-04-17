@@ -1,0 +1,9 @@
+<td class="text-right">
+  <form role="form" class="form-horizontal"
+    action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+    method="POST">
+    <button name="button" value="editExposure" action="submit" class="btn btn-sm btn-primary">Edit</button>
+    <button name="button" value="deleteExposure" action="submit" class="btn btn-sm btn-danger">Delete</button>
+    <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
+  </form>
+</td>
