@@ -53,7 +53,7 @@ CREATE TABLE FilmTypes (
 CREATE TABLE FilmStock(
     filmTypeID SMALLINT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
-    filmSize ENUM('35mm 24', '35mm 36', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
+    filmSize ENUM('35mm 24', '35mm 36', '35mm Hand-Roll', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (userID, filmTypeID, filmSize),
     KEY filmtypeID_fk (filmTypeID),

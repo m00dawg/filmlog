@@ -71,7 +71,7 @@ def filmstock():
         FROM FilmStock
         JOIN FilmTypes ON FilmTypes.filmTypeID = FilmStock.filmTypeID
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        WHERE filmSize IN ("35mm 24", "35mm 36", "35mm 100' Bulk Roll")
+        WHERE filmSize IN ("35mm 24", "35mm 36", "35mm Hand Roll", "35mm 100' Bulk Roll")
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
     stock_35mm = engine.execute(qry, userID = current_user.get_id()).fetchall()

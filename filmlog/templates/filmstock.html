@@ -25,8 +25,8 @@
           <form role="form" class="form-horizontal"
             action="/filmstock"
             method="POST">
-            <button name="button" value="increment" action="submit" class="btn btn-xs btn-primary">Increment</button>
-            <button name="button" value="decrement" action="submit" class="btn btn-xs btn-danger">Decrement</button>
+            <button name="button" value="increment" action="submit" class="btn btn-sm btn-primary">Increment</button>
+            <button name="button" value="decrement" action="submit" class="btn btn-sm btn-danger">Decrement</button>
             <input type="hidden" name="filmTypeID" value="{{ film.filmTypeID }}" >
             <input type="hidden" name="filmSize" value="{{ film.filmSize }}" >
           </form>
@@ -39,11 +39,9 @@
 
 {% block content %}
   <h1 class="page-header">Film Stock</h1>
-
     {{ list_film('35mm', stock_35mm) }}
     {{ list_film('Medium Format', stock_mf) }}
     {{ list_film('Sheet Film', stock_sheets) }}
-
   </table>
 
   <div class="card">
@@ -66,6 +64,7 @@
             <select class="form-control" name="filmSize">
                 <option value="35mm 24">35mm 24</option>
                 <option value="35mm 36">35mm 36</option>
+                <option value="35mm Hand Roll">35mm Hand Roll</option>
                 <option value="35mm 100' Bulk Roll">35m 100' Bulk Roll</option>
                 <option value="120">120</option>
                 <option value="220">220</option>
