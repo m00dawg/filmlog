@@ -4,7 +4,7 @@
 
   {% include 'film/film_details.html' %}
 
-  <div class="panel panel-default">
+  <div class="card">
     <table class="table table-striped-by-two table-bordered" id="exposures">
       <tr>
         <th>Number</th>
@@ -77,9 +77,9 @@
 </div>
 
 
-<div class="panel panel-primary">
-  <div class="panel-heading">Add Print</div>
-  <div class="panel-body">
+<div class="card">
+  <div class="card-header">Add Print</div>
+  <div class="card-body">
     <form role="form" class="form-horizontal"
       action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
@@ -134,8 +134,8 @@
 </div>
 
 {% if film.notes %}
-<div class="panel panel-default">
-  <div class="panel-heading">Notes</div>
+<div class="card">
+  <div class="card-header">Notes</div>
   <div class="filmNotes">
     {{ film.notes }}
   </div>

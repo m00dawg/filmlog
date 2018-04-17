@@ -5,7 +5,7 @@
   {% include 'film/film_details.html' %}
 
   {% if exposures %}
-  <div class="panel panel-default">
+  <div class="card">
     {% for exposure in exposures %}
       {% if loop.index % 2 != 0 %}
         <div class="flexrow">
@@ -108,8 +108,8 @@
 </div>
 
 {% if film.notes %}
-<div class="panel panel-default">
-  <div class="panel-heading">Notes</div>
+<div class="card">
+  <div class="card-header">Notes</div>
   <div class="filmNotes">
     {{ film.notes }}
   </div>

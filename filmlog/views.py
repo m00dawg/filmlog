@@ -307,7 +307,8 @@ def film(binderID, projectID, filmID):
     return render_template(template,
         binderID=binderID, projectID=projectID, filmID=filmID,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
-        last_exposure=last_exposure, exposure=exposure, print_view=print_view, filmTypes=filmTypes,
+        last_exposure=last_exposure, exposure=exposure, print_view=print_view,
+        filmTypes=filmTypes,
         view='exposures')
 
 # Edit Exposure

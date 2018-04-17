@@ -5,8 +5,8 @@
   {% include 'film/film_details.html' %}
 
   {% if exposures %}
-  <div class="panel panel-default">
-    <div class="panel-heading"><strong>Exposures</strong></div>
+  <div class="card">
+    <div class="card-header"><strong>Exposures</strong></div>
     <table class="table table-striped-by-two table-bordered" id="exposures">
       <tr>
         <th>Number</th>
@@ -60,15 +60,7 @@
               {{ filter.code }}
             {% endfor %}
           </td>
-          <td class="text-right">
-            <form role="form" class="form-horizontal"
-              action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-              method="POST">
-              <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
-              <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
-              <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
-            </form>
-          </td>
+          {% include 'film/exposurebuttons.html' %} 
         </tr>
         <tr>
           {% if exposure.notes %}
@@ -82,9 +74,9 @@
 </div>
 {% endif %}
 
-<div class="panel panel-primary">
-  <div class="panel-heading">Add Exposure</div>
-  <div class="panel-body">
+<div class="card">
+  <div class="card-header">Add Exposure</div>
+  <div class="card-body">
     <form role="form" class="form-horizontal"
       action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
       method="POST">
@@ -150,8 +142,8 @@
 </div>
 
 {% if film.notes %}
-<div class="panel panel-default">
-  <div class="panel-heading">Notes</div>
+<div class="card">
+  <div class="card-header">Notes</div>
   <div class="filmNotes">
     {{ film.notes }}
   </div>

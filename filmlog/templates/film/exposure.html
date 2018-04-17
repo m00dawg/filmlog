@@ -74,7 +74,7 @@
         </div>
       </div>
       <div class="form-group row">
-        {% if filmSize == '4x5' or filmSize == '8x10' %}
+        {% if film.filmSize == '4x5' or film.filmSize == '8x10' %}
           <div class="col-sm-12">
             <label>Subject</label><br />
             <input type="text" class="form-control"
@@ -87,7 +87,7 @@
           <div class="col-sm-12">
             <label>Development</label><br />
             <input type="text" class="form-control"
-              placeholder="Development" name="subject" aria-describedby="Development"
+              placeholder="Development" name="development" aria-describedby="Development"
               {% if exposure.development %}
                 value="{{ exposure.development }}"
               {% endif %}

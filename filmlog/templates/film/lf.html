@@ -5,7 +5,7 @@
   {% include 'film/film_details.html' %}
 
   {% if exposures %}
-  <div class="panel panel-default">
+  <div class="card">
     {% for exposure in exposures %}
       {% if loop.index % 2 != 0 %}
         <div class="flexrow">
@@ -97,14 +97,9 @@
           <td>{{ exposure.notes }}</td>
         </tr>
     </table>
-
-    <form role="form" class="form-horizontal"
-      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-      method="POST">
-      <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
-      <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
-      <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
-    </form>
+    <table><tr>
+    {% include 'film/exposurebuttons.html' %}
+    </tr></table>
     </div>
     {% if loop.index % 2 == 0 %}
       </div>
@@ -113,115 +108,15 @@
 </div>
 {% endif %}
 
-<div class="panel panel-primary col-sm-12">
-  <div class="panel-heading">Add Exposure</div>
-  <div class="panel-body">
-    <form role="form" class="form-horizontal"
-      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-      method="POST">
-      <div class="form-group">
-        <div class="col-sm-3">
-          <label>Exposure #</label>
-          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
-            {% if last_exposure %}
-              value={{ last_exposure + 1 }}
-            {% endif %}
-          >
-        </div>
-        <div class="col-sm-3">
-          <label>Shutter</label>
-          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter">
-        </div>
-        <div class="col-sm-3">
-          <label>Aperture</label>
-          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture">
-        </div>
-        <div class="col-sm-3">
-          <label>Lens</label>
-          <select class="form-control" name="lens">
-              <option value=''> </option>
-              {% for lens in lenses %}
-                <option value="{{ lens.lensID }}">{{ lens.name }}</option>
-              {% endfor %}
-          </select>
-        </div>
-
-        <div class="col-sm-3">
-          <label>Film</label>
-          <select class="form-control" name="filmType">
-              <option value=''></option>
-              {% for film in filmTypes %}
-                <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.name }} {{ film.iso }}</option>
-              {% endfor %}
-          </select>
-        </div>
-        <div class="col-sm-3">
-          <label>Shot ISO</label>
-          <input type="text" class="form-control" placeholder="100" name="shotISO" aria-describedby="ShotISO">
-        </div>
-
-        <div class="col-sm-2">
-          <label>Metering</label>
-          <select class="form-control" name="metering">
-            <option value=''> </option>
-            <option value='Incident'>Incident</option>
-            <option value='Reflective'>Reflective</option>
-          </select>
-        </div>
-        <div class="col-sm-2">
-          <label>Flash</label>
-          <input type="checkbox" class="form-control" name="flash" value="Yes">
-        </div>
-        <div class="col-sm-2">
-          <label>Filters</label><br />
-          {% for filter in filters %}
-            <input type="checkbox"
-                   name="filters"
-                   value="{{ filter.filterID }}">{{ filter.name }}<br />
-          {% endfor %}
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-12">
-          <label>Subject</label><br />
-          <input type="text"
-                    class="form-control"
-                    placeholder="Subject"
-                    name="subject"
-                    size="64"
-                    maxlength="128"
-                    aria-describedby="Subject">
-        </div>
-        <div class="col-sm-12">
-          <label>Notes</label><br />
-          <input type="text"
-                    class="form-control"
-                    placeholder="Notes"
-                    name="notes"
-                    maxlength="255"
-                    aria-describedby="Notes">
-        </div>
-        <div class="col-sm-12">
-          <label>Development</label><br />
-          <input type="text"
-                    class="form-control"
-                    placeholder="Development"
-                    name="development"
-                    maxlength="255"
-                    aria-describedby="Development">
-        </div>
-      </div>
-      <div class="button-bar">
-        <button class="btn btn-success" name="button" value="addExposure" action="submit">Add</button>
-      </div>
-    </div>
-  </form>
+<div class="card">
+  <div class="card-header"><strong>Add Exposure</strong></div>
+    {% include 'film/exposure.html' %}
   </div>
 </div>
 
 {% if film.notes %}
-<div class="panel panel-default">
-  <div class="panel-heading">Notes</div>
+<div class="card">
+  <div class="card-header">Notes</div>
   <div class="filmNotes">
     {{ film.notes }}
   </div>
