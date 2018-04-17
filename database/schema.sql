@@ -8,29 +8,31 @@ CREATE TABLE Users (
 ) ENGINE='InnoDB';
 
 CREATE TABLE Cameras (
-    cameraID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    cameraID SMALLINT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
     filmSize ENUM('35mm', '120', '220', '4x5', '8x10') NOT NULL,
     name varchar(64) NOT NULL,
+    PRIMARY KEY (userID, cameraID),
     UNIQUE user_name_eq (userID, name),
     CONSTRAINT Cameras_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Lenses(
-    lensID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+    lensID SMALLINT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
     name VARCHAR(64) NOT NULL,
+    PRIMARY KEY(userID, lensID),
     UNIQUE user_name_uq (userID, name),
     CONSTRAINT Lenses_userID FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE CameraLenses(
-    cameraID INT UNSIGNED NOT NULL,
-    lensID INT UNSIGNED NOT NULL,
-    PRIMARY KEY (cameraID, lensID),
-    KEY lensID_fk (lensID),
-    CONSTRAINT CameraLenses_cameraID FOREIGN KEY (cameraID) REFERENCES Cameras (cameraID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT CameraLenses_lensID FOREIGN KEY (lensID) REFERENCES Lenses (lensID) ON DELETE RESTRICT ON UPDATE CASCADE
+    cameraID SMALLINT UNSIGNED NOT NULL,
+    lensID SMALLINT UNSIGNED NOT NULL,
+    userID INT UNSIGNED NOT NULL,
+    PRIMARY KEY (userID, cameraID, lensID),
+    CONSTRAINT CameraLenses_Cameras FOREIGN KEY (userID, cameraID) REFERENCES Cameras (userID, cameraID) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT CameraLenses_Lenses FOREIGN KEY (userID, lensID) REFERENCES Lenses (userID, lensID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE FilmBrands(
@@ -53,7 +55,7 @@ CREATE TABLE FilmTypes (
 CREATE TABLE FilmStock(
     filmTypeID SMALLINT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
-    filmSize ENUM('35mm 24', '35mm 36', '35mm Hand-Roll', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
+    filmSize ENUM('35mm 24', '35mm 36', '35mm Hand Roll', '35mm 100\' Bulk Roll', '35mm Hand Rolled', '120', '220', '4x5', '8x10') NOT NULL,
     qty SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (userID, filmTypeID, filmSize),
     KEY filmtypeID_fk (filmTypeID),
@@ -83,10 +85,11 @@ CREATE TABLE Projects(
 ) ENGINE='InnoDB';
 
 CREATE TABLE Films (
-    filmID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,    
+    filmID INT UNSIGNED NOT NULL,
     projectID INT UNSIGNED NOT NULL,
-    cameraID INT UNSIGNED DEFAULT NULL,
-    lensID INT UNSIGNED DEFAULT NULL,
+    cameraID SMALLINT UNSIGNED DEFAULT NULL,
+    lensID SMALLINT UNSIGNED DEFAULT NULL,
+    userID int UNSIGNED NOT NULL,
     filmTypeID SMALLINT UNSIGNED NOT NULL,
     iso SMALLINT UNSIGNED NOT NULL,
     fileDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -98,16 +101,17 @@ CREATE TABLE Films (
     title varchar(64) NOT NULL,
     development varchar(255) DEFAULT NULL,
     notes TEXT DEFAULT NULL,
-    UNIQUE KEY (projectID, fileNo),
-    UNIQUE KEY (projectID, title),
+    PRIMARY KEY (userID, filmID),
+    UNIQUE KEY (userID, projectID, fileNo),
+    UNIQUE KEY (userID, projectID, title),
     KEY films_projectID_fk (projectID),
     KEY films_cameraID_fk (cameraID),
     KEY films_filmTypeID_fk (filmTypeID),
     KEY lensID_fk (lensID),
     CONSTRAINT Films_projectID_fk FOREIGN KEY (projectID) REFERENCES Projects (projectID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT Films_cameraID_fk FOREIGN KEY (cameraID) REFERENCES Cameras (cameraID) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT Films_Cameras_fk FOREIGN KEY (userID, cameraID) REFERENCES Cameras (userID, cameraID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT Films_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT Films_lensID_fk FOREIGN KEY (lensID) REFERENCES Lenses (lensID) ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT Films_Lenses_fk FOREIGN KEY (userID, lensID) REFERENCES Lenses (userID, lensID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 -- Both Roll and Sheet
@@ -115,7 +119,8 @@ CREATE TABLE Exposures(
     filmID INT UNSIGNED NOT NULL,
     exposureNumber TINYINT UNSIGNED NOT NULL,
     filmTypeID SMALLINT UNSIGNED DEFAULT NULL,
-    lensID INT UNSIGNED DEFAULT NULL,
+    lensID SMALLINT UNSIGNED DEFAULT NULL,
+    userID INT UNSIGNED NOT NULL,
     iso SMALLINT UNSIGNED DEFAULT NULL,
     shutter SMALLINT DEFAULT NULL,
     aperture DECIMAL(4,1) UNSIGNED DEFAULT NULL,
@@ -128,9 +133,10 @@ CREATE TABLE Exposures(
     PRIMARY KEY (filmID, exposureNumber),
     KEY filmTypeID_idx (filmTypeID),
     KEY lensID_idx (lensID),
+    KEY userID_idx (userID),
     CONSTRAINT Exposures_filmTypeID_fk FOREIGN KEY (filmTypeID) REFERENCES FilmTypes (filmTypeID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT Exposures_filmID_fk FOREIGN KEY (filmID) REFERENCES Films (filmID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT Exposures_lensID_fk FOREIGN KEY (lensID) REFERENCES Lenses (lensID) ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT Exposures_Films_fk FOREIGN KEY (userID, filmID) REFERENCES Films (userID, filmID) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT Exposures_Lenses_fk FOREIGN KEY (userID, lensID) REFERENCES Lenses (userID, lensID) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Filters(
@@ -183,20 +189,6 @@ CREATE TABLE PaperFilters(
     paperFilterID TINYINT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
     name varchar(12) NOT NULL
 ) ENGINE='InnoDB';
-
-INSERT INTO PaperFilters (name) VALUES ('00');
-INSERT INTO PaperFilters (name) VALUES ('0');
-INSERT INTO PaperFilters (name) VALUES ('1/2');
-INSERT INTO PaperFilters (name) VALUES ('1');
-INSERT INTO PaperFilters (name) VALUES ('1 1/2');
-INSERT INTO PaperFilters (name) VALUES ('2');
-INSERT INTO PaperFilters (name) VALUES ('2 1/2');
-INSERT INTO PaperFilters (name) VALUES ('3');
-INSERT INTO PaperFilters (name) VALUES ('3 1/2');
-INSERT INTO PaperFilters (name) VALUES ('4');
-INSERT INTO PaperFilters (name) VALUES ('4 1/2');
-INSERT INTO PaperFilters (name) VALUES ('5');
-INSERT INTO PaperFilters (name) VALUES ('Split-Grade');
 
 CREATE TABLE Prints (
     printID INT UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -270,6 +262,3 @@ CREATE TRIGGER ExposureCountDecrement
 //
 
 DELIMITER ;
-
-
-

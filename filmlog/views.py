@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 
 from filmlog import app
 from filmlog import database
-from filmlog import functions
+from filmlog.functions import next_id, result_to_dict
 from filmlog import users
 from filmlog import filmstock
 from filmlog import darkroom
@@ -247,14 +247,14 @@ def film(binderID, projectID, filmID):
         LEFT OUTER JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
         WHERE filmID = :filmID""")
     exposuresResult = engine.execute(qry, filmID=filmID).fetchall()
-    exposures = functions.result_to_dict(exposuresResult)
+    exposures = result_to_dict(exposuresResult)
     for exposure in exposures:
         qry = text("""SELECT code FROM ExposureFilters
             JOIN Filters ON Filters.filterID = ExposureFilters.filterID
             WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
         filtersResult = engine.execute(qry, filmID=filmID,
             exposureNumber = exposure['exposureNumber']).fetchall()
-        exposureFilters = functions.result_to_dict(filtersResult)
+        exposureFilters = result_to_dict(filtersResult)
         exposure['filters'] = exposureFilters
 
     qry = text("""SELECT MAX(exposureNumber) AS max FROM Exposures
@@ -482,7 +482,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
     filtersResult = engine.execute(qry, filmID=filmID,
         exposureNumber = exposureNumber).fetchall()
-    exposureFilters = functions.result_to_dict(filtersResult)
+    exposureFilters = result_to_dict(filtersResult)
 
     qry = text("""SELECT filmSize FROM Cameras
         JOIN Films On Films.cameraID = Cameras.cameraID
@@ -509,12 +509,19 @@ def filmtypes():
 @login_required
 def gear():
     if request.method == 'POST':
+        connection = engine.connect()
+        transaction = connection.begin()
+
+        nextCameraID = functions.next_id(connection, 'cameraID', 'Cameras')
         qry = text("""INSERT INTO Cameras
-            (name, filmSize, userID) VALUES (:name, :filmSize, :userID)""")
-        result = engine.execute(qry,
+            (cameraID, userID, name, filmSize) VALUES (:cameraID, :userID, :name, :filmSize)""")
+        result = connection.execute(qry,
+            cameraID = nextCameraID,
+            userID = int(current_user.get_id()),
             name = request.form['name'],
             filmSize = request.form['filmSize'],
-            userID = current_user.get_id())
+            )
+        transaction.commit()
 
     qry = text("""SELECT cameraID, name, filmSize
         FROM Cameras
