@@ -78,6 +78,8 @@ def projects(binderID):
 @app.route('/binders/<int:binderID>/projects/<int:projectID>',  methods = ['POST', 'GET'])
 @login_required
 def project(binderID, projectID):
+    connection = engine.connect()
+    transaction = connection.begin()
     userID = current_user.get_id()
     qry = text("""SELECT projectID, Projects.name AS name
         FROM Projects
@@ -108,13 +110,18 @@ def project(binderID, projectID):
         if request.form['developed'] != '':
             developed = request.form['developed']
 
+
+        nextFilmID = next_id(connection, 'filmID', 'Films')
+
         qry = text("""INSERT INTO Films
-            (projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso,
+            (userID, filmID, projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso,
              loaded, unloaded, developed, development, notes)
-            VALUES (:projectID, :cameraID, :title, UPPER(:fileNo),
+            VALUES (:userID, :filmID, :projectID, :cameraID, :title, UPPER(:fileNo),
                     :fileDate, :filmTypeID, :iso, :loaded, :unloaded,
                     :developed, :development, :notes)""")
         result = engine.execute(qry,
+            userID = userID,
+            filmID = nextFilmID,
             projectID = projectID,
             cameraID = request.form['camera'],
             title = request.form['title'],
@@ -127,6 +134,7 @@ def project(binderID, projectID):
             developed = developed,
             development = request.form['development'],
             notes = request.form['notes'])
+
 
     qry = text("""SELECT filmID, title, fileNo, fileDate,
         Films.iso AS iso, brand, FilmTypes.name AS filmName,
@@ -147,6 +155,8 @@ def project(binderID, projectID):
     qry = text("""SELECT cameraID, name FROM Cameras""")
     cameras = engine.execute(qry).fetchall()
 
+    transaction.commit()
+
     return render_template('project.html',
         binderID = binderID,
         project = project,
@@ -158,6 +168,9 @@ def project(binderID, projectID):
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])
 @login_required
 def film(binderID, projectID, filmID):
+    connection = engine.connect()
+    transaction = connection.begin()
+    userID = current_user.get_id()
     # Check this is a valid film to show
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
         FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
@@ -186,9 +199,11 @@ def film(binderID, projectID, filmID):
         if request.form['button'] == 'deleteExposure':
             qry = text("""DELETE FROM Exposures
                 WHERE filmID = :filmID
-                AND exposureNumber = :exposureNumber""")
+                AND exposureNumber = :exposureNumber
+                AND userID = :userID""")
             result = engine.execute(qry,
                 filmID = filmID,
+                userID = userID,
                 exposureNumber = int(request.form['exposureNumber']))
 
         if request.form['button'] == 'editExposure':
@@ -224,10 +239,13 @@ def film(binderID, projectID, filmID):
                     developed = :developed,
                     development = :development,
                     notes = :notes
-                WHERE projectID = :projectID AND filmID = :filmID""")
+                WHERE projectID = :projectID
+                AND filmID = :filmID
+                AND userID = :userID""")
             result = engine.execute(qry,
                 projectID = projectID,
                 filmID = filmID,
+                userID = userID,
                 cameraID = request.form['camera'],
                 title = request.form['title'],
                 fileNo = request.form['fileNo'],
@@ -242,12 +260,13 @@ def film(binderID, projectID, filmID):
 
     qry = text("""SELECT filterID, name FROM Filters
         WHERE userID = :userID""")
-    filters = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    filters = engine.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
-        WHERE CameraLenses.cameraID = :cameraID""")
-    lenses = engine.execute(qry, cameraID=film.cameraID).fetchall()
+        WHERE CameraLenses.cameraID = :cameraID
+        AND CameraLenses.userID = :userID""")
+    lenses = engine.execute(qry, cameraID=film.cameraID, userID=userID).fetchall()
 
     qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
@@ -262,21 +281,25 @@ def film(binderID, projectID, filmID):
         LEFT JOIN Lenses ON Lenses.lensID = Exposures.lensID
         LEFT OUTER JOIN FilmTypes ON FilmTypes.filmTypeID = Exposures.filmTypeID
         LEFT OUTER JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        WHERE filmID = :filmID""")
-    exposuresResult = engine.execute(qry, filmID=filmID).fetchall()
+        WHERE filmID = :filmID
+        AND Exposures.userID = :userID""")
+    exposuresResult = engine.execute(qry, filmID=filmID, userID=userID).fetchall()
     exposures = result_to_dict(exposuresResult)
     for exposure in exposures:
         qry = text("""SELECT code FROM ExposureFilters
             JOIN Filters ON Filters.filterID = ExposureFilters.filterID
-            WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
+            WHERE filmID = :filmID
+            AND exposureNumber = :exposureNumber
+            AND ExposureFilters.userID = :userID""")
         filtersResult = engine.execute(qry, filmID=filmID,
+            userID = userID,
             exposureNumber = exposure['exposureNumber']).fetchall()
         exposureFilters = result_to_dict(filtersResult)
         exposure['filters'] = exposureFilters
 
     qry = text("""SELECT MAX(exposureNumber) AS max FROM Exposures
-        WHERE filmID = :filmID""")
-    lastExposureResult = engine.execute(qry, filmID=filmID).first()
+        WHERE filmID = :filmID AND userID = :userID""")
+    lastExposureResult = engine.execute(qry, filmID=filmID, userID=userID).first()
     if not lastExposureResult[0]:
         last_exposure = 0
     else:
@@ -293,14 +316,17 @@ def film(binderID, projectID, filmID):
         if film.filmSize == '8x10':
             template = 'film/lf-print.html'
     elif request.args.get('edit'):
-        qry = text("""SELECT filmTypeID, cameraID FROM Films WHERE filmID = :filmID""")
-        filmDetailsResult = engine.execute(qry, filmID=filmID).first()
+        qry = text("""SELECT filmTypeID, cameraID FROM Films
+            WHERE filmID = :filmID
+            AND userID = :userID""")
+        filmDetailsResult = engine.execute(qry, filmID=filmID, userID=userID).first()
         filmTypeID = filmDetailsResult[0]
         cameraID = filmDetailsResult[1]
 
-        qry = text("""SELECT cameraID, name FROM Cameras""")
-        cameras = engine.execute(qry).fetchall()
-
+        qry = text("""SELECT cameraID, name FROM Cameras
+            WHERE userID = :userID""")
+        cameras = engine.execute(qry, userID=userID).fetchall()
+        transaction.commit()
         return render_template('film/edit.html',
             binderID=binderID,
             film=film, filmTypeID=filmTypeID, cameraID=cameraID,
@@ -320,7 +346,7 @@ def film(binderID, projectID, filmID):
     exposure = {
         'exposureNumber':  last_exposure + 1
     }
-
+    transaction.commit()
     return render_template(template,
         binderID=binderID, projectID=projectID, filmID=filmID,
         film=film, filters=filters, lenses=lenses, exposures=exposures,
@@ -332,6 +358,9 @@ def film(binderID, projectID, filmID):
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/exposure/<int:exposureNumber>',  methods = ['POST', 'GET'])
 @login_required
 def expsoure(binderID, projectID, filmID, exposureNumber):
+    connection = engine.connect()
+    transaction = connection.begin()
+    userID = current_user.get_id()
     # Check this is a valid film to show
     qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
         FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
@@ -352,7 +381,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         projectID=projectID,
         binderID=binderID,
         filmID=filmID,
-        userID=current_user.get_id()).fetchone()
+        userID=userID).fetchone()
     if film is None:
         abort(404)
 
@@ -406,9 +435,10 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
 
         if request.form['button'] == 'addExposure':
             qry = text("""INSERT INTO Exposures
-                (filmID, exposureNumber, lensID, shutter, aperture, filmTypeID, iso, metering, flash, subject, development, notes)
-                VALUES (:filmID, :exposureNumber, :lensID, :shutter, :aperture, :filmType, :shotISO, :metering, :flash, :subject, :development, :notes)""")
+                (userID, filmID, exposureNumber, lensID, shutter, aperture, filmTypeID, iso, metering, flash, subject, development, notes)
+                VALUES (:userID, :filmID, :exposureNumber, :lensID, :shutter, :aperture, :filmType, :shotISO, :metering, :flash, :subject, :development, :notes)""")
             result = engine.execute(qry,
+                userID = userID,
                 filmID = filmID,
                 exposureNumber = request.form['exposureNumber'],
                 lensID = lensID,
@@ -423,10 +453,11 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
                 notes = notes)
 
             qry = text("""INSERT INTO ExposureFilters
-                (filmID, exposureNumber, filterID)
-                VALUES (:filmID, :exposureNumber, :filterID)""")
+                (userID, filmID, exposureNumber, filterID)
+                VALUES (:userID, :filmID, :exposureNumber, :filterID)""")
             for filterID in request.form.getlist('filters'):
                 engine.execute(qry,
+                    userID = userID,
                     filmID = filmID,
                     exposureNumber = request.form['exposureNumber'],
                     filterID = filterID)
@@ -443,8 +474,10 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
                     subject = :subject,
                     development = :development
                 WHERE filmID = :filmID
-                AND exposureNumber = :exposureNumberOld""")
+                AND exposureNumber = :exposureNumberOld
+                AND userID = :userID""")
             engine.execute(qry,
+                userID = userID,
                 filmID = filmID,
                 exposureNumberNew = request.form.get('exposureNumber'),
                 exposureNumberOld = exposureNumber,
@@ -459,15 +492,18 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
 
             qry = text("""DELETE FROM ExposureFilters
                 WHERE filmID = :filmID
-                AND exposureNumber = :exposureNumber""")
+                AND exposureNumber = :exposureNumber
+                AND userID = :userID""")
             engine.execute(qry, filmID = filmID,
-            exposureNumber = request.form['exposureNumber'])
+                userID = userID,
+                exposureNumber = request.form['exposureNumber'])
 
             qry = text("""INSERT INTO ExposureFilters
-                (filmID, exposureNumber, filterID)
-                VALUES (:filmID, :exposureNumber, :filterID)""")
+                (userID, filmID, exposureNumber, filterID)
+                VALUES (:userID, :filmID, :exposureNumber, :filterID)""")
             for filterID in request.form.getlist('filters'):
                 engine.execute(qry,
+                    userID = userID,
                     filmID = filmID,
                     exposureNumber = request.form['exposureNumber'],
                     filterID = filterID)
@@ -479,38 +515,50 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         IF(exposureNumber IS NOT NULL, 'checked', NULL) AS checked
         FROM Filters
         LEFT OUTER JOIN ExposureFilters ON ExposureFilters.filterID = Filters.filterID
-            AND filmID = :filmID AND exposureNumber = :exposureNumber""")
-    filters = engine.execute(qry, filmID=filmID, exposureNumber=exposureNumber).fetchall()
+            AND Filters.userID = :userID
+            AND filmID = :filmID
+            AND exposureNumber = :exposureNumber
+            AND Filters.userID = :userID""")
+    filters = engine.execute(qry,  userID=userID, filmID=filmID, exposureNumber=exposureNumber).fetchall()
 
     qry = text("""SELECT CameraLenses.lensID, name FROM CameraLenses
         JOIN Lenses ON Lenses.lensID = CameraLenses.lensID
         JOIN Films ON Films.cameraID = CameraLenses.cameraID
-        WHERE projectID = :projectID AND filmID = :filmID""")
-    lenses = engine.execute(qry, projectID=projectID, filmID=filmID).fetchall()
+        WHERE projectID = :projectID AND filmID = :filmID AND Films.userID = :userID""")
+    lenses = engine.execute(qry, projectID=projectID, filmID=filmID, userID=userID).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
         lensID, flash, notes, metering
         FROM Exposures
-        WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
+        WHERE filmID = :filmID
+        AND exposureNumber = :exposureNumber
+        AND userID = :userID""")
     exposure = engine.execute(qry,
-        filmID=filmID, exposureNumber=exposureNumber).fetchone()
+        filmID=filmID,
+        exposureNumber=exposureNumber,
+        userID = userID).fetchone()
     qry = text("""SELECT code FROM ExposureFilters
         JOIN Filters ON Filters.filterID = ExposureFilters.filterID
-        WHERE filmID = :filmID AND exposureNumber = :exposureNumber""")
+        WHERE filmID = :filmID
+        AND exposureNumber = :exposureNumber
+        AND ExposureFilters.userID = :userID""")
     filtersResult = engine.execute(qry, filmID=filmID,
-        exposureNumber = exposureNumber).fetchall()
+        exposureNumber = exposureNumber,
+        userID = userID).fetchall()
     exposureFilters = result_to_dict(filtersResult)
 
     qry = text("""SELECT filmSize FROM Cameras
         JOIN Films On Films.cameraID = Cameras.cameraID
-        WHERE filmID = :filmID""")
-    filmSize = engine.execute(qry, filmID=filmID).fetchone()
-
+        WHERE filmID = :filmID
+        AND Cameras.userID = :userID""")
+    film = engine.execute(qry, filmID=filmID, userID=userID).fetchone()
+    transaction.commit()
     return render_template('film/edit-exposure.html',
+        userID=userID,
         binderID=binderID,
         projectID=projectID, filmID=filmID,
         filters=filters, lenses=lenses, exposure=exposure,
-        exposureFilters=exposureFilters, filmSize=filmSize)
+        exposureFilters=exposureFilters, film=film)
 
 @app.route('/filmtypes',  methods = ['GET'])
 @login_required
@@ -525,10 +573,10 @@ def filmtypes():
 @app.route('/gear',  methods = ['GET', 'POST'])
 @login_required
 def gear():
+    connection = engine.connect()
+    transaction = connection.begin()
+    userID = current_user.get_id()
     if request.method == 'POST':
-        connection = engine.connect()
-        transaction = connection.begin()
-
         nextCameraID = next_id(connection, 'cameraID', 'Cameras')
         qry = text("""INSERT INTO Cameras
             (cameraID, userID, name, filmSize) VALUES (:cameraID, :userID, :name, :filmSize)""")
@@ -538,15 +586,15 @@ def gear():
             name = request.form['name'],
             filmSize = request.form['filmSize'],
             )
-        transaction.commit()
 
     qry = text("""SELECT cameraID, name, filmSize
         FROM Cameras
         WHERE userID = :userID""")
-    cameras = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    cameras = engine.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT filterID, name, code, factor
                   FROM Filters
                   WHERE userID = :userID""")
     filters = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    transaction.commit()
     return render_template('gear.html', cameras=cameras, filters=filters)
