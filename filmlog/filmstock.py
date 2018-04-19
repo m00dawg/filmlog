@@ -13,6 +13,9 @@ engine = database.engine
 @app.route('/filmstock',  methods = ['GET', 'POST'])
 @login_required
 def filmstock():
+    connection = engine.connect()
+    transaction = connection.begin()
+    userID = current_user.get_id()
     if request.method == 'POST':
         if request.form.get('button') == 'increment':
             if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
@@ -23,7 +26,7 @@ def filmstock():
                 result = engine.execute(qry,
                     filmTypeID=request.form.get('filmTypeID'),
                     filmSize=request.form.get('filmSize'),
-                    userID = current_user.get_id())
+                    userID = userID)
         if request.form.get('button') == 'decrement':
             if request.form.get('filmTypeID') != '' and request.form.get('filmSize') != '':
                 qry = text("""SELECT qty FROM FilmStock
@@ -33,7 +36,7 @@ def filmstock():
                 result = engine.execute(qry,
                     filmTypeID=request.form.get('filmTypeID'),
                     filmSize=request.form.get('filmSize'),
-                    userID = current_user.get_id()).fetchone()
+                    userID = userID).fetchone()
                 if result.qty == 1:
                     qry = text(""" DELETE FROM FilmStock
                         WHERE filmTypeID = :filmTypeID
@@ -42,7 +45,7 @@ def filmstock():
                     engine.execute(qry,
                         filmTypeID=request.form.get('filmTypeID'),
                         filmSize=request.form.get('filmSize'),
-                        userID = current_user.get_id())
+                        userID = userID)
                 else:
                     qry = text("""UPDATE FilmStock SET qty = qty - 1
                         WHERE filmTypeID = :filmTypeID
@@ -51,7 +54,7 @@ def filmstock():
                     result = engine.execute(qry,
                         filmTypeID=request.form.get('filmTypeID'),
                         filmSize=request.form.get('filmSize'),
-                        userID = current_user.get_id())
+                        userID = userID)
         if request.form.get('button') == 'add':
             qty = request.form.get('qty')
             if request.form.get('filmTypeID') != '':
@@ -64,7 +67,7 @@ def filmstock():
                         result = engine.execute(qry,
                             filmTypeID=request.form.get('filmTypeID'),
                             filmSize=request.form.get('filmSize'),
-                            userID = current_user.get_id(),
+                            userID = userID,
                             qty=request.form.get('qty'))
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
@@ -74,7 +77,7 @@ def filmstock():
         WHERE filmSize IN ("35mm 24", "35mm 36", "35mm Hand Roll", "35mm 100' Bulk Roll")
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_35mm = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    stock_35mm = engine.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
@@ -84,7 +87,7 @@ def filmstock():
         WHERE filmSize IN ('120', '220')
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_mf = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    stock_mf = engine.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
@@ -94,13 +97,15 @@ def filmstock():
         WHERE filmSize IN ('4x5', '8x10')
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_sheets = engine.execute(qry, userID = current_user.get_id()).fetchall()
+    stock_sheets = engine.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmTypes.filmTypeID AS filmTypeID,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
         FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
     films = engine.execute(qry).fetchall()
+    
+    transaction.commit()
     return render_template('filmstock.html',
                 stock_35mm=stock_35mm,
                 stock_mf=stock_mf,

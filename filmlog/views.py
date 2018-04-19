@@ -22,10 +22,11 @@ def index():
 @app.route('/binders',  methods = ['POST', 'GET'])
 @login_required
 def binders():
+    connection = engine.connect()
+    transaction = connection.begin()
     userID = current_user.get_id()
     if request.method == 'POST':
-        connection = engine.connect()
-        transaction = connection.begin()
+
         nextBinderID = next_id(connection, 'binderID', 'Binders')
         qry = text("""INSERT INTO Binders
             (binderID, userID, name) VALUES (:binderID, :userID, :name)""")
@@ -33,10 +34,10 @@ def binders():
             binderID = nextBinderID,
             userID = userID,
             name = request.form['name'])
-        transaction.commit()
     qry = text("""SELECT binderID, name, projectCount, createdOn
         FROM Binders WHERE userID = :userID""")
     binders = engine.execute(qry, userID = userID).fetchall()
+    transaction.commit()
     return render_template('binders.html', binders=binders)
 
 # Project List
