@@ -26,17 +26,16 @@ def binders():
     transaction = connection.begin()
     userID = current_user.get_id()
     if request.method == 'POST':
-
         nextBinderID = next_id(connection, 'binderID', 'Binders')
         qry = text("""INSERT INTO Binders
             (binderID, userID, name) VALUES (:binderID, :userID, :name)""")
-        result = engine.execute(qry,
+        result = connection.execute(qry,
             binderID = nextBinderID,
             userID = userID,
             name = request.form['name'])
     qry = text("""SELECT binderID, name, projectCount, createdOn
         FROM Binders WHERE userID = :userID""")
-    binders = engine.execute(qry, userID = userID).fetchall()
+    binders = connection.execute(qry, userID = userID).fetchall()
     transaction.commit()
     return render_template('binders.html', binders=binders)
 
@@ -97,11 +96,17 @@ def project(binderID, projectID):
         abort(404)
 
     if request.method == 'POST':
+        title = None
+        fileNo = None
         fileDate = None
         loaded = None
         unloaded = None
         developed = None
 
+        if request.form['title'] != '':
+            title = request.form['title']
+        if request.form['fileNo'] != '':
+            fileNo = request.form['fileNo']
         if request.form['fileDate'] != '':
             fileDate = request.form['fileDate']
         if request.form['loaded'] != '':
@@ -125,8 +130,8 @@ def project(binderID, projectID):
             filmID = nextFilmID,
             projectID = projectID,
             cameraID = request.form['camera'],
-            title = request.form['title'],
-            fileNo = request.form['fileNo'],
+            title = title,
+            fileNo = fileNo,
             fileDate = fileDate,
             filmTypeID = request.form['filmType'],
             iso = request.form['shotISO'],
@@ -172,29 +177,6 @@ def film(binderID, projectID, filmID):
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
-    # Check this is a valid film to show
-    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
-        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
-        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
-        loaded, unloaded, developed, development, Cameras.name AS camera,
-        Cameras.cameraID AS cameraID, notes
-        FROM Films
-        JOIN Projects ON Projects.projectID = Films.projectID
-        JOIN Binders ON Binders.binderID = Projects.binderID
-        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
-        WHERE Films.projectID = :projectID
-        AND filmID = :filmID
-        AND Projects.binderID = :binderID
-        AND Binders.userID = :userID""")
-    film = engine.execute(qry,
-        projectID=projectID,
-        binderID=binderID,
-        filmID=filmID,
-        userID=current_user.get_id()).fetchone()
-    if film is None:
-        abort(404)
 
     if request.method == 'POST':
         if request.form['button'] == 'deleteExposure':
@@ -258,6 +240,29 @@ def film(binderID, projectID, filmID):
                 developed = developed,
                 development = request.form['development'],
                 notes = request.form['notes'])
+
+    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
+        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
+        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
+        loaded, unloaded, developed, development, Cameras.name AS camera,
+        Cameras.cameraID AS cameraID, notes
+        FROM Films
+        JOIN Projects ON Projects.projectID = Films.projectID
+        JOIN Binders ON Binders.binderID = Projects.binderID
+        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
+        WHERE Films.projectID = :projectID
+        AND filmID = :filmID
+        AND Projects.binderID = :binderID
+        AND Binders.userID = :userID""")
+    film = engine.execute(qry,
+        projectID=projectID,
+        binderID=binderID,
+        filmID=filmID,
+        userID=current_user.get_id()).fetchone()
+    if film is None:
+        abort(404)
 
     qry = text("""SELECT filterID, name FROM Filters
         WHERE userID = :userID""")
@@ -328,7 +333,7 @@ def film(binderID, projectID, filmID):
             WHERE userID = :userID""")
         cameras = engine.execute(qry, userID=userID).fetchall()
         transaction.commit()
-        return render_template('film/edit.html',
+        return render_template('film/edit-film.html',
             binderID=binderID,
             film=film, filmTypeID=filmTypeID, cameraID=cameraID,
             filmTypes=filmTypes, cameras=cameras)
