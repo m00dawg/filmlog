@@ -23,7 +23,7 @@ def filmstock():
                     WHERE filmTypeID = :filmTypeID
                     AND filmSize = :filmSize
                     AND userID = :userID""")
-                result = engine.execute(qry,
+                result = connection.execute(qry,
                     filmTypeID=request.form.get('filmTypeID'),
                     filmSize=request.form.get('filmSize'),
                     userID = userID)
@@ -33,7 +33,7 @@ def filmstock():
                     WHERE filmTypeID = :filmTypeID
                     AND filmSize = :filmSize
                     AND userID = :userID""")
-                result = engine.execute(qry,
+                result = connection.execute(qry,
                     filmTypeID=request.form.get('filmTypeID'),
                     filmSize=request.form.get('filmSize'),
                     userID = userID).fetchone()
@@ -42,7 +42,7 @@ def filmstock():
                         WHERE filmTypeID = :filmTypeID
                         AND filmSize = :filmSize
                         AND userID = :userID""")
-                    engine.execute(qry,
+                    connection.execute(qry,
                         filmTypeID=request.form.get('filmTypeID'),
                         filmSize=request.form.get('filmSize'),
                         userID = userID)
@@ -51,7 +51,7 @@ def filmstock():
                         WHERE filmTypeID = :filmTypeID
                         AND filmSize = :filmSize
                         AND userID = :userID""")
-                    result = engine.execute(qry,
+                    connection = engine.execute(qry,
                         filmTypeID=request.form.get('filmTypeID'),
                         filmSize=request.form.get('filmSize'),
                         userID = userID)
@@ -64,7 +64,7 @@ def filmstock():
                         qry = text("""REPLACE INTO FilmStock
                             (filmTypeID, filmSize, userID, qty)
                             VALUES (:filmTypeID, :filmSize, :userID, :qty)""")
-                        result = engine.execute(qry,
+                        result = connection.execute(qry,
                             filmTypeID=request.form.get('filmTypeID'),
                             filmSize=request.form.get('filmSize'),
                             userID = userID,
@@ -77,7 +77,7 @@ def filmstock():
         WHERE filmSize IN ("35mm 24", "35mm 36", "35mm Hand Roll", "35mm 100' Bulk Roll")
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_35mm = engine.execute(qry, userID = userID).fetchall()
+    stock_35mm = connection.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
@@ -87,7 +87,7 @@ def filmstock():
         WHERE filmSize IN ('120', '220')
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_mf = engine.execute(qry, userID = userID).fetchall()
+    stock_mf = connection.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmStock.filmTypeID AS filmTypeID, filmSize, qty,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
@@ -97,14 +97,14 @@ def filmstock():
         WHERE filmSize IN ('4x5', '8x10')
         AND userID = :userID
         ORDER BY filmSize, brand, type, iso""")
-    stock_sheets = engine.execute(qry, userID = userID).fetchall()
+    stock_sheets = connection.execute(qry, userID = userID).fetchall()
 
     qry = text("""SELECT FilmTypes.filmTypeID AS filmTypeID,
         FilmBrands.brand AS brand, FilmTypes.name AS type, iso
         FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-    films = engine.execute(qry).fetchall()
-    
+    films = connection.execute(qry).fetchall()
+
     transaction.commit()
     return render_template('filmstock.html',
                 stock_35mm=stock_35mm,
