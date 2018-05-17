@@ -328,7 +328,7 @@ def film(binderID, projectID, filmID):
             WHERE userID = :userID""")
         cameras = engine.execute(qry, userID=userID).fetchall()
         transaction.commit()
-        return render_template('film/edit.html',
+        return render_template('film/edit-film.html',
             binderID=binderID,
             film=film, filmTypeID=filmTypeID, cameraID=cameraID,
             filmTypes=filmTypes, cameras=cameras)

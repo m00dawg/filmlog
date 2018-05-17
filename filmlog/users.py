@@ -51,7 +51,7 @@ def login():
         user = engine.execute(qry, username=username).fetchone()
         if user:
             if check_password_hash(user.password, password):
-                login_user(User(user.userID))
+                login_user(User(user.userID), remember=True)
                 return redirect("/")
     return render_template('users/login.html')
 
