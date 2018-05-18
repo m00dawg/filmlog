@@ -10,3 +10,5 @@ TODO
  - Sheets should be a table extension of Exposures since it's getting
    to be a little messy to track both roll and sheet films in the 
    same table
+ - Contact sheet print info
+ - Darkroom print / enlargements
