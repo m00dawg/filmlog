@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 
 from filmlog import app
 from filmlog import database
-from filmlog.functions import next_id, result_to_dict
+from filmlog.functions import next_id, result_to_dict, get_film_details
 from filmlog import users
 from filmlog import filmstock
 from filmlog import darkroom
@@ -242,26 +242,7 @@ def film(binderID, projectID, filmID):
                 development = request.form['development'],
                 notes = request.form['notes'])
 
-    qry = text("""SELECT filmID, Films.projectID, Projects.name AS project, brand,
-        FilmTypes.name AS filmName, FilmTypes.iso AS filmISO,
-        Films.iso AS shotISO, fileNo, fileDate, filmSize, title,
-        loaded, unloaded, developed, development, Cameras.name AS camera,
-        Cameras.cameraID AS cameraID, notes
-        FROM Films
-        JOIN Projects ON Projects.projectID = Films.projectID
-        JOIN Binders ON Binders.binderID = Projects.binderID
-        JOIN FilmTypes ON FilmTypes.filmTypeID = Films.filmTypeID
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        LEFT JOIN Cameras ON Cameras.cameraID = Films.cameraID
-        WHERE Films.projectID = :projectID
-        AND filmID = :filmID
-        AND Projects.binderID = :binderID
-        AND Binders.userID = :userID""")
-    film = connection.execute(qry,
-        projectID=projectID,
-        binderID=binderID,
-        filmID=filmID,
-        userID=current_user.get_id()).fetchone()
+    film = get_film_details(connection, binderID, projectID, filmID)
     if film is None:
         abort(404)
 

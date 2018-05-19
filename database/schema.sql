@@ -7,6 +7,13 @@ CREATE TABLE Users (
     UNIQUE username_uq (username)
 ) ENGINE='InnoDB';
 
+CREATE TABLE Files(
+    fileID INT UNSIGNED NOT NULL,
+    userID INT UNSIGNED NOT NULL,
+    PRIMARY KEY (fileID, userID),
+    CONSTRAINT Files_Users_fk FOREIGN KEY (userID) REFERENCES Users (userID)
+) ENGINE='InnoDB';
+
 CREATE TABLE Cameras (
     userID INT UNSIGNED NOT NULL,
     cameraID SMALLINT UNSIGNED NOT NULL,

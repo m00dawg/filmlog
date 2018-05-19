@@ -15,3 +15,13 @@ INSERT INTO PaperFilters (name) VALUES ('4');
 INSERT INTO PaperFilters (name) VALUES ('4 1/2');
 INSERT INTO PaperFilters (name) VALUES ('5');
 INSERT INTO PaperFilters (name) VALUES ('Split-Grade');
+
+INSERT INTO PaperBrands VALUES (1, 'Ilford');
+INSERT INTO PaperBrands VALUES (2, 'AristaEDU');
+INSERT INTO PaperBrands VALUES (3, 'Adorama');
+INSERT INTO PaperBrands VALUES (4, 'Bergger');
+INSERT INTO PaperBrands VALUES (5, 'Fomapan');
+
+INSERT INTO Papers VALUES (1, 1, 'Resin Coated', 'Multi', 'Satin', 'Neutral', 'MULTIGRADE IV RC DELUXE Satin');
+INSERT INTO Papers VALUES (2, 1, 'Resin Coated', 'Multi', 'Glossy', 'Neutral', 'MULTIGRADE IV RC DELUXE Glossy');
+INSERT INTO Papers VALUES (3, 2, 'Resin Coated', 'Multi', 'Pearl', 'Neutral', 'RC Perle');

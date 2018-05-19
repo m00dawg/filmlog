@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  {% include 'film/film_details.html' %}
+
+  <div class="card">
+    <div class="flexrow">
+      <div class="col-sm-6 panel">
+        <br />
+        <table class="table table-bordered" id="contact_sheet_details">
+          <tr><th>Paper</th><td>{{ contactSheet.paperBrand }} {{ contactSheet.paperName }}</td></tr>
+          <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
+          <tr><th>F-stop</th><td>{{ contactSheet.aperture }}</td></tr>
+          <tr><th>Height</th><td>{{ contactSheet.headHeight }}</td></tr>
+          <tr><th>Time</th><td>{{ contactSheet.exposureTime }}</td></tr>
+        </table>
+      </div>
+      <div class="col-sm-6 panel">
+        <br />
+        Contact Sheet Thumbnail Goes Here
+      </div>
+    </div>
+    <div class="col-sm-12 panel">
+        <table class="table table-bordered" id="contact_sheet_notes">
+          <tr><th>Notes</th></tr>
+          <tr><td>{{ contactSheet.notes }}</td></tr>
+        </table>
+    </div>
+  </div>
+
+<br />
+
+<div class="card">
+  <div class="card-header">Upload Contact Sheet</div>
+  <div class="card-body">
+    <form role="form" class="form-horizontal"
+      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      method="POST">
+    </form>
+  </div>
+</div>
+
+{% endblock %}
