@@ -4,6 +4,7 @@ from sqlalchemy.dialects.mysql import INTEGER, SMALLINT
 from datetime import date
 from flask_login import LoginManager, UserMixin
 import ConfigParser
+from werkzeug.utils import secure_filename
 
 import os, re
 
@@ -14,6 +15,15 @@ config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../config.
 
 app.secret_key = config.get('session','secret_key')
 #app.server_name = config.get('session', 'server_name')
+
+#UPLOAD_FOLDER = config.get('files','upload_folder')
+user_files = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+    config.get('files', 'user_files'))
+# print "DEBUG: " + UPLOAD_FOLDER
+#UPLOAD_FOLDER = "/nfs/home/tim/git/filmlog/filmlog/files"
+app.config['ALLOWED_EXTENSIONS'] = set(['jpg', 'jpeg'])
+app.config['UPLOAD_FOLDER'] = user_files
+app.config['THUMBNAIL_SIZE'] = config.get('files', 'thumbnail_size')
 
 # Views
 from filmlog import views

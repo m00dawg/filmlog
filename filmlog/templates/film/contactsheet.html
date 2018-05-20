@@ -18,7 +18,9 @@
       </div>
       <div class="col-sm-6 panel">
         <br />
-        Contact Sheet Thumbnail Goes Here
+        <a href="/files/full/{{ contactSheet.fileID }}">
+          <img src="/files/thumb/{{ contactSheet.fileID }}" />
+        </a>
       </div>
     </div>
     <div class="col-sm-12 panel">
@@ -35,8 +37,59 @@
   <div class="card-header">Upload Contact Sheet</div>
   <div class="card-body">
     <form role="form" class="form-horizontal"
-      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-      method="POST">
+      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/contactsheet"
+      method="POST",
+      enctype=multipart/form-data>
+      <div class="form-group row">
+        <div class="col-sm-6">
+          <label>Paper</label>
+          <select class="form-control" name="paper">
+              <option value=''>Select Paper</option>
+              {% for paper in papers %}
+                <option value="{{ paper.paperID }}">{{ paper.brandName }} {{ paper.paperName }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-6">
+          <label>Filter</label>
+          <select class="form-control" name="filter">
+              <option value=''>Select Filter</option>
+              {% for filter in filters %}
+                <option value="{{ filter.paperFilterID }}">{{ filter.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-4">
+          <label>Aperture</label>
+          <input class="form-control" type="text" name="aperture" placeholder="2.8">
+        </div>
+        <div class="col-sm-4">
+          <label>Head Height</label>
+          <input class="form-control" type="text" name="headHeight" placeholder="30">
+        </div>
+        <div class="col-sm-4">
+          <label>Exposure Time</label>
+          <input class="form-control" type="text" name="exposureTime" placeholder="0:30">
+        </div>
+      </div>
+    <div class="form-group row">
+        <div class="col-sm-12">
+          <label>Notes</label>
+          <textarea class="form-control" name=notes rows=3 cols=80 placeholder="Notes"></textarea>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-12">
+          <label>File (JPG)</label>
+          <input type=file name=file>
+        </div>
+    </div>
+
+    <div class="button-bar">
+      <button class="btn btn-success" name="button" value="updateExposure" action="submit">Save</button>
+    </div>
     </form>
   </div>
 </div>

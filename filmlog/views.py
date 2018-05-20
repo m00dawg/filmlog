@@ -1,4 +1,4 @@
-from flask import request, render_template, redirect, url_for, Response, session, abort
+from flask import request, render_template, redirect, url_for, Response, session, abort, send_from_directory
 from sqlalchemy.sql import select, text, func
 import os, re
 
@@ -10,6 +10,7 @@ from filmlog.functions import next_id, result_to_dict, get_film_details
 from filmlog import users
 from filmlog import filmstock
 from filmlog import darkroom
+from filmlog import files
 
 engine = database.engine
 
