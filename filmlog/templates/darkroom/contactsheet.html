@@ -37,9 +37,13 @@
       </div>
       <div class="col-sm-6 panel">
         <div class="media-body m-2">
-          <a href="/files/full/{{ contactSheet.fileID }}">
-            <img src="/files/thumb/{{ contactSheet.fileID }}" />
-          </a>
+          {% if contactSheet.fileID %}
+            <a href="/files/full/{{ contactSheet.fileID }}">
+              <img src="/files/thumb/{{ contactSheet.fileID }}" />
+            </a>
+          {% else %}
+            <p>No Image</p>
+          {% endif %}
         </div>
       </div>
     </div>

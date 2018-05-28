@@ -140,37 +140,43 @@ def contactsheet(binderID, projectID, filmID):
                 userID = userID)
             files.delete_file(request, connection, transaction, fileID)
         else:
-            nextFileID = functions.next_id(connection, 'fileID', 'Files')
             exposureTime = request.form['exposureTime']
             app.logger.debug('Exposure Time Before: %s', str(exposureTime))
             exposureTime = time_to_seconds(exposureTime)
             app.logger.debug('Exposure Time After: %s', str(exposureTime))
-            if files.upload_file(request, connection, transaction, nextFileID):
-                paperID = None
-                paperFilterID = None
-                headHeight = None
-                notes = None
-                if request.form['paperID'] != '':
-                    paperID = request.form['paperID']
-                if request.form['paperFilterID'] != '':
-                    paperFilterID = request.form['paperFilterID']
-                if request.form['headHeight'] != '':
-                    headHeight = request.form['headHeight']
-                if request.form['notes'] != '':
-                    notes = request.form['notes']
 
-                qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
-                    VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
-                connection.execute(qry,
-                    filmID = filmID,
-                    userID = userID,
-                    fileID = nextFileID,
-                    paperID = paperID,
-                    paperFilterID = paperFilterID,
-                    aperture = request.form['aperture'],
-                    headHeight = headHeight,
-                    exposureTime = exposureTime,
-                    notes = notes)
+            # If user included a file, let's upload it. Otherwise skip it.
+            if 'file' in request.files:
+                nextFileID = functions.next_id(connection, 'fileID', 'Files')
+                files.upload_file(request, connection, transaction, nextFileID)
+            else:
+                nextFileID = None
+
+            paperID = None
+            paperFilterID = None
+            headHeight = None
+            notes = None
+            if request.form['paperID'] != '':
+                paperID = request.form['paperID']
+            if request.form['paperFilterID'] != '':
+                paperFilterID = request.form['paperFilterID']
+            if request.form['headHeight'] != '':
+                headHeight = request.form['headHeight']
+            if request.form['notes'] != '':
+                notes = request.form['notes']
+
+            qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
+                VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
+            connection.execute(qry,
+                filmID = filmID,
+                userID = userID,
+                fileID = nextFileID,
+                paperID = paperID,
+                paperFilterID = paperFilterID,
+                aperture = request.form['aperture'],
+                headHeight = headHeight,
+                exposureTime = exposureTime,
+                notes = notes)
         transaction.commit()
         return redirect('/binders/' + str(binderID)
             + '/projects/' + str(projectID)

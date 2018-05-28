@@ -1,6 +1,7 @@
 ALTER TABLE ContactSheets 
 MODIFY COLUMN paperID tinyint unsigned DEFAULT NULL,
-MODIFY COLUMN paperFilterID tinyint unsigned DEFAULT NULL;
+MODIFY COLUMN paperFilterID tinyint unsigned DEFAULT NULL,
+MODIFY COLUMN fileID INT UNSIGNED DEFAULT NULL;
 
 ALTER TABLE Prints
 MODIFY COLUMN paperID tinyint unsigned DEFAULT NULL,
