@@ -8,66 +8,38 @@
     <table class="table table-striped-by-two table-bordered" id="exposures">
       <tr>
         <th>Number</th>
-        <th>Paper</th>
         <th>Type</th>
+        <th>Size</th>
+        <th>Paper</th>
+        <th>Contrast Filter</th>
         <th>Aperture</th>
         <th>Head Height</th>
-        <th>Lens</th>
         <th>Exposure Time</th>
-        <th>Size</th>
-        <th>Contrast Filters</th>
       </tr>
-      {% for exposure in exposures %}
+      {% for print in prints %}
         <tr>
-          <td>{{ exposure.exposureNumber }}</td>
-          {# If shutter is larger than 0, consider it to be faster than 1 second
-             (e.g. 1/125). If it's zero, consider it a Bulb where the exact
-             speed is not known. If it's negative, the exposure is in seconds.
-          #}
-          <td>
-            {% if exposure.shutter > 0 %}
-              1/{{ exposure.shutter }}
-            {% elif exposure.shutter == 0 %}
-              B
-            {% elif exposure.shutter %}
-              {{ exposure.shutter|abs }}"
-            {% endif %}
-          </td>
-          <td>
-            {% if exposure.aperture %}
-              {{ exposure.aperture }}
-            {% endif %}
-          </td>
-          <td>
-            {% if exposure.lens %}
-              {{ exposure.lens }}
-            {% endif %}
-          </td>
-          <td>
-            {% if exposure.flash == 'No' %}
-              -
-            {% else %}
-              &#x2713;
-            {% endif %}
-          </td>
-          <td>
-            {% for filter in exposure.filters %}
-              {{ filter.code }}
-            {% endfor %}
-          </td>
+          <td>{{ print.exposureNumber }}</td>
+          <td>{{ print.printType }}</td>
+          <td>{{ print.size }}</td>
+          <td>{{ print.paperbrand }} {{ print.paperName }}</td>
+          <td>{{ print.paperFilterName }}</td>
+          <td>{{ print.aperture }}</td>
+          <td>{{ print.headHeight }}</td>
+          <td>{{ print.exposureTime }}</td>
+
           <td class="text-right">
+
             <form role="form" class="form-horizontal"
-              action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+              action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints"
               method="POST">
-              <button name="button" value="editExposure" action="submit" class="btn btn-xs btn-primary">Edit</button>
-              <button name="button" value="deleteExposure" action="submit" class="btn btn-xs btn-danger">Delete</button>
-              <input type="hidden" name="exposureNumber" value="{{ exposure.exposureNumber }}" >
+              <button name="button" value="deletePrint" action="submit" class="btn btn-xs btn-danger">Delete</button>
+              <input type="hidden" name="printID" value="{{ print.printID }}" >
             </form>
           </td>
         </tr>
         <tr>
-          {% if exposure.notes %}
-            <td colspan="6">{{ exposure.notes }}</td>
+          {% if print.notes %}
+            <td colspan="6">{{ print.notes }}</td>
           {% else %}
             <td colspan="6">&nbsp;</td>
           {% endif %}
@@ -81,41 +53,59 @@
   <div class="card-header">Add Print</div>
   <div class="card-body">
     <form role="form" class="form-horizontal"
-      action="/projects/{{ film.projectID }}/films/{{ film.filmID }}"
+      action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints"
       method="POST">
-      <div class="form-group">
+      <div class="form-group row">
         <div class="col-sm-2">
           <label>Exposure #</label>
           <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number">
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-6">
           <label>Paper</label>
-          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter">
-        </div>
-        <div class="col-sm-1">
-          <label>Type</label>
-          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture">
-        </div>
-        <div class="col-sm-2">
-          <label>Lens</label>
-          <select class="form-control" name="lens">
-              <option value=''> </option>
-              {% for lens in lenses %}
-                <option value="{{ lens.lensID }}">{{ lens.name }}</option>
+          <select class="form-control" name="paperID">
+              <option value=''>Select Paper</option>
+              {% for paper in papers %}
+                <option value="{{ paper.paperID }}">{{ paper.brandName }} {{ paper.paperName }}</option>
               {% endfor %}
           </select>
         </div>
-        <div class="col-sm-1">
-          <label>Flash</label>
-          <input type="checkbox" class="form-control" name="flash" value="Yes">
-        </div>
         <div class="col-sm-2">
           <label>Filters</label><br />
-          {% for filter in filters %}
-            <input type="checkbox"
-                   name="filters"
-                   value="{{ filter.filterID }}">{{ filter.name }}<br />
-          {% endfor %}
+          <select class="form-control" name="paperFilterID">
+              <option value=''>Select Filter</option>
+              {% for filter in filters %}
+                <option value="{{ filter.paperFilterID }}">{{ filter.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-2">
+          <label>Type</label><br />
+          <select class="form-control" name="printType">
+              <option value="Enlargement">Enlargement</option>
+              <option value="Contact">Contact</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-3">
+          <label>Size</label>
+          <select class="form-control" name="size">
+              <option value="4x5">4x5</option>
+              <option value="5x7">5x7</option>
+              <option value="8x10">8x10</option>
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <label>Aperture</label>
+          <input class="form-control" type="text" name="aperture" placeholder="2.8">
+        </div>
+        <div class="col-sm-3">
+          <label>Head Height</label>
+          <input class="form-control" type="text" name="headHeight" placeholder="30">
+        </div>
+        <div class="col-sm-3">
+          <label>Exposure Time</label>
+          <input class="form-control" type="text" name="exposureTime" placeholder="0:30">
         </div>
       </div>
       <div class="form-group">
@@ -125,7 +115,7 @@
         </div>
       </div>
       <div class="button-bar">
-        <button class="btn btn-success" name="button" value="addExposure" action="submit">Add</button>
+        <button class="btn btn-success" name="button" value="addPrint" action="submit">Add</button>
       </div>
     </div>
   </form>

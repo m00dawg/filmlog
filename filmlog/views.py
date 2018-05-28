@@ -11,6 +11,7 @@ from filmlog import users
 from filmlog import filmstock
 from filmlog import darkroom
 from filmlog import files
+from filmlog import stats
 
 engine = database.engine
 
@@ -571,23 +572,39 @@ def gear():
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+
     if request.method == 'POST':
-        nextCameraID = next_id(connection, 'cameraID', 'Cameras')
-        qry = text("""INSERT INTO Cameras
-            (cameraID, userID, name, filmSize) VALUES (:cameraID, :userID, :name, :filmSize)""")
-        result = connection.execute(qry,
-            cameraID = nextCameraID,
-            userID = int(current_user.get_id()),
-            name = request.form['name'],
-            filmSize = request.form['filmSize'],
-            )
+        app.logger.debug('POST')
+        if request.form['button'] == 'addCamera':
+            app.logger.debug('Add Camera')
+            nextCameraID = next_id(connection, 'cameraID', 'Cameras')
+            qry = text("""INSERT INTO Cameras
+                (cameraID, userID, name, filmSize) VALUES (:cameraID, :userID, :name, :filmSize)""")
+            connection.execute(qry,
+                cameraID = nextCameraID,
+                userID = int(current_user.get_id()),
+                name = request.form['name'],
+                filmSize = request.form['filmSize'],
+                )
+        if request.form['button'] == 'addFilter':
+            nextFilterID = next_id(connection, 'filterID', 'Filters')
+            qry = text("""INSERT INTO Filters
+                (userID, filterID, name, code, factor, ev)
+                VALUES (:userID, :filterID, :name, :code, :factor, :ev)""")
+            connection.execute(qry,
+                userID = userID,
+                filterID = nextFilterID,
+                name = request.form['name'],
+                code = request.form['code'],
+                factor = request.form['factor'],
+                ev = request.form['ev'])
 
     qry = text("""SELECT cameraID, name, filmSize
         FROM Cameras
         WHERE userID = :userID""")
     cameras = connection.execute(qry, userID = userID).fetchall()
 
-    qry = text("""SELECT filterID, name, code, factor
+    qry = text("""SELECT filterID, name, code, factor, ev
                   FROM Filters
                   WHERE userID = :userID""")
     filters = connection.execute(qry, userID = current_user.get_id()).fetchall()

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="page-header">Your Stats</h1>
+  <div class="container">
+    <div class="row py-2">
+      <div class="col-sm">
+        <h3>Cameras</h3>
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-striped table-bordered" id="projects">
+              <tr>
+                  <th>Name</th>
+                  <th>Films</th>
+              </tr>
+              {% for camera in cameras %}
+                  <tr>
+                      <td>{{ camera.name }}</td>
+                      <td>{{ camera.count }}</td>
+                  </tr>
+              {% else %}
+                <tr><td colspan="2">Nothing Found</td></tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row py-2">
+      <h2>Favorite Films</h2>
+    </div>
+    <div class="row py-2">
+      <div class="col-sm">
+        <h3>Rolls</h3>
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-striped table-bordered" id="projects">
+              <tr>
+                  <th>Name</th>
+                  <th>Rolls</th>
+              </tr>
+              {% for roll in favoriteRolls %}
+                  <tr>
+                      <td>{{ roll.brand }} {{ roll.type }} {{ roll.iso }}</td>
+                      <td>{{ roll.count }}</td>
+                  </tr>
+              {% else %}
+                <tr><td colspan="2">Nothing Found</td></tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <h3>Sheets</h3>
+        <div class="card">
+          <div class="card-body">
+            <table class="table table-striped table-bordered" id="projects">
+              <tr>
+                  <th>Name</th>
+                  <th>Sheets</th>
+              </tr>
+              {% for roll in favoriteSheets %}
+                  <tr>
+                      <td>{{ roll.brand }} {{ roll.type }} {{ roll.iso }}</td>
+                      <td>{{ roll.count }}</td>
+                  </tr>
+              {% else %}
+                <tr><td colspan="2">Nothing Found</td></tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

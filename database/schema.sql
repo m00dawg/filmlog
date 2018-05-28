@@ -219,21 +219,24 @@ CREATE TABLE Prints (
     filmID INT UNSIGNED NOT NULL,
     exposureNumber TINYINT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
-    paperID TINYINT UNSIGNED NOT NULL,
-    paperFilterID TINYINT UNSIGNED NOT NULL,
+    paperID TINYINT UNSIGNED DEFAULT NULL,
+    paperFilterID TINYINT UNSIGNED DEFAULT NULL,
+    fileID INT UNSIGNED DEFAULT NULL,
     aperture decimal(3,1) DEFAULT NULL,
     headHeight TINYINT UNSIGNED,
     exposureTime TIME NOT NULL,
     printType ENUM('Enlargement', 'Contact') NOT NULL,
-    size ENUM('4x5', '5x7', '8x10'),
+    size ENUM ('4x5', '4x6', '5x7', '8x10', '11x14', 'Other') NOT NULL,
     notes TEXT DEFAULT NULL,
-    PRIMARY KEY (userID, filmID, exposureNumber, printID),
+    PRIMARY KEY (userID, printID),
     KEY paperID_fk (paperID),
     KEY paperFilterID_fk (paperFilterID),
     KEY film_exposure_fk (filmID, exposureNumber),
+    KEY user_film_exposure (userID, filmID, exposureNumber),
     CONSTRAINT prints_paperID_fk FOREIGN KEY (paperID) REFERENCES Papers (paperID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT prints_paperFilterID_fk FOREIGN KEY (paperFilterID) REFERENCES PaperFilters (paperFilterID) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT Prints_Exposures_fk FOREIGN KEY (userID, filmID, exposureNumber) REFERENCES Exposures (userID, filmID, exposureNumber)
+    CONSTRAINT Prints_Exposures_fk FOREIGN KEY (userID, filmID, exposureNumber) REFERENCES Exposures (userID, filmID, exposureNumber),
+    CONSTRAINT Prints_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 -- Functions

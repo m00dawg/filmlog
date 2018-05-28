@@ -15,6 +15,13 @@ def get_paper_filters(connection):
     qry = text("""SELECT paperFilterID, name FROM PaperFilters""")
     return connection.execute(qry).fetchall()
 
+def get_papers(connection):
+    # Get info for adding/updating contact sheet
+    qry = text("""SELECT paperID, PaperBrands.name AS brandName, Papers.name AS paperName
+        FROM Papers
+        JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID""")
+    return connection.execute(qry).fetchall()
+
 def time_to_seconds(time):
     # If time is in MM:SS format, calculate the raw seconds
     # Otherwise just return the time as-is
@@ -32,12 +39,82 @@ def seconds_to_time(seconds):
 @login_required
 def prints(binderID, projectID, filmID):
     connection = engine.connect()
+    transaction = connection.begin()
     userID = current_user.get_id()
-    film = functions.get_film_details(connection, binderID, projectID, filmID)
 
+    if request.method == 'POST':
+        if request.form['button'] == 'deletePrint':
+            qry = text("""DELETE FROM Prints
+                WHERE printID = :printID
+                AND userID = :userID""")
+            connection.execute(qry,
+                printID = request.form['printID'],
+                userID = userID)
+
+        if request.form['button'] == 'addPrint':
+            paperID = None
+            paperFilterID = None
+            headHeight = None
+            aperture = None
+            notes = None
+            nextPrintID = functions.next_id(connection, 'printID', 'Prints')
+            exposureTime = time_to_seconds(request.form['exposureTime'])
+
+            if request.form['paperID'] != '':
+                paperID = request.form['paperID']
+            if request.form['paperFilterID'] != '':
+                paperFilterID = request.form['paperFilterID']
+            if request.form['headHeight'] != '':
+                headHeight = request.form['headHeight']
+            if request.form['aperture'] != '':
+                aperture = request.form['aperture']
+            if request.form['notes'] != '':
+                notes = request.form['notes']
+
+            qry = text("""INSERT INTO Prints
+                (printID, filmID, exposureNumber, userID, paperID, paperFilterID,
+                aperture, headHeight, exposureTime, printType, size, notes)
+                VALUES (:printID, :filmID, :exposureNumber, :userID, :paperID,
+                :paperFilterID, :aperture, :headHeight, :exposureTime,
+                :printType, :size, :notes)""")
+            connection.execute(qry,
+                printID = nextPrintID,
+                filmID = filmID,
+                exposureNumber = request.form['exposureNumber'],
+                userID = userID,
+                paperID = paperID,
+                paperFilterID = paperFilterID,
+                aperture = aperture,
+                headHeight = headHeight,
+                exposureTime = exposureTime,
+                printType = request.form['printType'],
+                size = request.form['size'],
+                notes = request.form['notes'])
+
+    film = functions.get_film_details(connection, binderID, projectID, filmID)
+    papers = get_papers(connection)
+    filters = get_paper_filters(connection)
+
+    qry = text("""SELECT printID, exposureNumber, Papers.name AS paperName,
+        PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
+        printType, size, aperture, headHeight, notes,
+        SECONDS_TO_DURATION(exposureTime) AS exposureTime
+        FROM Prints
+        LEFT OUTER JOIN Papers ON Papers.paperID = Prints.paperID
+        LEFT OUTER JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
+        LEFT OUTER JOIN PaperFilters ON PaperFilters.paperFilterID = Prints.paperFilterID
+        WHERE filmID = :filmID AND userID = :userID""")
+    prints = connection.execute(qry,
+        userID = userID,
+        filmID = filmID)
+
+    transaction.commit()
     return render_template('darkroom/prints.html',
         binderID=binderID,
         film=film,
+        papers=papers,
+        filters=filters,
+        prints = prints,
         view='prints')
 
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/contactsheet',  methods = ['POST', 'GET'])
@@ -71,13 +148,16 @@ def contactsheet(binderID, projectID, filmID):
             if files.upload_file(request, connection, transaction, nextFileID):
                 paperID = None
                 paperFilterID = None
+                headHeight = None
                 notes = None
                 if request.form['paperID'] != '':
                     paperID = request.form['paperID']
                 if request.form['paperFilterID'] != '':
                     paperFilterID = request.form['paperFilterID']
+                if request.form['headHeight'] != '':
+                    headHeight = request.form['headHeight']
                 if request.form['notes'] != '':
-                    paperFilterID = request.form['notes']
+                    notes = request.form['notes']
 
                 qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
                     VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
@@ -88,7 +168,7 @@ def contactsheet(binderID, projectID, filmID):
                     paperID = paperID,
                     paperFilterID = paperFilterID,
                     aperture = request.form['aperture'],
-                    headHeight = request.form['headHeight'],
+                    headHeight = headHeight,
                     exposureTime = exposureTime,
                     notes = notes)
         transaction.commit()
@@ -113,13 +193,9 @@ def contactsheet(binderID, projectID, filmID):
         userID = userID,
         binderID = binderID,
         filmID=filmID).fetchone()
-    # Get info for adding/updating contact sheet
-    qry = text("""SELECT paperID, PaperBrands.name AS brandName, Papers.name AS paperName
-        FROM Papers
-        JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID""")
 
-    papers = connection.execute(qry).fetchall()
     filters = get_paper_filters(connection)
+    papers = get_papers(connection)
 
     transaction.commit()
     return render_template('darkroom/contactsheet.html',

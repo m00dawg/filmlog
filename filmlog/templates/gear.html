@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="button-bar">
-          <button class="btn btn-success" action="submit">Save</button>
+          <button class="btn btn-success" name="button" action="submit" value="addCamera">Save</button>
         </div>
       </form>
     </div>
@@ -53,17 +53,52 @@
     <tr>
         <th>Name</th>
         <th>Code</th>
+        <th>EV</th>
         <th>Filter Factor</th>
     </tr>
     {% for filter in filters %}
         <tr>
             <td>{{ filter.name }}</td>
             <td>{{ filter.code }}</td>
+            <td>{{ filter.ev }}</td>
             <td>{{ filter.factor }}</td>
         </tr>
     {% else %}
       <tr><td colspan="2">No Filters Found</td></tr>
     {% endfor %}
   </table>
+
+  <div class="card">
+    <div class="card-header">Add Filter</div>
+    <div class="card-body">
+      <form role="form" class="form-horizontal"
+        action="/gear"
+        method="POST">
+        <div class="form-group row">
+          <div class="col-sm-6">
+            <label>Name</label>
+            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Name">
+          </div>
+          <div class="col-sm-2">
+            <label>Code</label>
+            <input type="text" class="form-control" placeholder="YEL8" name="code" aria-describedby="Name">
+          </div>
+          <div class="col-sm-2">
+            <label>EV</label>
+            <input type="text" class="form-control" placeholder="1" name="ev" aria-describedby="Name">
+          </div>
+          <div class="col-sm-2">
+            <label>Filter Factor</label>
+            <input type="text" class="form-control" placeholder="2.0" name="factor" aria-describedby="Name">
+          </div>
+        </div>
+        <div class="button-bar">
+          <button class="btn btn-success" name="button" action="submit" value="addFilter">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
 
 {% endblock %}
