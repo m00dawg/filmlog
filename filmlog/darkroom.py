@@ -1,4 +1,4 @@
-from flask import request, render_template, redirect, url_for, flash
+from flask import request, render_template, redirect, url_for, flash, abort
 from sqlalchemy.sql import select, text, func
 import os, re
 
@@ -22,7 +22,7 @@ def prints(binderID, projectID, filmID):
     userID = current_user.get_id()
     film = functions.get_film_details(connection, binderID, projectID, filmID)
 
-    return render_template('film/prints.html',
+    return render_template('darkroom/prints.html',
         binderID=binderID,
         film=film,
         view='prints')
@@ -85,7 +85,7 @@ def contactsheet(binderID, projectID, filmID):
     filters = get_paper_filters(connection)
 
     transaction.commit()
-    return render_template('film/contactsheet.html',
+    return render_template('darkroom/contactsheet.html',
         binderID=binderID,
         papers=papers,
         filters=filters,

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-header">Film Log</h1>
+  <p>The Film Log is an application to assist keeping track of information about
+  your still film rolls and sheets. This includes information about shots,
+  the film used, filters, aperture, etc. The idea is this information can be
+  looked up online or printed out and kept with the actual film itself.
+  <a href="/static/public/print1.pdf">Here</a> is an example of a large
+  format log. It has 4 exposures on one page to match the PrintFile sheets.r</p>
+
+  <p>It can also track information for the darkroom, such as a scan of the
+    contact sheet, as well as settings on a particular print.</p>
+
+  <h3>Tour</h3>
+
+  <ul class="list-unstyled">
+
+    <li class="media mb-3">
+      <a href="/static/public/images/binders1.png">
+        <img class="mr-3" src="/static/public/images/binders1-thumb.png" alt="Binders Screenshot">
+      </a>
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">Organize Into Binders</h5>
+        Keep track of your film projects and films in binders which correspond to the physical
+        binders the film is kept it. This is up to you to decide but organizing by year is a
+        good way to go about it.</a>
+      </div>
+    </li>
+
+    <li class="media mb-3">
+      <a href="/static/public/images/projects1.png">
+        <img class="mr-3" src="/static/public/images/projects1-thumb.png" alt="Binders Screenshot">
+      </a>
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">Then Organize Into Projects</h5>
+        <p>Organize your films within a binder into projects, which could correspond to dividers in
+        the binder so you can separate by film size or by a large project (such as a vacation or
+        photoshoot) or however you might care to organize it.</p>
+      </div>
+    </li>
+
+    <li class="media mb-3">
+      <a href="/static/public/images/film1.png">
+        <img class="mr-3" src="/static/public/images/film1-thumb.png" alt="Binders Screenshot">
+      </a>
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">Log Dem Films</h5>
+        <p>Create a film roll and log exposures, tracking development of the roll
+        and information about each exposure. You can generally provide as much
+        or as little information as you like.</p>
+
+        <p>For sheets, you still create a film "roll" but then can add each sheet
+        as an exposure and provide extended information, such as the development
+        and film used. This works well enough for 4x5 since you can store up to
+        4 4x5 sheets in a PrintFile. For larger formats, more work may need to be
+        done to make it more sensible.</p>
+      </div>
+    </li>
+
+    <li class="media mb-3">
+      <a href="/static/public/images/gear1.png">
+        <img class="mr-3" src="/static/public/images/gear1-thumb.png" alt="Gear Screenshot">
+      </a>
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">Track your Gear</h5>
+        <p>Keep track of cameras and lenses which you can include as part of film logs.</p>
+      </div>
+    </li>
+
+    <li class="media mb-3">
+      <a href="/static/public/images/filmstock1.png">
+        <img class="mr-3" src="/static/public/images/filmstock1-thumb.png" alt="Filmstock Screenshot">
+      </a>
+      <div class="media-body">
+        <h5 class="mt-0 mb-1">Track your Film Stock</h5>
+        <p>You can track stock of your films so you know when to re-order if you are getting low.</p>
+      </div>
+    </li>
+
+
+
+
+{% endblock %}

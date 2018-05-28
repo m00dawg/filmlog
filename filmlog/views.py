@@ -14,10 +14,13 @@ from filmlog import files
 
 engine = database.engine
 
-@app.route('/',  methods = ['POST', 'GET'])
+@app.route('/',  methods = ['GET'])
 def index():
-    if request.method == 'GET':
-        return render_template('index.html')
+    userID = current_user.get_id()
+    if userID:
+        return render_template('overview.html')
+    else:
+        return render_template('public/index.html')
 
 # Binder List
 @app.route('/binders',  methods = ['POST', 'GET'])
@@ -51,7 +54,7 @@ def projects(binderID):
     # Get current binder (and check to make sure a user isn't trying to
     # access someone else's binder)
     qry = text("""SELECT binderID, name FROM Binders
-        WHERE binderID = :binderID AND userID = :userID""")
+        WHERE binderID = :binderID AND userID = :userID ORDER BY createdOn""")
     binder = connection.execute(qry,
         binderID=binderID,
         userID=userID).fetchone()
@@ -71,7 +74,8 @@ def projects(binderID):
 
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects
         WHERE binderID = :binderID
-        AND userID = :userID""")
+        AND userID = :userID
+        ORDER BY createdOn""")
     projects = connection.execute(qry, binderID=binderID, userID = userID).fetchall()
     transaction.commit()
     return render_template('projects.html', binder=binder, binderID=binderID, projects=projects)
@@ -89,7 +93,8 @@ def project(binderID, projectID):
             AND Binders.userID = Projects.userID
         WHERE projectID = :projectID
         AND Projects.binderID = :binderID
-        AND Projects.userID = :userID""")
+        AND Projects.userID = :userID
+        ORDER BY Projects.createdOn""")
     project = connection.execute(qry,
         projectID = projectID,
         binderID = binderID,

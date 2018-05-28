@@ -4,6 +4,7 @@
 
   {% include 'film/film_details.html' %}
 
+  {% if contactSheet %}
   <div class="card">
     <div class="flexrow">
       <div class="col-sm-6 panel">
@@ -12,7 +13,16 @@
           <tr><th>Paper</th><td>{{ contactSheet.paperBrand }} {{ contactSheet.paperName }}</td></tr>
           <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
           <tr><th>F-stop</th><td>{{ contactSheet.aperture }}</td></tr>
-          <tr><th>Height</th><td>{{ contactSheet.headHeight }}</td></tr>
+          <tr>
+              <th>Height</th>
+              <td>
+                {% if headHeight %}
+                  {{ contactSheet.headHeight }}
+                {% else %}
+                  Unknown
+                {% endif %}
+              </td>
+          </tr>
           <tr><th>Time</th><td>{{ contactSheet.exposureTime }}</td></tr>
         </table>
       </div>
@@ -30,6 +40,7 @@
         </table>
     </div>
   </div>
+  {% endif %}
 
 <br />
 

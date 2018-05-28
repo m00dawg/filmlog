@@ -1,4 +1,4 @@
-from filmlog import app
+from filmlog import app, abort
 from sqlalchemy.sql import text
 from flask_login import current_user
 

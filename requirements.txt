@@ -12,3 +12,4 @@ uwsgi
 jinja2
 itsdangerous
 click
+Pillow
