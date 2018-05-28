@@ -10,13 +10,22 @@
       <div class="col-sm-6 panel">
         <br />
         <table class="table table-bordered" id="contact_sheet_details">
-          <tr><th>Paper</th><td>{{ contactSheet.paperBrand }} {{ contactSheet.paperName }}</td></tr>
+          <tr>
+            <th>Paper</th>
+            <td>
+              {% if contactSheet.paperName %}
+                {{ contactSheet.paperBrand }} {{ contactSheet.paperName }}
+              {% else %}
+                Unknown
+              {% endif %}
+            </td>
+          </tr>
           <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
           <tr><th>F-stop</th><td>{{ contactSheet.aperture }}</td></tr>
           <tr>
               <th>Height</th>
               <td>
-                {% if headHeight %}
+                {% if contactSheet.headHeight %}
                   {{ contactSheet.headHeight }}
                 {% else %}
                   Unknown
@@ -54,7 +63,7 @@
       <div class="form-group row">
         <div class="col-sm-6">
           <label>Paper</label>
-          <select class="form-control" name="paper">
+          <select class="form-control" name="paperID">
               <option value=''>Select Paper</option>
               {% for paper in papers %}
                 <option value="{{ paper.paperID }}">{{ paper.brandName }} {{ paper.paperName }}</option>
@@ -63,7 +72,7 @@
         </div>
         <div class="col-sm-6">
           <label>Filter</label>
-          <select class="form-control" name="filter">
+          <select class="form-control" name="paperFilterID">
               <option value=''>Select Filter</option>
               {% for filter in filters %}
                 <option value="{{ filter.paperFilterID }}">{{ filter.name }}</option>
@@ -99,7 +108,10 @@
     </div>
 
     <div class="button-bar">
-      <button class="btn btn-success" name="button" value="updateExposure" action="submit">Save</button>
+        <button class="btn btn-success" name="button" value="updateCS" action="submit">Save</button>
+        {% if contactSheet %}
+          <button class="btn btn-danger" name="button" value="deleteCS" action="submit">Delete</button>
+        {% endif %}
     </div>
     </form>
   </div>

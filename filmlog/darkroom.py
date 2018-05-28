@@ -16,8 +16,14 @@ def get_paper_filters(connection):
     return connection.execute(qry).fetchall()
 
 def time_to_seconds(time):
-    m, s = time.split(':')
-    return int(m) * 60 + int(s)
+    # If time is in MM:SS format, calculate the raw seconds
+    # Otherwise just return the time as-is
+    if time:
+        if ':' not in time:
+            return time
+        m, s = time.split(':')
+        return int(m) * 60 + int(s)
+    return None
 
 def seconds_to_time(seconds):
     return str(int(seconds / 60)) + ":" + str(int(seconds % 60))
@@ -43,29 +49,53 @@ def contactsheet(binderID, projectID, filmID):
 
     # Upload a new contact sheet
     if request.method == 'POST':
-        nextFileID = functions.next_id(connection, 'fileID', 'Files')
-        exposureTime = request.form['exposureTime']
-        print "DEBUG: Exposure Time Before: " + str(exposureTime)
-        exposureTime = time_to_seconds(exposureTime)
-        print "DEBUG: Exposure Time After: " + str(exposureTime)
-        if files.upload_file(request, connection, transaction, nextFileID):
-            qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
-                VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
+        if request.form['button'] == 'deleteCS':
+            qry = text("""SELECT fileID FROM ContactSheets
+                WHERE filmID = :filmID AND userID = :userID""")
+            result = connection.execute(qry,
+                filmID = filmID,
+                userID = userID).fetchone()
+            fileID = result[0]
+            qry = text("""DELETE FROM ContactSheets
+                WHERE filmID = :filmID AND userID = :userID""")
             connection.execute(qry,
                 filmID = filmID,
-                userID = userID,
-                fileID = nextFileID,
-                paperID = request.form['paper'],
-                paperFilterID = request.form['filter'],
-                aperture = request.form['aperture'],
-                headHeight = request.form['headHeight'],
-                exposureTime = exposureTime,
-                notes = request.form['notes'])
-            transaction.commit()
-            return redirect('/binders/' + str(binderID)
-                + '/projects/' + str(projectID)
-                + '/films/' + str(filmID)
-                + '/contactsheet')
+                userID = userID)
+            files.delete_file(request, connection, transaction, fileID)
+        else:
+            nextFileID = functions.next_id(connection, 'fileID', 'Files')
+            exposureTime = request.form['exposureTime']
+            app.logger.debug('Exposure Time Before: %s', str(exposureTime))
+            exposureTime = time_to_seconds(exposureTime)
+            app.logger.debug('Exposure Time After: %s', str(exposureTime))
+            if files.upload_file(request, connection, transaction, nextFileID):
+                paperID = None
+                paperFilterID = None
+                notes = None
+                if request.form['paperID'] != '':
+                    paperID = request.form['paperID']
+                if request.form['paperFilterID'] != '':
+                    paperFilterID = request.form['paperFilterID']
+                if request.form['notes'] != '':
+                    paperFilterID = request.form['notes']
+
+                qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
+                    VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
+                connection.execute(qry,
+                    filmID = filmID,
+                    userID = userID,
+                    fileID = nextFileID,
+                    paperID = paperID,
+                    paperFilterID = paperFilterID,
+                    aperture = request.form['aperture'],
+                    headHeight = request.form['headHeight'],
+                    exposureTime = exposureTime,
+                    notes = notes)
+        transaction.commit()
+        return redirect('/binders/' + str(binderID)
+            + '/projects/' + str(projectID)
+            + '/films/' + str(filmID)
+            + '/contactsheet')
 
     film = functions.get_film_details(connection, binderID, projectID, filmID)
 
@@ -75,9 +105,9 @@ def contactsheet(binderID, projectID, filmID):
         aperture, headHeight, notes,
         SECONDS_TO_DURATION(exposureTime) AS exposureTime
         FROM ContactSheets
-        JOIN Papers ON Papers.paperID = ContactSheets.paperID
-        JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
-        JOIN PaperFilters ON PaperFilters.paperFilterID = ContactSheets.paperFilterID
+        LEFT OUTER JOIN Papers ON Papers.paperID = ContactSheets.paperID
+        LEFT OUTER JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
+        LEFT OUTER JOIN PaperFilters ON PaperFilters.paperFilterID = ContactSheets.paperFilterID
         WHERE filmID = :filmID AND userID = :userID""")
     contactSheet =  connection.execute(qry,
         userID = userID,

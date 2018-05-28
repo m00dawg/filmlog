@@ -204,8 +204,8 @@ CREATE TABLE ContactSheets(
     filmID INT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
     fileID INT UNSIGNED NOT NULL,
-    paperID TINYINT UNSIGNED NOT NULL,
-    paperFilterID TINYINT UNSIGNED NOT NULL,
+    paperID TINYINT UNSIGNED DEFAULT NULL,
+    paperFilterID TINYINT UNSIGNED DEFAULT NULL,
     aperture decimal(3,1) DEFAULT NULL,
     headHeight TINYINT UNSIGNED,
     exposureTime SMALLINT UNSIGNED NOT NULL,
@@ -237,10 +237,24 @@ CREATE TABLE Prints (
 ) ENGINE='InnoDB';
 
 -- Functions
+DROP FUNCTION SECONDS_TO_DURATION;
 DELIMITER //
-CREATE FUNCTION SECONDS_TO_DURATION (seconds SMALLINT) RETURNS VARCHAR(8) DETERMINISTIC
+CREATE FUNCTION SECONDS_TO_DURATION (inSeconds SMALLINT) RETURNS VARCHAR(8) DETERMINISTIC
 BEGIN
-    RETURN CONCAT(ROUND(FLOOR(seconds / 60)), ':', (seconds % 60));
+    DECLARE minutes TINYINT UNSIGNED;             
+    DECLARE seconds TINYINT UNSIGNED;
+    SELECT ROUND(FLOOR(inSeconds / 60)) INTO minutes;
+    SELECT inSeconds % 60 INTO seconds;
+    IF minutes < 10
+    THEN
+        SELECT CONCAT('0', minutes) INTO minutes;
+    END IF;
+    IF seconds < 10
+    THEN
+        SELECT CONCAT('0', seconds) INTO seconds;
+    END IF;
+    RETURN CONCAT(IF(minutes < 10,CONCAT('0', minutes),minutes), ':',
+        IF(seconds < 10,CONCAT('0', seconds), seconds));
 END
 //
 DELIMITER ;
