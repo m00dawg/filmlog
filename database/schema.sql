@@ -200,6 +200,14 @@ CREATE TABLE PaperFilters(
     name varchar(12) NOT NULL
 ) ENGINE='InnoDB';
 
+CREATE TABLE EnlargerLenses(
+    enlargerLensID TINYINT UNSIGNED NOT NULL,
+    userID INT UNSIGNED NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    PRIMARY KEY (enlargerLensID, userID),
+    CONSTRAINT EnlargerLenses_Users_fk FOREIGN KEY (userID) REFERENCES Users (userID) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE='InnoDB';
+
 CREATE TABLE ContactSheets(
     filmID INT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
@@ -221,6 +229,7 @@ CREATE TABLE Prints (
     userID INT UNSIGNED NOT NULL,
     paperID TINYINT UNSIGNED DEFAULT NULL,
     paperFilterID TINYINT UNSIGNED DEFAULT NULL,
+    enlargerLensID TINYINT UNSIGNED DEFAULT NULL
     fileID INT UNSIGNED DEFAULT NULL,
     aperture decimal(3,1) DEFAULT NULL,
     headHeight TINYINT UNSIGNED,
@@ -236,7 +245,9 @@ CREATE TABLE Prints (
     CONSTRAINT prints_paperID_fk FOREIGN KEY (paperID) REFERENCES Papers (paperID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT prints_paperFilterID_fk FOREIGN KEY (paperFilterID) REFERENCES PaperFilters (paperFilterID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT Prints_Exposures_fk FOREIGN KEY (userID, filmID, exposureNumber) REFERENCES Exposures (userID, filmID, exposureNumber),
-    CONSTRAINT Prints_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT Prints_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT Prints_EnlargerLenses_fk FOREIGN KEY (userID, enlargerLensID) REFERENCES EnlargerLenses (userID, enlargerLensID) ON DELETE CASCADE ON UPDATE CASCADE;
+
 ) ENGINE='InnoDB';
 
 -- Functions

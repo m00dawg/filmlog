@@ -12,6 +12,7 @@
         <th>Size</th>
         <th>Paper</th>
         <th>Contrast Filter</th>
+        <th>Lens</th>
         <th>Aperture</th>
         <th>Head Height</th>
         <th>Exposure Time</th>
@@ -23,6 +24,7 @@
           <td>{{ print.size }}</td>
           <td>{{ print.paperbrand }} {{ print.paperName }}</td>
           <td>{{ print.paperFilterName }}</td>
+          <td>{{ print.lens }}</td>
           <td>{{ print.aperture }}</td>
           <td>{{ print.headHeight }}</td>
           <td>{{ print.exposureTime }}</td>
@@ -71,7 +73,7 @@
           <label>Exposure #</label>
           <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number">
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
           <label>Paper</label>
           <select class="form-control" name="paperID">
               <option value=''>Select Paper</option>
@@ -96,9 +98,7 @@
               <option value="Contact">Contact</option>
           </select>
         </div>
-      </div>
-      <div class="form-group row">
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <label>Size</label>
           <select class="form-control" name="size">
               <option value="4x5">4x5</option>
@@ -106,7 +106,18 @@
               <option value="8x10">8x10</option>
           </select>
         </div>
-        <div class="col-sm-3">
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-4">
+          <label>Enlarger Lens</label><br />
+          <select class="form-control" name="enlargerLensID">
+              <option value=''>Select Lens</option>
+              {% for lens in enlargerLenses %}
+                <option value="{{ lens.enlargerLensID }}">{{ lens.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-2">
           <label>Aperture</label>
           <input class="form-control" type="text" name="aperture" placeholder="2.8">
         </div>

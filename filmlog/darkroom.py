@@ -22,6 +22,13 @@ def get_papers(connection):
         JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID""")
     return connection.execute(qry).fetchall()
 
+def get_enlarger_lenses(connection):
+    userID = current_user.get_id()
+    qry = text("""SELECT enlargerLensID, name
+        FROM EnlargerLenses
+        WHERE userID = :userID""")
+    return connection.execute(qry, userID = userID).fetchall()
+
 def time_to_seconds(time):
     # If time is in MM:SS format, calculate the raw seconds
     # Otherwise just return the time as-is
@@ -57,7 +64,8 @@ def prints(binderID, projectID, filmID):
             connection.execute(qry,
                 printID = printID,
                 userID = userID)
-            files.delete_file(request, connection, transaction, fileID)
+            if fileID:
+                files.delete_file(request, connection, transaction, fileID)
 
         if request.form['button'] == 'addPrint':
             paperID = None
@@ -65,6 +73,7 @@ def prints(binderID, projectID, filmID):
             headHeight = None
             aperture = None
             notes = None
+            enlargerLensID = None
             nextPrintID = functions.next_id(connection, 'printID', 'Prints')
             exposureTime = time_to_seconds(request.form['exposureTime'])
 
@@ -83,14 +92,17 @@ def prints(binderID, projectID, filmID):
                 headHeight = request.form['headHeight']
             if request.form['aperture'] != '':
                 aperture = request.form['aperture']
+            print "WHAT THE FUCK: " + request.form['enlargerLensID']
+            if request.form['enlargerLensID'] != '':
+                enlargerLensID = request.form['enlargerLensID']
             if request.form['notes'] != '':
                 notes = request.form['notes']
 
             qry = text("""INSERT INTO Prints
                 (printID, filmID, exposureNumber, userID, paperID, paperFilterID,
-                fileID, aperture, headHeight, exposureTime, printType, size, notes)
+                enlargerLensID, fileID, aperture, headHeight, exposureTime, printType, size, notes)
                 VALUES (:printID, :filmID, :exposureNumber, :userID, :paperID,
-                :paperFilterID, :fileID, :aperture, :headHeight, :exposureTime,
+                :paperFilterID, :enlargerLensID, :fileID, :aperture, :headHeight, :exposureTime,
                 :printType, :size, :notes)""")
             connection.execute(qry,
                 printID = nextPrintID,
@@ -99,6 +111,7 @@ def prints(binderID, projectID, filmID):
                 userID = userID,
                 paperID = paperID,
                 paperFilterID = paperFilterID,
+                enlargerLensID = enlargerLensID,
                 fileID = nextFileID,
                 aperture = aperture,
                 headHeight = headHeight,
@@ -110,16 +123,20 @@ def prints(binderID, projectID, filmID):
     film = functions.get_film_details(connection, binderID, projectID, filmID)
     papers = get_papers(connection)
     filters = get_paper_filters(connection)
+    enlargerLenses = get_enlarger_lenses(connection)
 
     qry = text("""SELECT printID, exposureNumber, Papers.name AS paperName,
         PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
         printType, size, aperture, headHeight, notes, fileID,
+        EnlargerLenses.name AS lens,
         SECONDS_TO_DURATION(exposureTime) AS exposureTime
         FROM Prints
         LEFT OUTER JOIN Papers ON Papers.paperID = Prints.paperID
         LEFT OUTER JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
         LEFT OUTER JOIN PaperFilters ON PaperFilters.paperFilterID = Prints.paperFilterID
-        WHERE filmID = :filmID AND userID = :userID""")
+        LEFT OUTER JOIN EnlargerLenses ON EnlargerLenses.enlargerLensID = Prints.enlargerLensID
+            AND EnlargerLenses.userID = Prints.userID
+        WHERE filmID = :filmID AND Prints.userID = :userID""")
     prints = connection.execute(qry,
         userID = userID,
         filmID = filmID)
@@ -130,6 +147,7 @@ def prints(binderID, projectID, filmID):
         film=film,
         papers=papers,
         filters=filters,
+        enlargerLenses = enlargerLenses,
         prints = prints,
         view='prints')
 
