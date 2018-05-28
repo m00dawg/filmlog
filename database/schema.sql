@@ -200,6 +200,20 @@ CREATE TABLE PaperFilters(
     name varchar(12) NOT NULL
 ) ENGINE='InnoDB';
 
+CREATE TABLE ContactSheets(
+    filmID INT UNSIGNED NOT NULL,
+    userID INT UNSIGNED NOT NULL,
+    fileID INT UNSIGNED NOT NULL,
+    paperID TINYINT UNSIGNED NOT NULL,
+    paperFilterID TINYINT UNSIGNED NOT NULL,
+    aperture decimal(3,1) DEFAULT NULL,
+    headHeight TINYINT UNSIGNED,
+    exposureTime SMALLINT UNSIGNED NOT NULL,
+    notes TEXT DEFAULT NULL,
+    PRIMARY KEY (filmID, userID),
+    CONSTRAINT ContactSheets_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID)
+) ENGINE='InnoDB';
+
 CREATE TABLE Prints (
     printID INT UNSIGNED NOT NULL,
     filmID INT UNSIGNED NOT NULL,
@@ -221,6 +235,15 @@ CREATE TABLE Prints (
     CONSTRAINT prints_paperFilterID_fk FOREIGN KEY (paperFilterID) REFERENCES PaperFilters (paperFilterID) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT Prints_Exposures_fk FOREIGN KEY (userID, filmID, exposureNumber) REFERENCES Exposures (userID, filmID, exposureNumber)
 ) ENGINE='InnoDB';
+
+-- Functions
+DELIMITER //
+CREATE FUNCTION SECONDS_TO_DURATION (seconds SMALLINT) RETURNS VARCHAR(8) DETERMINISTIC
+BEGIN
+    RETURN CONCAT(ROUND(FLOOR(seconds / 60)), ':', (seconds % 60));
+END
+//
+DELIMITER ;
 
 -- Triggers
 DELIMITER //
@@ -284,3 +307,4 @@ CREATE TRIGGER ExposureCountDecrement
 //
 
 DELIMITER ;
+

@@ -15,6 +15,13 @@ def get_paper_filters(connection):
     qry = text("""SELECT paperFilterID, name FROM PaperFilters""")
     return connection.execute(qry).fetchall()
 
+def time_to_seconds(time):
+    m, s = time.split(':')
+    return int(m) * 60 + int(s)
+
+def seconds_to_time(seconds):
+    return str(int(seconds / 60)) + ":" + str(int(seconds % 60))
+
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
 @login_required
 def prints(binderID, projectID, filmID):
@@ -38,9 +45,9 @@ def contactsheet(binderID, projectID, filmID):
     if request.method == 'POST':
         nextFileID = functions.next_id(connection, 'fileID', 'Files')
         exposureTime = request.form['exposureTime']
-        if(exposureTime.count(':') == 1):
-            exposureTime = "00:" + exposureTime
-        print exposureTime
+        print "DEBUG: Exposure Time Before: " + str(exposureTime)
+        exposureTime = time_to_seconds(exposureTime)
+        print "DEBUG: Exposure Time After: " + str(exposureTime)
         if files.upload_file(request, connection, transaction, nextFileID):
             qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
                 VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
@@ -65,7 +72,8 @@ def contactsheet(binderID, projectID, filmID):
     # Get contact sheet info
     qry = text("""SELECT fileID, Papers.name AS paperName,
         PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
-        aperture, headHeight, exposureTime, notes
+        aperture, headHeight, notes,
+        SECONDS_TO_DURATION(exposureTime) AS exposureTime
         FROM ContactSheets
         JOIN Papers ON Papers.paperID = ContactSheets.paperID
         JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
@@ -75,7 +83,6 @@ def contactsheet(binderID, projectID, filmID):
         userID = userID,
         binderID = binderID,
         filmID=filmID).fetchone()
-
     # Get info for adding/updating contact sheet
     qry = text("""SELECT paperID, PaperBrands.name AS brandName, Papers.name AS paperName
         FROM Papers

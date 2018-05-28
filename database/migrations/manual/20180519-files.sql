@@ -1,5 +1,3 @@
-
-
 CREATE TABLE Files(
     fileID INT UNSIGNED NOT NULL,
     userID INT UNSIGNED NOT NULL,
@@ -15,8 +13,16 @@ CREATE TABLE ContactSheets(
     paperFilterID TINYINT UNSIGNED NOT NULL,
     aperture decimal(3,1) DEFAULT NULL,
     headHeight TINYINT UNSIGNED,
-    exposureTime TIME NOT NULL,
+    exposureTime SMALLINT UNSIGNED NOT NULL,
     notes TEXT DEFAULT NULL,
     PRIMARY KEY (filmID, userID),
     CONSTRAINT ContactSheets_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID)
-)
+) ENGINE='InnoDB';
+
+DELIMITER //
+CREATE FUNCTION SECONDS_TO_DURATION (seconds SMALLINT) RETURNS VARCHAR(8) DETERMINISTIC
+BEGIN
+    RETURN CONCAT(ROUND(FLOOR(seconds / 60)), ':', (seconds % 60));
+END
+//
+DELIMITER ;
