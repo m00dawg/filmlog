@@ -1,84 +1,137 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-  <h1 class="page-header">Film Log</h1>
-  <p>The Film Log is an application to assist keeping track of information about
-  your still film rolls and sheets. This includes information about shots,
-  the film used, filters, aperture, etc. The idea is this information can be
-  looked up online or printed out and kept with the actual film itself.
-  <a href="/static/public/print1.pdf">Here</a> is an example of a large
-  format log. It has 4 exposures on one page to match the PrintFile sheets.r</p>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#features">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#todo">Todo</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#tour">Tour</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-10">
 
-  <p>It can also track information for the darkroom, such as a scan of the
-    contact sheet, as well as settings on a particular print.</p>
+      <h1 class="page-header" id="overview">Film Log</h1>
+      <p>The Film Log is an open source application written using the Python Flask
+        framework to assist keeping track of information about
+      your still film rolls and sheets. This includes information about shots,
+      the film used, filters, aperture, etc. The idea is this information can be
+      looked up online or printed out and kept with the actual film itself.
+      <a href="/static/public/print1.pdf">Here</a> is an example of a large
+      format log. It has 4 exposures on one page to match the PrintFile sheets.r</p>
 
-  <h3>Tour</h3>
+      <p>It can also track information for the darkroom, such as a scan of the
+        contact sheet, as well as settings on a particular print.</p>
 
-  <ul class="list-unstyled">
+      <h3 id="features">Current Features</h3>
+      <ul>
+        <li>Log information about exposures made</li>
+        <li>Organize film exposure sheets into projects and binders</li>
+        <li>Upload contact sheets with details on exposure</li>
+        <li>Log information about darkroom prints (coming soon)</li>
+        <li>Track film stock so you know when it's time to buy more film</li>
+        <li>View statitics on which films you use the most and other interesting stats (coming soon)</li>
+      </ul>
 
-    <li class="media mb-3">
-      <a href="/static/public/images/binders1.png">
-        <img class="mr-3" src="/static/public/images/binders1-thumb.png" alt="Binders Screenshot">
-      </a>
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">Organize Into Binders</h5>
-        Keep track of your film projects and films in binders which correspond to the physical
-        binders the film is kept it. This is up to you to decide but organizing by year is a
-        good way to go about it.</a>
-      </div>
-    </li>
+      <h3 id="todo">Todo</h3>
+      <ul>
+        <li>Log information about darkroom prints</li>
+        <li>View statitics on which films you use the most and other interesting stats</li>
+      </ul>
 
-    <li class="media mb-3">
-      <a href="/static/public/images/projects1.png">
-        <img class="mr-3" src="/static/public/images/projects1-thumb.png" alt="Binders Screenshot">
-      </a>
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">Then Organize Into Projects</h5>
-        <p>Organize your films within a binder into projects, which could correspond to dividers in
-        the binder so you can separate by film size or by a large project (such as a vacation or
-        photoshoot) or however you might care to organize it.</p>
-      </div>
-    </li>
+      <h3 id="tour">Tour</h3>
+      <ul class="list-unstyled">
+        <li class="media mb-3">
+          <a href="/static/public/images/binders1.png">
+            <img class="mr-3" src="/static/public/images/binders1-thumb.png" alt="Binders Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Organize Into Binders</h5>
+            Keep track of your film projects and films in binders which correspond to the physical
+            binders the film is kept it. This is up to you to decide but organizing by year is a
+            good way to go about it.</a>
+          </div>
+        </li>
 
-    <li class="media mb-3">
-      <a href="/static/public/images/film1.png">
-        <img class="mr-3" src="/static/public/images/film1-thumb.png" alt="Binders Screenshot">
-      </a>
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">Log Dem Films</h5>
-        <p>Create a film roll and log exposures, tracking development of the roll
-        and information about each exposure. You can generally provide as much
-        or as little information as you like.</p>
+        <li class="media mb-3">
+          <a href="/static/public/images/projects1.png">
+            <img class="mr-3" src="/static/public/images/projects1-thumb.png" alt="Projects Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Then Organize Into Projects</h5>
+            <p>Organize your films within a binder into projects, which could correspond to dividers in
+            the binder so you can separate by film size or by a large project (such as a vacation or
+            photoshoot) or however you might care to organize it.</p>
+          </div>
+        </li>
 
-        <p>For sheets, you still create a film "roll" but then can add each sheet
-        as an exposure and provide extended information, such as the development
-        and film used. This works well enough for 4x5 since you can store up to
-        4 4x5 sheets in a PrintFile. For larger formats, more work may need to be
-        done to make it more sensible.</p>
-      </div>
-    </li>
+        <li class="media mb-3">
+          <a href="/static/public/images/film1.png">
+            <img class="mr-3" src="/static/public/images/film1-thumb.png" alt="Film Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Log Dem Films</h5>
+            <p>Create a film roll and log exposures, tracking development of the roll
+            and information about each exposure. You can generally provide as much
+            or as little information as you like.</p>
 
-    <li class="media mb-3">
-      <a href="/static/public/images/gear1.png">
-        <img class="mr-3" src="/static/public/images/gear1-thumb.png" alt="Gear Screenshot">
-      </a>
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">Track your Gear</h5>
-        <p>Keep track of cameras and lenses which you can include as part of film logs.</p>
-      </div>
-    </li>
+            <p>For sheets, you still create a film "roll" but then can add each sheet
+            as an exposure and provide extended information, such as the development
+            and film used. This works well enough for 4x5 since you can store up to
+            4 4x5 sheets in a PrintFile. For larger formats, more work may need to be
+            done to make it more sensible.</p>
+          </div>
+        </li>
 
-    <li class="media mb-3">
-      <a href="/static/public/images/filmstock1.png">
-        <img class="mr-3" src="/static/public/images/filmstock1-thumb.png" alt="Filmstock Screenshot">
-      </a>
-      <div class="media-body">
-        <h5 class="mt-0 mb-1">Track your Film Stock</h5>
-        <p>You can track stock of your films so you know when to re-order if you are getting low.</p>
-      </div>
-    </li>
+        <li class="media mb-3">
+          <a href="/static/public/images/contactsheet1.png">
+            <img class="mr-3" src="/static/public/images/contactsheet1-thumb.png" alt="Contact Sheet Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Upload a Contact Sheet</h5>
+            <p>Upload a wet print contact sheet along with information about how
+              it was made. Both to give an overview of the images on the roll but
+              also to provide baseline exposure settings for making darkroom prints.</p>
+          </div>
+        </li>
 
+        <li class="media mb-3">
+          <a href="/static/public/images/gear1.png">
+            <img class="mr-3" src="/static/public/images/gear1-thumb.png" alt="Gear Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Track your Gear</h5>
+            <p>Keep track of cameras and lenses which you can include as part of film logs.</p>
+          </div>
+        </li>
+
+        <li class="media mb-3">
+          <a href="/static/public/images/filmstock1.png">
+            <img class="mr-3" src="/static/public/images/filmstock1-thumb.png" alt="Filmstock Screenshot">
+          </a>
+          <div class="media-body">
+            <h5 class="mt-0 mb-1">Track your Film Stock</h5>
+            <p>You can track stock of your films so you know when to re-order if you are getting low.</p>
+          </div>
+        </li>
+      </ul>
+
+      <h3 id="try">Try It!</h3>
+
+
+    </div>
+  </div>
+</div>
 
 
 

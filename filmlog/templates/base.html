@@ -16,14 +16,14 @@
         <div class="collapse navbar-collapse">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-            <li class="nav-item"><a class="nav-link"href="/binders">Binders</a></li>
-            {% if binderID %}
-              <li class="nav-item"><a class="nav-link"href="/binders/{{ binderID }}/projects">Projects</a></li>
-            {% endif %}
-            <li class="nav-item"><a class="nav-link"href="/gear">Gear</a></li>
-            <li class="nav-item"><a class="nav-link"href="/filmtypes">Films</a></li>
-            <li class="nav-item"><a class="nav-link"href="/filmstock">Film Stock</a></li>
             {% if current_user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link"href="/binders">Binders</a></li>
+              {% if binderID %}
+                <li class="nav-item"><a class="nav-link"href="/binders/{{ binderID }}/projects">Projects</a></li>
+              {% endif %}
+              <li class="nav-item"><a class="nav-link"href="/gear">Gear</a></li>
+              <li class="nav-item"><a class="nav-link"href="/filmtypes">Films</a></li>
+              <li class="nav-item"><a class="nav-link"href="/filmstock">Film Stock</a></li>
               <li class="nav-item"><a class="nav-link"href="/logout">Logout</a></li>
             {% else %}
               <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>

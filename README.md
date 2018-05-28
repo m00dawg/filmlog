@@ -3,7 +3,6 @@ FilmLog
 
 TODO
 ----
- - Make duration input easier for contact sheets
  - DEBUG output for log
  - Seems to be a bug when specifying 15" to mean 15 seconds
  - EV option?
@@ -12,5 +11,4 @@ TODO
  - Sheets should be a table extension of Exposures since it's getting
    to be a little messy to track both roll and sheet films in the 
    same table
- - Contact sheet print info
  - Darkroom print / enlargements
