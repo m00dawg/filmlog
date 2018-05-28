@@ -92,7 +92,6 @@ def prints(binderID, projectID, filmID):
                 headHeight = request.form['headHeight']
             if request.form['aperture'] != '':
                 aperture = request.form['aperture']
-            print "WHAT THE FUCK: " + request.form['enlargerLensID']
             if request.form['enlargerLensID'] != '':
                 enlargerLensID = request.form['enlargerLensID']
             if request.form['notes'] != '':
@@ -189,6 +188,7 @@ def contactsheet(binderID, projectID, filmID):
             paperID = None
             paperFilterID = None
             headHeight = None
+            enlargerLensID = None
             notes = None
             if request.form['paperID'] != '':
                 paperID = request.form['paperID']
@@ -196,17 +196,20 @@ def contactsheet(binderID, projectID, filmID):
                 paperFilterID = request.form['paperFilterID']
             if request.form['headHeight'] != '':
                 headHeight = request.form['headHeight']
+            if request.form['enlargerLensID'] != '':
+                enlargerLensID = request.form['enlargerLensID']
             if request.form['notes'] != '':
                 notes = request.form['notes']
 
-            qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, aperture, headHeight, exposureTime, notes)
-                VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :aperture, :headHeight, :exposureTime, :notes)""")
+            qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, enlargerLensID, aperture, headHeight, exposureTime, notes)
+                VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :enlargerLensID, :aperture, :headHeight, :exposureTime, :notes)""")
             connection.execute(qry,
                 filmID = filmID,
                 userID = userID,
                 fileID = nextFileID,
                 paperID = paperID,
                 paperFilterID = paperFilterID,
+                enlargerLensID = enlargerLensID,
                 aperture = request.form['aperture'],
                 headHeight = headHeight,
                 exposureTime = exposureTime,
@@ -222,13 +225,15 @@ def contactsheet(binderID, projectID, filmID):
     # Get contact sheet info
     qry = text("""SELECT fileID, Papers.name AS paperName,
         PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
-        aperture, headHeight, notes,
+        EnlargerLenses.name AS lens, aperture, headHeight, notes,
         SECONDS_TO_DURATION(exposureTime) AS exposureTime
         FROM ContactSheets
         LEFT OUTER JOIN Papers ON Papers.paperID = ContactSheets.paperID
         LEFT OUTER JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID
         LEFT OUTER JOIN PaperFilters ON PaperFilters.paperFilterID = ContactSheets.paperFilterID
-        WHERE filmID = :filmID AND userID = :userID""")
+        LEFT OUTER JOIN EnlargerLenses ON EnlargerLenses.enlargerLensID = ContactSheets.enlargerLensID
+            AND EnlargerLenses.userID = ContactSheets.userID
+        WHERE filmID = :filmID AND ContactSheets.userID = :userID""")
     contactSheet =  connection.execute(qry,
         userID = userID,
         binderID = binderID,
@@ -236,6 +241,7 @@ def contactsheet(binderID, projectID, filmID):
 
     filters = get_paper_filters(connection)
     papers = get_papers(connection)
+    enlargerLenses = get_enlarger_lenses(connection)
 
     transaction.commit()
     return render_template('darkroom/contactsheet.html',
@@ -243,5 +249,6 @@ def contactsheet(binderID, projectID, filmID):
         papers=papers,
         filters=filters,
         film=film,
+        enlargerLenses=enlargerLenses,
         contactSheet = contactSheet,
         view='contactsheet')

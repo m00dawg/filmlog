@@ -214,12 +214,14 @@ CREATE TABLE ContactSheets(
     fileID INT UNSIGNED DEFAULT NULL,
     paperID TINYINT UNSIGNED DEFAULT NULL,
     paperFilterID TINYINT UNSIGNED DEFAULT NULL,
+    enlargerLensID TINYINT UNSIGNED DEFAULT NULL,
     aperture decimal(3,1) DEFAULT NULL,
     headHeight TINYINT UNSIGNED,
     exposureTime SMALLINT UNSIGNED NOT NULL,
     notes TEXT DEFAULT NULL,
     PRIMARY KEY (filmID, userID),
-    CONSTRAINT ContactSheets_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID)
+    CONSTRAINT ContactSheets_Files_fk FOREIGN KEY (userID, fileID) REFERENCES Files (userID, fileID),
+    CONSTRAINT ContactSheets_EnlargerLenses_fk FOREIGN KEY (userID, enlargerLensID) REFERENCES EnlargerLenses (userID, enlargerLensID) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE='InnoDB';
 
 CREATE TABLE Prints (

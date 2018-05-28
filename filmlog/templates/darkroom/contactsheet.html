@@ -21,7 +21,8 @@
             </td>
           </tr>
           <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
-          <tr><th>F-stop</th><td>{{ contactSheet.aperture }}</td></tr>
+          <tr><th>Lens</th><td>{{ contactSheet.lens }}</td></tr>
+          <tr><th>Aperture</th><td>{{ contactSheet.aperture }}</td></tr>
           <tr>
               <th>Height</th>
               <td>
@@ -86,15 +87,24 @@
         </div>
       </div>
       <div class="form-group row">
-        <div class="col-sm-4">
+        <div class="col-sm-3">
+          <label>Enlarger Lens</label><br />
+          <select class="form-control" name="enlargerLensID">
+              <option value=''>Select Lens</option>
+              {% for lens in enlargerLenses %}
+                <option value="{{ lens.enlargerLensID }}">{{ lens.name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-3">
           <label>Aperture</label>
           <input class="form-control" type="text" name="aperture" placeholder="2.8">
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
           <label>Head Height</label>
           <input class="form-control" type="text" name="headHeight" placeholder="30">
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
           <label>Exposure Time</label>
           <input class="form-control" type="text" name="exposureTime" placeholder="0:30">
         </div>
