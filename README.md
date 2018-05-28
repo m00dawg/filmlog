@@ -3,7 +3,6 @@ FilmLog
 
 TODO
 ----
- - DEBUG output for log
  - Seems to be a bug when specifying 15" to mean 15 seconds
  - EV option?
  - Change filters to use stops instead of filter factor
@@ -12,3 +11,4 @@ TODO
    to be a little messy to track both roll and sheet films in the 
    same table
  - Darkroom print / enlargements
+ - OAUTH (e.g. FB, twitter, etc.) support
