@@ -44,12 +44,20 @@ def prints(binderID, projectID, filmID):
 
     if request.method == 'POST':
         if request.form['button'] == 'deletePrint':
+            printID = request.form['printID']
+            qry = text("""SELECT fileID FROM Prints
+                WHERE printID = :printID AND userID = :userID""")
+            result = connection.execute(qry,
+                printID = printID,
+                userID = userID).fetchone()
+            fileID = result[0]
             qry = text("""DELETE FROM Prints
                 WHERE printID = :printID
                 AND userID = :userID""")
             connection.execute(qry,
-                printID = request.form['printID'],
+                printID = printID,
                 userID = userID)
+            files.delete_file(request, connection, transaction, fileID)
 
         if request.form['button'] == 'addPrint':
             paperID = None
@@ -59,6 +67,13 @@ def prints(binderID, projectID, filmID):
             notes = None
             nextPrintID = functions.next_id(connection, 'printID', 'Prints')
             exposureTime = time_to_seconds(request.form['exposureTime'])
+
+            # If user included a file, let's upload it. Otherwise skip it.
+            if 'file' in request.files:
+                nextFileID = functions.next_id(connection, 'fileID', 'Files')
+                files.upload_file(request, connection, transaction, nextFileID)
+            else:
+                nextFileID = None
 
             if request.form['paperID'] != '':
                 paperID = request.form['paperID']
@@ -73,9 +88,9 @@ def prints(binderID, projectID, filmID):
 
             qry = text("""INSERT INTO Prints
                 (printID, filmID, exposureNumber, userID, paperID, paperFilterID,
-                aperture, headHeight, exposureTime, printType, size, notes)
+                fileID, aperture, headHeight, exposureTime, printType, size, notes)
                 VALUES (:printID, :filmID, :exposureNumber, :userID, :paperID,
-                :paperFilterID, :aperture, :headHeight, :exposureTime,
+                :paperFilterID, :fileID, :aperture, :headHeight, :exposureTime,
                 :printType, :size, :notes)""")
             connection.execute(qry,
                 printID = nextPrintID,
@@ -84,6 +99,7 @@ def prints(binderID, projectID, filmID):
                 userID = userID,
                 paperID = paperID,
                 paperFilterID = paperFilterID,
+                fileID = nextFileID,
                 aperture = aperture,
                 headHeight = headHeight,
                 exposureTime = exposureTime,
@@ -97,7 +113,7 @@ def prints(binderID, projectID, filmID):
 
     qry = text("""SELECT printID, exposureNumber, Papers.name AS paperName,
         PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
-        printType, size, aperture, headHeight, notes,
+        printType, size, aperture, headHeight, notes, fileID,
         SECONDS_TO_DURATION(exposureTime) AS exposureTime
         FROM Prints
         LEFT OUTER JOIN Papers ON Papers.paperID = Prints.paperID

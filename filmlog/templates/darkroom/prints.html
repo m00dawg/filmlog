@@ -43,6 +43,15 @@
           {% else %}
             <td colspan="6">&nbsp;</td>
           {% endif %}
+          <td colspan="3">
+            {% if print.fileID %}
+              <a href="/files/full/{{ print.fileID }}">
+                <img src="/files/thumb/{{ print.fileID }}" />
+              </a>
+            {% else %}
+              <p>No Image</p>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </table>
@@ -54,7 +63,9 @@
   <div class="card-body">
     <form role="form" class="form-horizontal"
       action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints"
-      method="POST">
+      method="POST"
+      enctype=multipart/form-data>
+
       <div class="form-group row">
         <div class="col-sm-2">
           <label>Exposure #</label>
@@ -113,6 +124,12 @@
           <label>Notes</label><br />
           <textarea type="text" class="form-control" placeholder="Notes" name="notes" aria-describedby="Notes"></textarea>
         </div>
+      </div>
+      <div class="form-group row">
+          <div class="col-sm-12">
+            <label>File (JPG)</label>
+            <input type=file name=file>
+          </div>
       </div>
       <div class="button-bar">
         <button class="btn btn-success" name="button" value="addPrint" action="submit">Add</button>
