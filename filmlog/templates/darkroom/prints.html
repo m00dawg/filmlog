@@ -26,7 +26,13 @@
           <td>{{ print.paperFilterName }}</td>
           <td>{{ print.lens }}</td>
           <td>{{ print.aperture }}</td>
-          <td>{{ print.headHeight }}</td>
+          <td>
+            {% if print.headHeight %}
+              {{ print.headHeight }}
+            {% else %}
+              Unknown
+            {% endif %}
+          </td>
           <td>{{ print.exposureTime }}</td>
 
           <td class="text-right">
