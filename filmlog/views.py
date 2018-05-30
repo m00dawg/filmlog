@@ -524,7 +524,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
     lenses = connection.execute(qry, projectID=projectID, filmID=filmID, userID=userID).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
-        lensID, flash, notes, metering
+        lensID, flash, notes, metering, subject, development
         FROM Exposures
         WHERE filmID = :filmID
         AND exposureNumber = :exposureNumber
