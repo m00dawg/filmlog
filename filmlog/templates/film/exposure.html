@@ -32,7 +32,6 @@
                     selected
                   {% endif %}
                 >{{ lens.name }}</option>
-
               {% endfor %}
           </select>
         </div>
@@ -92,6 +91,22 @@
                 value="{{ exposure.development }}"
               {% endif %}
             >
+          </div>
+          <div class="col-sm-10">
+            <label>Film</label><br />
+            <select class="form-control" name="filmType">
+                <option value=''>Select Film </option>
+                {% for filmType in filmTypes %}
+                  <option value="{{ filmType.filmTypeID }}"
+                    {% if exposure.filmTypeID == filmType.filmTypeID %} selected {% endif %}>
+                    {{ filmType.brand }} {{ filmType.name }} {{ filmType.iso }}
+                  </option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label>Shot ISO</label>
+            <input type="text" class="form-control" value="{{ exposure.iso }}" name="shotISO" aria-describedby="ShotISO">
           </div>
         {% endif %}
         <div class="col-sm-12">

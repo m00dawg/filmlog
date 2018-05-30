@@ -15,6 +15,13 @@ from filmlog import stats
 
 engine = database.engine
 
+
+def get_film_types(connection):
+    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        ORDER BY brand, name""")
+    return connection.execute(qry).fetchall()
+
 @app.route('/',  methods = ['GET'])
 def index():
     userID = current_user.get_id()
@@ -161,10 +168,7 @@ def project(binderID, projectID):
         WHERE projectID = :projectID ORDER BY fileDate""")
     films = connection.execute(qry, projectID=projectID).fetchall()
 
-    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        ORDER BY brand, name""")
-    filmTypes = connection.execute(qry).fetchall()
+    filmTypes = get_film_types(connection)
 
     qry = text("""SELECT cameraID, name FROM Cameras""")
     cameras = connection.execute(qry).fetchall()
@@ -263,9 +267,7 @@ def film(binderID, projectID, filmID):
         AND CameraLenses.userID = :userID""")
     lenses = connection.execute(qry, cameraID=film.cameraID, userID=userID).fetchall()
 
-    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID""")
-    filmTypes = connection.execute(qry).fetchall()
+    filmTypes = get_film_types(connection)
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
         Lenses.name AS lens, flash, metering, subject, notes, development,
@@ -467,7 +469,9 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
                     metering = :metering,
                     notes = :notes,
                     subject = :subject,
-                    development = :development
+                    development = :development,
+                    filmTypeID = :filmType,
+                    iso = :shotISO
                 WHERE filmID = :filmID
                 AND exposureNumber = :exposureNumberOld
                 AND userID = :userID""")
@@ -483,7 +487,9 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
                 metering = metering,
                 notes = notes,
                 subject = subject,
-                development = development)
+                development = development,
+                filmType = filmType,
+                shotISO = shotISO)
 
             qry = text("""DELETE FROM ExposureFilters
                 WHERE filmID = :filmID
@@ -524,7 +530,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
     lenses = connection.execute(qry, projectID=projectID, filmID=filmID, userID=userID).fetchall()
 
     qry = text("""SELECT exposureNumber, shutter, aperture,
-        lensID, flash, notes, metering, subject, development
+        lensID, flash, notes, metering, subject, development, filmTypeID, iso
         FROM Exposures
         WHERE filmID = :filmID
         AND exposureNumber = :exposureNumber
@@ -548,22 +554,20 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         WHERE filmID = :filmID
         AND Cameras.userID = :userID""")
     film = connection.execute(qry, filmID=filmID, userID=userID).fetchone()
+    filmTypes = get_film_types(connection)
+
     transaction.commit()
     return render_template('film/edit-exposure.html',
         userID=userID,
         binderID=binderID,
         projectID=projectID, filmID=filmID,
         filters=filters, lenses=lenses, exposure=exposure,
-        exposureFilters=exposureFilters, film=film)
+        exposureFilters=exposureFilters, film=film, filmTypes=filmTypes)
 
 @app.route('/filmtypes',  methods = ['GET'])
 @login_required
 def filmtypes():
-    qry = text("""SELECT filmTypeID, brand, name, iso, kind
-                  FROM FilmTypes
-                  JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-                  ORDER BY brand, name, iso""")
-    filmtypes = engine.execute(qry).fetchall()
+    filmtypes = get_film_types(engine.connect())
     return render_template('filmtypes.html', filmtypes=filmtypes)
 
 @app.route('/gear',  methods = ['GET', 'POST'])
