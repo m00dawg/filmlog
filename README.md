@@ -4,9 +4,6 @@ FilmLog
 TODO
 ----
  - External app still has internal server error
- - Seems to be a bug when specifying 15" to mean 15 seconds
- - Checkbox for whether or not a tripod was used
- - Searching
  - User registration / social logins (Being mindful of GDRP)
  - Print views for projects / films (for inserts into physical binders/dividers)
  - EV option?

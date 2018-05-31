@@ -1,4 +1,5 @@
 *.pyc
 config.ini
-venv
+venv*
 *.egg-info
+filmlog/files/*

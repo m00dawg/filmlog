@@ -177,6 +177,7 @@ def project(binderID, projectID):
 
     return render_template('project.html',
         binderID = binderID,
+        projectID = projectID,
         project = project,
         films = films,
         filmTypes = filmTypes,
