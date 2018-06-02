@@ -7,11 +7,7 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 from filmlog import app
 from filmlog import database
 from filmlog.functions import next_id, result_to_dict, get_film_details
-from filmlog import users
-from filmlog import filmstock
-from filmlog import darkroom
-from filmlog import files
-from filmlog import stats
+from filmlog import users, filmstock, darkroom, files, stats, help
 
 engine = database.engine
 
