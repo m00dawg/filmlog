@@ -12,8 +12,16 @@
         </div>
         <div class="col-sm-2">
           <label>Shutter</label>
-          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;" name="shutter" aria-describedby="Shutter"
-            value={{ exposure.shutter }}
+          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;, B" name="shutter" aria-describedby="Shutter"
+            {% if exposure.shutter is defined %}
+              {% if exposure.shutter > 0 %}
+                value="1/{{ exposure.shutter }}"
+              {% elif exposure.shutter == 0 %}
+                value="B"
+              {% elif exposure.shutter %}
+                value="{{ exposure.shutter|abs }}&quot;"
+              {% endif %}
+            {% endif %}
           >
         </div>
         <div class="col-sm-2">

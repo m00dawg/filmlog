@@ -22,6 +22,16 @@ def get_film_types(connection):
         ORDER BY brand, name""")
     return connection.execute(qry).fetchall()
 
+def format_shutter(shutter):
+    if re.search(r'^1\/', shutter):
+        return re.sub(r'^1\/', r'', shutter)
+    elif re.search(r'"', shutter):
+        return int(re.sub(r'"', r'', shutter)) * -1
+    elif shutter == 'B' or shutter == 'Bulb':
+        return 0
+    elif shutter != '':
+        return shutter
+
 @app.route('/',  methods = ['GET'])
 def index():
     userID = current_user.get_id()
@@ -130,7 +140,6 @@ def project(binderID, projectID):
             unloaded = request.form['unloaded']
         if request.form['developed'] != '':
             developed = request.form['developed']
-
 
         nextFilmID = next_id(connection, 'filmID', 'Films')
 
@@ -393,16 +402,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         subject = None
         development = None
         notes = None
-        shutter = None
-
-        if re.search(r'^1\/', request.form['shutter']):
-            shutter = re.sub(r'^1\/', r'', request.form['shutter'])
-        elif re.search(r'"', request.form['shutter']):
-            shutter = re.sub(r'"', r'', request.form['shutter'])
-        elif request.form['shutter'] == 'B' or request.form['shutter'] == 'Bulb':
-            shutter = 0
-        elif request.form['shutter'] != '':
-            shutter = request.form['shutter']
+        shutter = format_shutter(request.form['shutter'])
 
         if request.form['aperture'] != '':
             aperture = request.form['aperture']
@@ -540,6 +540,7 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         filmID=filmID,
         exposureNumber=exposureNumber,
         userID = userID).fetchone()
+
     qry = text("""SELECT code FROM ExposureFilters
         JOIN Filters ON Filters.filterID = ExposureFilters.filterID
         WHERE filmID = :filmID
