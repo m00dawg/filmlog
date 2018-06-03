@@ -5,6 +5,7 @@ Flask-SQLAlchemy>=2.1
 Flask-Cors>=3.0.0
 Flask-Login
 Flask-Resize
+Flask-WTF
 #MySQL-python>=1.2.5
 mysqlclient
 werkzeug

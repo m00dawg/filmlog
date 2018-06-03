@@ -5,15 +5,19 @@ from datetime import date
 from flask_login import LoginManager, UserMixin
 import ConfigParser
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFProtect
 
 import os, re
 
+
 app = Flask(__name__)
+
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../config.ini'))
 
 app.secret_key = config.get('session','secret_key')
+
 #app.server_name = config.get('session', 'server_name')
 
 #UPLOAD_FOLDER = config.get('files','upload_folder')
@@ -24,6 +28,9 @@ user_files = os.path.join(os.path.abspath(os.path.dirname(__file__)),
 app.config['ALLOWED_EXTENSIONS'] = set(['jpg', 'jpeg'])
 app.config['UPLOAD_FOLDER'] = user_files
 app.config['THUMBNAIL_SIZE'] = config.get('files', 'thumbnail_size')
+
+# Global CSRF Protection
+csrf = CSRFProtect(app)
 
 # Views
 from filmlog import views
