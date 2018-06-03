@@ -1,8 +1,6 @@
 {% if film.notes %}
-<div class="card col-sm-12 my-4">
-  <div class="card-header">Notes</div>
-  <div class="filmNotes">
-    {{ film.notes }}
-  </div>
+<div class="card my-4">
+  <div class="card-header"><strong>Notes</strong></div>
+  <div class="card-body">{{ film.notes }}</div>
 </div>
 {% endif %}
