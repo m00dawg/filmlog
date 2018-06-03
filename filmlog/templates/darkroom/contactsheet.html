@@ -4,115 +4,124 @@
 
   {% include 'film/film_details.html' %}
 
-  {% if contactSheet %}
   <div class="card">
-    <div class="flexrow">
-      <div class="col-sm-6 panel">
-        <br />
-        <table class="table table-bordered" id="contact_sheet_details">
-          <tr>
-            <th>Paper</th>
-            <td>
-              {% if contactSheet.paperName %}
-                {{ contactSheet.paperBrand }} {{ contactSheet.paperName }}
-              {% else %}
-                Unknown
-              {% endif %}
-            </td>
-          </tr>
-          <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
-          <tr><th>Lens</th><td>{{ contactSheet.lens }}</td></tr>
-          <tr><th>Aperture</th><td>{{ contactSheet.aperture }}</td></tr>
-          <tr>
-              <th>Height</th>
+    {% if contactSheet %}
+      <div class="flexrow">
+        <div class="col-sm-6 panel">
+          <br />
+          <table class="table table-bordered" id="contact_sheet_details">
+            <tr>
+              <th>Paper</th>
               <td>
-                {% if contactSheet.headHeight %}
-                  {{ contactSheet.headHeight }}
+                {% if contactSheet.paperName %}
+                  {{ contactSheet.paperBrand }} {{ contactSheet.paperName }}
                 {% else %}
-                  Unknown
+                  Not Specified
                 {% endif %}
               </td>
-          </tr>
-          <tr><th>Time</th><td>{{ contactSheet.exposureTime }}</td></tr>
-        </table>
-      </div>
-      <div class="col-sm-6 panel">
-        <div class="media-body m-2">
-          {% if contactSheet.fileID %}
-            <a href="/files/full/{{ contactSheet.fileID }}">
-              <img src="/files/thumb/{{ contactSheet.fileID }}" />
-            </a>
-          {% else %}
-            <p>No Image</p>
-          {% endif %}
+            </tr>
+            <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
+            <tr><th>Lens</th><td>{{ contactSheet.lens }}</td></tr>
+            <tr><th>Aperture</th><td>{{ contactSheet.aperture }}</td></tr>
+            <tr>
+                <th>Height</th>
+                <td>
+                  {% if contactSheet.headHeight %}
+                    {{ contactSheet.headHeight }}
+                  {% else %}
+                    Not Specified
+                  {% endif %}
+                </td>
+            </tr>
+            <tr><th>Time</th><td>{{ contactSheet.exposureTime }}</td></tr>
+          </table>
+        </div>
+        <div class="col-sm-6 panel">
+          <div class="media-body m-4">
+            {% if contactSheet.fileID %}
+              <a href="/files/full/{{ contactSheet.fileID }}">
+                <img class="img-fluid mx-auto d-block" src="/files/thumb/{{ contactSheet.fileID }}" />
+              </a>
+            {% else %}
+              <p>No Image</p>
+            {% endif %}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-sm-12 mt-2">
-        <table class="table table-bordered" id="contact_sheet_notes">
-          <tr><th>Notes</th></tr>
-          <tr><td>{{ contactSheet.notes }}</td></tr>
-        </table>
-    </div>
-  </div>
+      <div class="col-sm-12 mt-2">
+          <table class="table table-bordered" id="contact_sheet_notes">
+            <tr><th>Notes</th></tr>
+            <tr><td>{{ contactSheet.notes }}</td></tr>
+          </table>
+      </div>
+      {% if contactSheet %}
+        <div class="card-body">
+          <form role="form" class="form-horizontal"
+            action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/contactsheet"
+            method="POST">
+            {{ form.csrf_token }}
+            <div class="button-bar">
+              <button class="btn btn-danger" name="button" value="deleteCS" action="submit">Delete</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+  {% else %}
+      <div class="flexrow">
+        <div class="col-sm-4 panel">
+          <br />
+          <h4>No Sheet Uploaded</h4>
+          <br />
+        </div>
+      </div>
   {% endif %}
+</div>
+
+
 
 <br />
 
 <div class="card">
   <div class="card-header">Upload Contact Sheet</div>
   <div class="card-body">
+    {% include 'form_errors.html' %}
     <form role="form" class="form-horizontal"
       action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/contactsheet"
       method="POST",
       enctype=multipart/form-data>
+      {{ form.csrf_token }}
       <div class="form-group row">
-        <div class="col-sm-6">
-          <label>Paper</label>
-          <select class="form-control" name="paperID">
-              <option value=''>Select Paper</option>
-              {% for paper in papers %}
-                <option value="{{ paper.paperID }}">{{ paper.brandName }} {{ paper.paperName }}</option>
-              {% endfor %}
-          </select>
+        <div class="col-sm-4">
+          {{ form.paperID.label }}
+          {{ form.paperID(class="form-control") }}
         </div>
-        <div class="col-sm-6">
-          <label>Filter</label>
-          <select class="form-control" name="paperFilterID">
-              <option value=''>Select Filter</option>
-              {% for filter in filters %}
-                <option value="{{ filter.paperFilterID }}">{{ filter.name }}</option>
-              {% endfor %}
-          </select>
+        <div class="col-sm-4">
+          {{ form.paperFilterID.label }}
+          {{ form.paperFilterID(class="form-control") }}
+        </div>
+        <div class="col-sm-4">
+          {{ form.enlargerLensID.label }}
+          {{ form.enlargerLensID(class="form-control") }}
         </div>
       </div>
       <div class="form-group row">
-        <div class="col-sm-3">
-          <label>Enlarger Lens</label><br />
-          <select class="form-control" name="enlargerLensID">
-              <option value=''>Select Lens</option>
-              {% for lens in enlargerLenses %}
-                <option value="{{ lens.enlargerLensID }}">{{ lens.name }}</option>
-              {% endfor %}
-          </select>
+        <div class="col-sm-4">
+          {{ form.aperture.label }}
+          {{ form.aperture(class="form-control", placeholder="2.8") }}
         </div>
-        <div class="col-sm-3">
-          <label>Aperture</label>
-          <input class="form-control" type="text" name="aperture" placeholder="2.8">
+        <div class="col-sm-4">
+          {{ form.headHeight.label }}
+          {{ form.headHeight(class="form-control", placeholder="24") }}
         </div>
-        <div class="col-sm-3">
-          <label>Head Height</label>
-          <input class="form-control" type="text" name="headHeight" placeholder="30">
-        </div>
-        <div class="col-sm-3">
-          <label>Exposure Time</label>
-          <input class="form-control" type="text" name="exposureTime" placeholder="0:30">
+        <div class="col-sm-4">
+          {{ form.exposureTime.label }}
+          {{ form.exposureTime(class="form-control", placeholder="0:30") }}
         </div>
       </div>
     <div class="form-group row">
         <div class="col-sm-12">
-          <label>Notes</label>
-          <textarea class="form-control" name=notes rows=3 cols=80 placeholder="Notes"></textarea>
+          {{ form.notes.label }}
+          {{ form.notes(class="form-control") }}
         </div>
     </div>
     <div class="form-group row">
@@ -124,9 +133,6 @@
 
     <div class="button-bar">
         <button class="btn btn-success" name="button" value="updateCS" action="submit">Save</button>
-        {% if contactSheet %}
-          <button class="btn btn-danger" name="button" value="deleteCS" action="submit">Delete</button>
-        {% endif %}
     </div>
     </form>
   </div>

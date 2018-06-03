@@ -16,10 +16,11 @@ def delete_file(request, connection, transaction, fileID):
     app.logger.info('Delete file')
     userID = current_user.get_id()
     try:
-        app.logger.debug('filepath, %s', os.path.join(app.config['UPLOAD_FOLDER'],
-            str(userID), str(fileID)))
-        rmtree(os.path.join(app.config['UPLOAD_FOLDER'],
-            str(userID), str(fileID)))
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'],
+            str(userID), str(fileID))
+        app.logger.debug('filepath, %s', filepath)
+        os.path.isfile(filepath)
+        rmtree(filepath)
     except Exception:
         app.logger.debug('Exception and Rollback')
         transaction.rollback()

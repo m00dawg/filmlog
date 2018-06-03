@@ -16,6 +16,7 @@
         <th>Aperture</th>
         <th>Head Height</th>
         <th>Exposure Time</th>
+        <th></th>
       </tr>
       {% for print in prints %}
         <tr>
@@ -36,10 +37,10 @@
           <td>{{ print.exposureTime }}</td>
 
           <td class="text-right">
-
             <form role="form" class="form-horizontal"
               action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints"
               method="POST">
+              {{ form.csrf_token }}
               <button name="button" value="deletePrint" action="submit" class="btn btn-xs btn-danger">Delete</button>
               <input type="hidden" name="printID" value="{{ print.printID }}" >
             </form>
@@ -51,95 +52,75 @@
           {% else %}
             <td colspan="6">&nbsp;</td>
           {% endif %}
-          <td colspan="3">
+          <td colspan="4">
             {% if print.fileID %}
               <a href="/files/full/{{ print.fileID }}">
-                <img src="/files/thumb/{{ print.fileID }}" />
+                <img class="img-fluid mx-auto d-block" src="/files/thumb/{{ print.fileID }}" />
               </a>
             {% else %}
               <p>No Image</p>
             {% endif %}
           </td>
         </tr>
+      {% else %}
+        <tr><td colspan="10">No Prints Made</td</tr>
       {% endfor %}
     </table>
 </div>
 
-
 <div class="card">
   <div class="card-header">Add Print</div>
   <div class="card-body">
+    {% include 'form_errors.html' %}
     <form role="form" class="form-horizontal"
       action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}/prints"
       method="POST"
       enctype=multipart/form-data>
-
+      {{ form.csrf_token }}
       <div class="form-group row">
         <div class="col-sm-2">
-          <label>Exposure #</label>
-          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number">
+          {{ form.exposureNumber.label }}
+          {{ form.exposureNumber(class="form-control") }}
         </div>
         <div class="col-sm-4">
-          <label>Paper</label>
-          <select class="form-control" name="paperID">
-              <option value=''>Select Paper</option>
-              {% for paper in papers %}
-                <option value="{{ paper.paperID }}">{{ paper.brandName }} {{ paper.paperName }}</option>
-              {% endfor %}
-          </select>
+          {{ form.paperID.label }}
+          {{ form.paperID(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Filters</label><br />
-          <select class="form-control" name="paperFilterID">
-              <option value=''>Select Filter</option>
-              {% for filter in filters %}
-                <option value="{{ filter.paperFilterID }}">{{ filter.name }}</option>
-              {% endfor %}
-          </select>
+          {{ form.paperFilterID.label }}
+          {{ form.paperFilterID(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Type</label><br />
-          <select class="form-control" name="printType">
-              <option value="Enlargement">Enlargement</option>
-              <option value="Contact">Contact</option>
-          </select>
+          {{ form.printType.label }}
+          {{ form.printType(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Size</label>
-          <select class="form-control" name="size">
-              <option value="4x5">4x5</option>
-              <option value="5x7">5x7</option>
-              <option value="8x10">8x10</option>
-          </select>
+          {{ form.size.label }}
+          {{ form.size(class="form-control") }}
         </div>
       </div>
       <div class="form-group row">
         <div class="col-sm-4">
-          <label>Enlarger Lens</label><br />
-          <select class="form-control" name="enlargerLensID">
-              <option value=''>Select Lens</option>
-              {% for lens in enlargerLenses %}
-                <option value="{{ lens.enlargerLensID }}">{{ lens.name }}</option>
-              {% endfor %}
-          </select>
+          {{ form.enlargerLensID.label }}
+          {{ form.enlargerLensID(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Aperture</label>
-          <input class="form-control" type="text" name="aperture" placeholder="2.8">
+          {{ form.aperture.label }}
+          {{ form.aperture(class="form-control", placeholder="2.8") }}
         </div>
         <div class="col-sm-3">
-          <label>Head Height</label>
-          <input class="form-control" type="text" name="headHeight" placeholder="30">
+          {{ form.headHeight.label }}
+          {{ form.headHeight(class="form-control", placeholder="24") }}
         </div>
         <div class="col-sm-3">
-          <label>Exposure Time</label>
-          <input class="form-control" type="text" name="exposureTime" placeholder="0:30">
+          {{ form.exposureTime.label }}
+          {{ form.exposureTime(class="form-control", placeholder="0:30") }}
         </div>
       </div>
       <div class="form-group">
         <div class="col-sm-12">
-          <label>Notes</label><br />
-          <textarea type="text" class="form-control" placeholder="Notes" name="notes" aria-describedby="Notes"></textarea>
+          {{ form.notes.label }}
+          {{ form.notes(class="form-control") }}
         </div>
       </div>
       <div class="form-group row">

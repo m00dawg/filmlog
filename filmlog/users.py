@@ -3,6 +3,7 @@ from sqlalchemy.sql import select, text, func
 import os, re
 from flask_login import LoginManager, login_user, logout_user, UserMixin
 
+# Forms
 from flask_wtf import FlaskForm
 from wtforms import Form, StringField, PasswordField, validators
 from wtforms.validators import DataRequired
@@ -56,8 +57,6 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        #username = request.form.get('username')
-        #password = request.form.get('password')
         qry = text("""SELECT userID, password FROM Users
                 WHERE username = :username""")
         user = engine.execute(qry, username=username).fetchone()

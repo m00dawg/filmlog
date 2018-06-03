@@ -4,6 +4,13 @@ import os, re
 
 from flask_login import LoginManager, login_required, current_user, login_user, UserMixin
 
+# Forms
+from flask_wtf import FlaskForm
+from wtforms import Form, StringField, IntegerField, SelectField, RadioField, \
+    DecimalField, TextAreaField, FileField, validators
+from wtforms.validators import DataRequired, Optional, NumberRange, ValidationError
+from flask_wtf.file import FileAllowed
+
 from filmlog import app
 from filmlog import database
 from filmlog import functions
@@ -11,13 +18,15 @@ from filmlog import files
 
 engine = database.engine
 
+## Functions
 def get_paper_filters(connection):
     qry = text("""SELECT paperFilterID, name FROM PaperFilters""")
     return connection.execute(qry).fetchall()
 
 def get_papers(connection):
     # Get info for adding/updating contact sheet
-    qry = text("""SELECT paperID, PaperBrands.name AS brandName, Papers.name AS paperName
+    qry = text("""SELECT paperID,
+        CONCAT(PaperBrands.name, " ", Papers.name) AS name
         FROM Papers
         JOIN PaperBrands ON PaperBrands.paperBrandID = Papers.paperBrandID""")
     return connection.execute(qry).fetchall()
@@ -29,18 +38,117 @@ def get_enlarger_lenses(connection):
         WHERE userID = :userID""")
     return connection.execute(qry, userID = userID).fetchall()
 
+def get_exposures(connection, filmID):
+    userID = current_user.get_id()
+    qry = text("""SELECT exposureNumber AS exposureNumber,
+        exposureNumber AS subject
+        FROM Exposures
+        WHERE userID = :userID
+        AND filmID = :filmID""")
+    return connection.execute(qry,
+        userID = userID, filmID = filmID).fetchall()
+
 def time_to_seconds(time):
     # If time is in MM:SS format, calculate the raw seconds
     # Otherwise just return the time as-is
     if time:
         if ':' not in time:
-            return time
-        m, s = time.split(':')
-        return int(m) * 60 + int(s)
-    return None
+            if int(time) > 0:
+                return int(time)
+        else:
+            m, s = time.split(':')
+            return int(m) * 60 + int(s)
+    raise ValidationError('Time in wrong format, it should be MM:SS.')
+
+def validate_exposure_time(form, field):
+    try:
+        time_to_seconds(field.data)
+    except Exception:
+        raise ValidationError('Time in wrong format, it should be in MM:SS or in seconds.')
 
 def seconds_to_time(seconds):
     return str(int(seconds / 60)) + ":" + str(int(seconds % 60))
+
+def optional_choices(name, choices):
+    new_choices = [(0, name)]
+    for row in choices:
+        new_choices.append(row)
+    return new_choices
+
+def zero_to_none(value):
+    if value == 0:
+        return None
+    return value
+
+## Classes
+# Forms
+class PrintForm(FlaskForm):
+    exposureNumber = SelectField('Exposure #',
+        validators=[Optional()],
+        coerce=int)
+    paperID = SelectField('Paper',
+        validators=[Optional()],
+        coerce=int)
+    paperFilterID = SelectField('Filters',
+        validators=[Optional()],
+        coerce=int)
+    printType = SelectField('Type',
+        validators=[DataRequired()],
+        choices=[('Enlargement', 'Enlargement'), ('Contact', 'Contact')])
+    size = SelectField('Size',
+        validators=[DataRequired()],
+        choices=[('4x5', '4x5'), ('5x7', '5x7'), ('8x10', '8x10')])
+    enlargerLensID = SelectField('Enlarger Lens',
+        validators=[Optional()],
+        coerce=int)
+    aperture = DecimalField('Aperture', places=1,
+        validators=[Optional()])
+    headHeight = IntegerField('Head Height',
+        validators=[NumberRange(min=0,max=255),
+                    Optional()])
+    exposureTime = StringField('Exposure Time',
+        validators=[DataRequired(), validate_exposure_time])
+    notes = TextAreaField('Notes',
+        validators=[Optional()])
+    file = FileField('File (JPG)',
+        validators=[Optional(), FileAllowed(['jpg'], 'JPEGs Only')])
+
+    def __init__(self, connection, filmID):
+        super(PrintForm, self).__init__()
+        self.connection = connection
+        self.paperID.choices = optional_choices("None", get_papers(connection))
+        self.paperFilterID.choices = optional_choices("None", get_paper_filters(connection))
+        self.enlargerLensID.choices = optional_choices("None", get_enlarger_lenses(connection))
+        self.exposureNumber.choices = get_exposures(connection, filmID)
+
+class ContactSheetForm(FlaskForm):
+    paperID = SelectField('Paper',
+        validators=[Optional()],
+        coerce=int)
+    paperFilterID = SelectField('Filters',
+        validators=[Optional()],
+        coerce=int)
+    enlargerLensID = SelectField('Enlarger Lens',
+        validators=[Optional()],
+        coerce=int)
+    aperture = DecimalField('Aperture', places=1,
+        validators=[Optional()])
+    headHeight = IntegerField('Head Height',
+        validators=[NumberRange(min=0,max=255),
+                    Optional()])
+    exposureTime = StringField('Exposure Time',
+        validators=[DataRequired(), validate_exposure_time])
+    notes = TextAreaField('Notes',
+        validators=[Optional()])
+    file = FileField('File (JPG)',
+        validators=[Optional(), FileAllowed(['jpg'], 'JPEGs Only')])
+
+    def __init__(self, connection):
+        super(ContactSheetForm, self).__init__()
+        self.connection = connection
+        self.paperID.choices = optional_choices("None", get_papers(connection))
+        self.paperFilterID.choices = optional_choices("None", get_paper_filters(connection))
+        self.enlargerLensID.choices = optional_choices("None", get_enlarger_lenses(connection))
 
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>/prints',  methods = ['POST', 'GET'])
 @login_required
@@ -48,6 +156,7 @@ def prints(binderID, projectID, filmID):
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+    form = PrintForm(connection, filmID)
 
     if request.method == 'POST':
         if request.form['button'] == 'deletePrint':
@@ -68,61 +177,37 @@ def prints(binderID, projectID, filmID):
                 files.delete_file(request, connection, transaction, fileID)
 
         if request.form['button'] == 'addPrint':
-            paperID = None
-            paperFilterID = None
-            headHeight = None
-            aperture = None
-            notes = None
-            enlargerLensID = None
-            nextPrintID = functions.next_id(connection, 'printID', 'Prints')
-            exposureTime = time_to_seconds(request.form['exposureTime'])
+            if form.validate_on_submit():
+                nextPrintID = functions.next_id(connection, 'printID', 'Prints')
+                # If user included a file, let's upload it. Otherwise skip it.
+                if form.file.data:
+                    nextFileID = functions.next_id(connection, 'fileID', 'Files')
+                    files.upload_file(request, connection, transaction, nextFileID)
+                else:
+                    nextFileID = None
 
-            # If user included a file, let's upload it. Otherwise skip it.
-            if 'file' in request.files:
-                nextFileID = functions.next_id(connection, 'fileID', 'Files')
-                files.upload_file(request, connection, transaction, nextFileID)
-            else:
-                nextFileID = None
-
-            if request.form['paperID'] != '':
-                paperID = request.form['paperID']
-            if request.form['paperFilterID'] != '':
-                paperFilterID = request.form['paperFilterID']
-            if request.form['headHeight'] != '':
-                headHeight = request.form['headHeight']
-            if request.form['aperture'] != '':
-                aperture = request.form['aperture']
-            if request.form['enlargerLensID'] != '':
-                enlargerLensID = request.form['enlargerLensID']
-            if request.form['notes'] != '':
-                notes = request.form['notes']
-
-            qry = text("""INSERT INTO Prints
-                (printID, filmID, exposureNumber, userID, paperID, paperFilterID,
-                enlargerLensID, fileID, aperture, headHeight, exposureTime, printType, size, notes)
-                VALUES (:printID, :filmID, :exposureNumber, :userID, :paperID,
-                :paperFilterID, :enlargerLensID, :fileID, :aperture, :headHeight, :exposureTime,
-                :printType, :size, :notes)""")
-            connection.execute(qry,
-                printID = nextPrintID,
-                filmID = filmID,
-                exposureNumber = request.form['exposureNumber'],
-                userID = userID,
-                paperID = paperID,
-                paperFilterID = paperFilterID,
-                enlargerLensID = enlargerLensID,
-                fileID = nextFileID,
-                aperture = aperture,
-                headHeight = headHeight,
-                exposureTime = exposureTime,
-                printType = request.form['printType'],
-                size = request.form['size'],
-                notes = request.form['notes'])
-
+                qry = text("""INSERT INTO Prints
+                    (printID, filmID, exposureNumber, userID, paperID, paperFilterID,
+                    enlargerLensID, fileID, aperture, headHeight, exposureTime, printType, size, notes)
+                    VALUES (:printID, :filmID, :exposureNumber, :userID, :paperID,
+                    :paperFilterID, :enlargerLensID, :fileID, :aperture, :headHeight, :exposureTime,
+                    :printType, :size, :notes)""")
+                connection.execute(qry,
+                    printID = nextPrintID,
+                    filmID = filmID,
+                    exposureNumber = form.expsoureNumber.data,
+                    userID = userID,
+                    paperID = zero_to_none(form.paperID.data),
+                    paperFilterID = zero_to_none(form.paperFilterID.data),
+                    enlargerLensID = zero_to_none(form.enlargerLensID.data),
+                    fileID = nextFileID,
+                    aperture = form.aperture.data,
+                    headHeight = form.headHeight.data,
+                    exposureTime = time_to_seconds(form.exposureTime.data),
+                    printType = form.printType.data,
+                    size = form.size.data,
+                    notes = form.notes.data)
     film = functions.get_film_details(connection, binderID, projectID, filmID)
-    papers = get_papers(connection)
-    filters = get_paper_filters(connection)
-    enlargerLenses = get_enlarger_lenses(connection)
 
     qry = text("""SELECT printID, exposureNumber, Papers.name AS paperName,
         PaperBrands.name AS paperBrand, PaperFilters.name AS paperFilterName,
@@ -142,11 +227,9 @@ def prints(binderID, projectID, filmID):
 
     transaction.commit()
     return render_template('darkroom/prints.html',
+        form = form,
         binderID=binderID,
         film=film,
-        papers=papers,
-        filters=filters,
-        enlargerLenses = enlargerLenses,
         prints = prints,
         view='prints')
 
@@ -156,6 +239,7 @@ def contactsheet(binderID, projectID, filmID):
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+    form = ContactSheetForm(connection)
 
     # Upload a new contact sheet
     if request.method == 'POST':
@@ -171,13 +255,9 @@ def contactsheet(binderID, projectID, filmID):
             connection.execute(qry,
                 filmID = filmID,
                 userID = userID)
-            files.delete_file(request, connection, transaction, fileID)
-        else:
-            exposureTime = request.form['exposureTime']
-            app.logger.debug('Exposure Time Before: %s', str(exposureTime))
-            exposureTime = time_to_seconds(exposureTime)
-            app.logger.debug('Exposure Time After: %s', str(exposureTime))
-
+            if fileID:
+                files.delete_file(request, connection, transaction, fileID)
+        elif request.form['button'] == 'updateCS' and form.validate_on_submit():
             # If user included a file, let's upload it. Otherwise skip it.
             if 'file' in request.files:
                 nextFileID = functions.next_id(connection, 'fileID', 'Files')
@@ -185,40 +265,19 @@ def contactsheet(binderID, projectID, filmID):
             else:
                 nextFileID = None
 
-            paperID = None
-            paperFilterID = None
-            headHeight = None
-            enlargerLensID = None
-            notes = None
-            if request.form['paperID'] != '':
-                paperID = request.form['paperID']
-            if request.form['paperFilterID'] != '':
-                paperFilterID = request.form['paperFilterID']
-            if request.form['headHeight'] != '':
-                headHeight = request.form['headHeight']
-            if request.form['enlargerLensID'] != '':
-                enlargerLensID = request.form['enlargerLensID']
-            if request.form['notes'] != '':
-                notes = request.form['notes']
-
             qry = text("""REPLACE INTO ContactSheets (filmID, userID, fileID, paperID, paperFilterID, enlargerLensID, aperture, headHeight, exposureTime, notes)
                 VALUES (:filmID, :userID, :fileID, :paperID, :paperFilterID, :enlargerLensID, :aperture, :headHeight, :exposureTime, :notes)""")
             connection.execute(qry,
                 filmID = filmID,
                 userID = userID,
                 fileID = nextFileID,
-                paperID = paperID,
-                paperFilterID = paperFilterID,
-                enlargerLensID = enlargerLensID,
-                aperture = request.form['aperture'],
-                headHeight = headHeight,
-                exposureTime = exposureTime,
-                notes = notes)
-        transaction.commit()
-        return redirect('/binders/' + str(binderID)
-            + '/projects/' + str(projectID)
-            + '/films/' + str(filmID)
-            + '/contactsheet')
+                paperID = zero_to_none(form.paperID.data),
+                paperFilterID = zero_to_none(form.paperFilterID.data),
+                enlargerLensID = zero_to_none(form.enlargerLensID.data),
+                aperture = form.aperture.data,
+                headHeight = form.headHeight.data,
+                exposureTime = time_to_seconds(form.exposureTime.data),
+                notes = form.notes.data)
 
     film = functions.get_film_details(connection, binderID, projectID, filmID)
 
@@ -251,4 +310,5 @@ def contactsheet(binderID, projectID, filmID):
         film=film,
         enlargerLenses=enlargerLenses,
         contactSheet = contactSheet,
+        form=form,
         view='contactsheet')
