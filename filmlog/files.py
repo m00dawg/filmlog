@@ -54,6 +54,8 @@ def upload_file(request, connection, transaction, fileID):
             connection.execute(qry,
                 fileID = fileID,
                 userID = userID)
+            app.logger.debug('Upload Finished')
+
         except Exception:
             app.logger.debug('Exception and Rollback')
             transaction.rollback()

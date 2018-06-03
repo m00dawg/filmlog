@@ -23,13 +23,15 @@
   <div class="card">
     <div class="card-header"><strong>Add Binder</strong></div>
     <div class="card-body">
+      {% include 'form_errors.html' %}
       <form role="form" class="form-horizontal"
         action="/binders"
         method="POST">
+        {{ form.csrf_token }}
         <div class="form-group">
           <div class="col-6">
-            <label>Name</label>
-            <input type="text" class="form-control" placeholder="My Binder" name="name" aria-describedby="Name">
+            {{ form.name.label }}
+            {{ form.name(size=48) }}
           </div>
         </div>
         <div class="button-bar">

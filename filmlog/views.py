@@ -4,12 +4,18 @@ import os, re
 
 from flask_login import LoginManager, login_required, current_user, login_user, UserMixin
 
+# Forms
+from flask_wtf import FlaskForm
+from wtforms import Form, StringField
+from wtforms.validators import DataRequired, Length
+
 from filmlog import app
 from filmlog import database
 from filmlog.functions import next_id, result_to_dict, get_film_details
 from filmlog import users, filmstock, darkroom, files, stats, help
 engine = database.engine
 
+## Functions
 def get_film_types(connection):
     qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
@@ -26,6 +32,11 @@ def format_shutter(shutter):
     elif shutter != '':
         return shutter
 
+## Form Objects
+class BinderForm(FlaskForm):
+    name = StringField('Name',
+        validators=[DataRequired(), Length(min=1, max=64)])
+
 @app.route('/',  methods = ['GET'])
 def index():
     userID = current_user.get_id()
@@ -41,19 +52,22 @@ def binders():
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+    form = BinderForm()
+
     if request.method == 'POST':
-        nextBinderID = next_id(connection, 'binderID', 'Binders')
-        qry = text("""INSERT INTO Binders
-            (binderID, userID, name) VALUES (:binderID, :userID, :name)""")
-        result = connection.execute(qry,
-            binderID = nextBinderID,
-            userID = userID,
-            name = request.form['name'])
+        if form.validate_on_submit():
+            nextBinderID = next_id(connection, 'binderID', 'Binders')
+            qry = text("""INSERT INTO Binders
+                (binderID, userID, name) VALUES (:binderID, :userID, :name)""")
+            result = connection.execute(qry,
+                binderID = nextBinderID,
+                userID = userID,
+                name = form.name.data)
     qry = text("""SELECT binderID, name, projectCount, createdOn
         FROM Binders WHERE userID = :userID""")
     binders = connection.execute(qry, userID = userID).fetchall()
     transaction.commit()
-    return render_template('binders.html', binders=binders)
+    return render_template('binders.html', form=form, binders=binders)
 
 # Project List
 @app.route('/binders/<int:binderID>/projects',  methods = ['POST', 'GET'])
