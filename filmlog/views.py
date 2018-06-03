@@ -6,8 +6,8 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 
 # Forms
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField
-from wtforms.validators import DataRequired, Length
+from wtforms import Form, StringField, DateField, SelectField, IntegerField, TextAreaField
+from wtforms.validators import DataRequired, Optional, Length, NumberRange
 
 from filmlog import app
 from filmlog import database
@@ -17,7 +17,9 @@ engine = database.engine
 
 ## Functions
 def get_film_types(connection):
-    qry = text("""SELECT filmTypeID, brand, name, iso FROM FilmTypes
+    qry = text("""SELECT filmTypeID,
+        CONCAT(brand, " ", name, " ", iso)
+        FROM FilmTypes
         JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
         ORDER BY brand, name""")
     return connection.execute(qry).fetchall()
@@ -32,10 +34,61 @@ def format_shutter(shutter):
     elif shutter != '':
         return shutter
 
+def get_cameras(connection):
+    userID = current_user.get_id()
+    qry = text("""SELECT cameraID, name
+        FROM Cameras
+        WHERE userID = :userID""")
+    return connection.execute(qry,
+        userID = userID).fetchall()
+
 ## Form Objects
 class BinderForm(FlaskForm):
     name = StringField('Name',
         validators=[DataRequired(), Length(min=1, max=64)])
+
+class ProjectForm(FlaskForm):
+    name = StringField('Name',
+        validators=[DataRequired(), Length(min=1, max=64)])
+
+class FilmForm(FlaskForm):
+    title = StringField('Title',
+        validators=[DataRequired(), Length(min=1, max=64)])
+    fileNo = StringField('File No.',
+        validators=[DataRequired(), Length(min=1, max=32)])
+
+    filmTypeID = SelectField('Film',
+        validators=[DataRequired()],
+        coerce=int)
+    cameraID = SelectField('Camera',
+        validators=[DataRequired()],
+        coerce=int)
+
+    fileDate = DateField('File Date',
+        validators=[Optional()])
+    loaded = DateField('Loaded',
+        validators=[Optional()])
+    unloaded = DateField('Unloaded',
+        validators=[Optional()])
+    developed = DateField('Developed',
+        validators=[Optional()])
+
+    shotISO = IntegerField('Shot ISO',
+        validators=[NumberRange(min=0,max=65535),
+                    DataRequired()])
+
+    development = StringField('File No.',
+        validators=[Optional(), Length(min=1, max=255)],
+        filters = [lambda x: x or None])
+    notes = TextAreaField('Notes',
+        validators=[Optional()],
+        filters = [lambda x: x or None])
+
+    def __init__(self, connection):
+        super(FilmForm, self).__init__()
+        self.connection = connection
+        self.filmTypeID.choices = get_film_types(connection)
+        self.cameraID.choices = get_cameras(connection)
 
 @app.route('/',  methods = ['GET'])
 def index():
@@ -76,6 +129,7 @@ def projects(binderID):
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+    form = BinderForm()
 
     # Get current binder (and check to make sure a user isn't trying to
     # access someone else's binder)
@@ -88,15 +142,16 @@ def projects(binderID):
         abort(404)
 
     if request.method == 'POST':
-        nextProjectID = next_id(connection, 'projectID', 'Projects')
-        qry = text("""INSERT INTO Projects
-            (projectID, binderID, userID, name)
-            VALUES (:projectID, :binderID, :userID, :name)""")
-        result = connection.execute(qry,
-            projectID = nextProjectID,
-            binderID = binderID,
-            userID = userID,
-            name = request.form['name'])
+        if form.validate_on_submit():
+            nextProjectID = next_id(connection, 'projectID', 'Projects')
+            qry = text("""INSERT INTO Projects
+                (projectID, binderID, userID, name)
+                VALUES (:projectID, :binderID, :userID, :name)""")
+            result = connection.execute(qry,
+                projectID = nextProjectID,
+                binderID = binderID,
+                userID = userID,
+                name = form.name.data)
 
     qry = text("""SELECT projectID, name, filmCount, createdOn FROM Projects
         WHERE binderID = :binderID
@@ -104,7 +159,7 @@ def projects(binderID):
         ORDER BY createdOn""")
     projects = connection.execute(qry, binderID=binderID, userID = userID).fetchall()
     transaction.commit()
-    return render_template('projects.html', binder=binder, binderID=binderID, projects=projects)
+    return render_template('projects.html', form=form, binder=binder, binderID=binderID, projects=projects)
 
 # Project Films List
 @app.route('/binders/<int:binderID>/projects/<int:projectID>',  methods = ['POST', 'GET'])
@@ -113,14 +168,15 @@ def project(binderID, projectID):
     connection = engine.connect()
     transaction = connection.begin()
     userID = current_user.get_id()
+    form = FilmForm(connection)
+
     qry = text("""SELECT projectID, Projects.name AS name
         FROM Projects
         JOIN Binders ON Binders.binderID = Projects.binderID
             AND Binders.userID = Projects.userID
         WHERE projectID = :projectID
         AND Projects.binderID = :binderID
-        AND Projects.userID = :userID
-        ORDER BY Projects.createdOn""")
+        AND Projects.userID = :userID""")
     project = connection.execute(qry,
         projectID = projectID,
         binderID = binderID,
@@ -129,49 +185,30 @@ def project(binderID, projectID):
         abort(404)
 
     if request.method == 'POST':
-        title = None
-        fileNo = None
-        fileDate = None
-        loaded = None
-        unloaded = None
-        developed = None
-
-        if request.form['title'] != '':
-            title = request.form['title']
-        if request.form['fileNo'] != '':
-            fileNo = request.form['fileNo']
-        if request.form['fileDate'] != '':
-            fileDate = request.form['fileDate']
-        if request.form['loaded'] != '':
-            loaded = request.form['loaded']
-        if request.form['unloaded'] != '':
-            unloaded = request.form['unloaded']
-        if request.form['developed'] != '':
-            developed = request.form['developed']
-
-        nextFilmID = next_id(connection, 'filmID', 'Films')
-
-        qry = text("""INSERT INTO Films
-            (userID, filmID, projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso,
-             loaded, unloaded, developed, development, notes)
-            VALUES (:userID, :filmID, :projectID, :cameraID, :title, UPPER(:fileNo),
-                    :fileDate, :filmTypeID, :iso, :loaded, :unloaded,
-                    :developed, :development, :notes)""")
-        result = connection.execute(qry,
-            userID = userID,
-            filmID = nextFilmID,
-            projectID = projectID,
-            cameraID = request.form['camera'],
-            title = title,
-            fileNo = fileNo,
-            fileDate = fileDate,
-            filmTypeID = request.form['filmType'],
-            iso = request.form['shotISO'],
-            loaded = loaded,
-            unloaded = unloaded,
-            developed = developed,
-            development = request.form['development'],
-            notes = request.form['notes'])
+        if form.validate_on_submit():
+            nextFilmID = next_id(connection, 'filmID', 'Films')
+            qry = text("""INSERT INTO Films
+                (userID, filmID, projectID, cameraID, title, fileNo, fileDate, filmTypeID, iso,
+                 loaded, unloaded, developed, development, notes)
+                VALUES (:userID, :filmID, :projectID, :cameraID, :title, UPPER(:fileNo),
+                        :fileDate, :filmTypeID, :iso, :loaded, :unloaded,
+                        :developed, :development, :notes)""")
+            result = connection.execute(qry,
+                userID = userID,
+                filmID = nextFilmID,
+                projectID = projectID,
+                cameraID = form.cameraID.data,
+                title = form.title.data,
+                fileNo = form.fileNo.data,
+                fileDate = form.fileDate.data,
+                filmTypeID = form.filmTypeID.data,
+                iso = form.shotISO.data,
+                loaded = form.loaded.data,
+                unloaded = form.unloaded.data,
+                developed = form.developed.data,
+                development = form.development.data,
+                notes = form.notes.data)
+            print "heree"
 
 
     qry = text("""SELECT filmID, title, fileNo, fileDate,
@@ -184,21 +221,14 @@ def project(binderID, projectID):
         JOIN Cameras ON Cameras.cameraID = Films.cameraID
         WHERE projectID = :projectID ORDER BY fileDate""")
     films = connection.execute(qry, projectID=projectID).fetchall()
-
-    filmTypes = get_film_types(connection)
-
-    qry = text("""SELECT cameraID, name FROM Cameras""")
-    cameras = connection.execute(qry).fetchall()
-
     transaction.commit()
 
     return render_template('project.html',
+        form = form,
         binderID = binderID,
         projectID = projectID,
         project = project,
-        films = films,
-        filmTypes = filmTypes,
-        cameras = cameras)
+        films = films)
 
 # Film Exposures
 @app.route('/binders/<int:binderID>/projects/<int:projectID>/films/<int:filmID>',  methods = ['POST', 'GET'])

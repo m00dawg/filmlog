@@ -109,7 +109,8 @@ class PrintForm(FlaskForm):
     exposureTime = StringField('Exposure Time',
         validators=[DataRequired(), validate_exposure_time])
     notes = TextAreaField('Notes',
-        validators=[Optional()])
+        validators=[Optional()],
+        filters = [lambda x: x or None])
     file = FileField('File (JPG)',
         validators=[Optional(), FileAllowed(['jpg'], 'JPEGs Only')])
 
@@ -132,14 +133,17 @@ class ContactSheetForm(FlaskForm):
         validators=[Optional()],
         coerce=int)
     aperture = DecimalField('Aperture', places=1,
-        validators=[Optional()])
+        validators=[Optional()],
+        filters = [lambda x: x or None])
     headHeight = IntegerField('Head Height',
         validators=[NumberRange(min=0,max=255),
-                    Optional()])
+                    Optional()],
+        filters = [lambda x: x or None])
     exposureTime = StringField('Exposure Time',
         validators=[DataRequired(), validate_exposure_time])
     notes = TextAreaField('Notes',
-        validators=[Optional()])
+        validators=[Optional()],
+        filters = [lambda x: x or None])
     file = FileField('File (JPG)',
         validators=[Optional(), FileAllowed(['jpg'], 'JPEGs Only')])
 

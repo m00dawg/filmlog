@@ -20,18 +20,21 @@
                 {% endif %}
               </td>
             </tr>
-            <tr><th>Filter</th><td>{{ contactSheet.paperFilterName }}</td></tr>
-            <tr><th>Lens</th><td>{{ contactSheet.lens }}</td></tr>
-            <tr><th>Aperture</th><td>{{ contactSheet.aperture }}</td></tr>
+            <tr>
+              <th>Filter</th>
+              <td>{{ contactSheet.paperFilterName|default('Not Specified', true) }}</td>
+            </tr>
+            <tr>
+              <th>Lens</th>
+              <td>{{ contactSheet.lens|default('Not Specified', true) }}</td>
+            </tr>
+            <tr>
+              <th>Aperture</th>
+              <td>{{ contactSheet.aperture|default('Not Specified', true) }}</td>
+            </tr>
             <tr>
                 <th>Height</th>
-                <td>
-                  {% if contactSheet.headHeight %}
-                    {{ contactSheet.headHeight }}
-                  {% else %}
-                    Not Specified
-                  {% endif %}
-                </td>
+                <td>{{ contactSheet.headHeight|default('Not Specified', true) }}</td>
             </tr>
             <tr><th>Time</th><td>{{ contactSheet.exposureTime }}</td></tr>
           </table>
@@ -48,12 +51,14 @@
           </div>
         </div>
       </div>
+      {% if contactSheet.notes %}
       <div class="col-sm-12 mt-2">
           <table class="table table-bordered" id="contact_sheet_notes">
             <tr><th>Notes</th></tr>
             <tr><td>{{ contactSheet.notes }}</td></tr>
           </table>
       </div>
+      {% endif %}
       {% if contactSheet %}
         <div class="card-body">
           <form role="form" class="form-horizontal"

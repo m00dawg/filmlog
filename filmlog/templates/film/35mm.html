@@ -61,7 +61,7 @@
               {{ exposure.notes }}
             {% endif %}
           </td>
-          {% include 'film/exposurebuttons.html' %} 
+          {% include 'film/exposurebuttons.html' %}
         </tr>
       {% endfor %}
     </table>
@@ -71,16 +71,8 @@
 <div class="card">
   <div class="card-header">Add Exposure</div>
   {% include 'film/exposure.html' %}
-
 </div>
 
-{% if film.notes %}
-<div class="card">
-  <div class="card-header">Notes</div>
-  <div class="filmNotes">
-    {{ film.notes }}
-  </div>
-</div>
-{% endif %}
+{% include 'film/film_notes.html' %}
 
 {% endblock %}
