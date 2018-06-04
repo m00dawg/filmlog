@@ -33,12 +33,8 @@
         <tr>
           <th>Shutter</th>
           <td>
-            {% if exposure.shutter > 0 %}
-              1/{{ exposure.shutter }}
-            {% elif exposure.shutter == 0 %}
-              B
-            {% elif exposure.shutter %}
-              {{ exposure.shutter|abs }}"
+            {% if exposure.shutter %}
+              {{ exposure.shutter | format_shutter }}
             {% endif %}
           </td>
         </tr>

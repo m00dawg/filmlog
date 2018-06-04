@@ -16,6 +16,8 @@ from filmlog import database
 from filmlog import functions
 from filmlog import files
 
+from filmlog.functions import optional_choices, zero_to_none
+
 engine = database.engine
 
 ## Functions
@@ -68,17 +70,6 @@ def validate_exposure_time(form, field):
 
 def seconds_to_time(seconds):
     return str(int(seconds / 60)) + ":" + str(int(seconds % 60))
-
-def optional_choices(name, choices):
-    new_choices = [(0, name)]
-    for row in choices:
-        new_choices.append(row)
-    return new_choices
-
-def zero_to_none(value):
-    if value == 0:
-        return None
-    return value
 
 ## Classes
 # Forms

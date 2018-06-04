@@ -20,19 +20,7 @@
       {% for exposure in exposures %}
         <tr>
           <td>{{ exposure.exposureNumber }}</td>
-          {# If shutter is larger than 0, consider it to be faster than 1 second
-             (e.g. 1/125). If it's zero, consider it a Bulb where the exact
-             speed is not known. If it's negative, the exposure is in seconds.
-          #}
-          <td>
-            {% if exposure.shutter > 0 %}
-              1/{{ exposure.shutter }}
-            {% elif exposure.shutter == 0 %}
-              B
-            {% elif exposure.shutter %}
-              {{ exposure.shutter|abs }}"
-            {% endif %}
-          </td>
+          <td>{{ exposure.shutter | format_shutter }}</td>
           <td>
             {% if exposure.aperture %}
               {{ exposure.aperture }}

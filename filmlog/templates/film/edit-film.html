@@ -8,92 +8,19 @@
   </h1>
 </div>
 
-<form role="form" class="form-horizontal"
-  action="/binders/{{ binderID }}/projects/{{ film.projectID }}/films/{{ film.filmID }}"
-  method="POST">
-
 <div class="card">
-  <div class="card-header"><strong>Overview</strong></div>
-  <table class="table">
-    <tr>
-      <th>Title</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.title }}" name="title" aria-describedby="Title">
-      </td>
-      <th>Film</th>
-      <td>
-        <select class="form-control" name="filmType">
-            <option value=''>Select Film </option>
-            {% for filmType in filmTypes %}
-              <option value="{{ filmType.filmTypeID }}"
-                {% if filmTypeID == filmType.filmTypeID %} selected {% endif %}>
-                {{ filmType.brand }} {{ filmType.name }} {{ filmType.iso }}
-              </option>
-            {% endfor %}
-        </select>
-      </td>
-      <th>Shot ISO</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.shotISO }}" name="shotISO" aria-describedby="ShotISO">
-      </td>
-    </tr>
-    <tr>
-      <th>Camera</th>
-      <td>
-        <select class="form-control" name="camera">
-            <option value=''>Select Camera</option>
-            {% for camera in cameras %}
-              <option value="{{ camera.cameraID }}" {% if cameraID == camera.cameraID %} selected {% endif %}>
-                {{ camera.name }}
-              </option>
-            {% endfor %}
-        </select>
-      </td>
-      <th>File Date</th>
-      <td>
-          <input type="text" class="form-control" value="{{ film.fileDate|to_date }}" name="fileDate" aria-describedby="FileDate">
-      </td>
-      <th>File No</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.fileNo }}" name="fileNo" aria-describedby="FileNo">
-      </td>
-    </tr>
-    <tr>
-      <th>Loaded</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.loaded|to_date }}" name="loaded" aria-describedby="Loaded On">
-
-      </td>
-      <th>Unloaded</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.unloaded|to_date }}" name="unloaded" aria-describedby="Unloaded On">
-      </td>
-      <th>Developed</th>
-      <td>
-        <input type="text" class="form-control" value="{{ film.developed|to_date }}" name="developed" aria-describedby="Developed On">
-      </td>
-    </tr>
-    <tr>
-      <th>Development</th>
-      <td colspan="5">
-        <input type="text" class="form-control" value="{{ film.development }}" name="development" aria-describedby="Development">
-      </td>
-    </tr>
-  </table>
-</div>
-
-<div class="form-group">
-  <div class="col-sm-12">
-    <label>Notes</label><br />
-    <textarea name="notes" rows="4" class="form-control">{{ film.notes }}</textarea>
+  <div class="card-header"><strong>Edit Roll/Film</strong></div>
+  <div class="card-body">
+    {% include 'form_errors.html' %}
+    <form role="form" class="form-horizontal"
+      aaction="/binders/{{ binderID }}/projects/{{ projectID }}/films/{{ film.filmID }}"
+      method="POST">
+      {% include 'film/edit-film-form.html' %}
+      <div class="button-bar">
+          <button class="btn btn-success" name="button" value="editFilm" action="submit">Save</button>
+      </div>
+    </form>
   </div>
 </div>
-
-<div class="button-bar">
-  <button class="btn btn-success" name="button" value="editFilm" action="submit">Save</button>
-</div>
-
-</form>
-
 
 {% endblock %}

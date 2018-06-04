@@ -1,130 +1,62 @@
 <div class="card">
   <div class="card-body">
+    {% include 'form_errors.html' %}
     <form role="form" class="form-horizontal"
-        action="/binders/{{ binderID }}/projects/{{ projectID }}/films/{{ filmID }}/exposure/{{ exposure.exposureNumber }}"
+        action="/binders/{{ binderID }}/projects/{{ projectID }}/films/{{ filmID }}/exposure/{{ exposureNumber }}"
       method="POST">
+      {{ form.csrf_token }}
       <div class="form-group row">
         <div class="col-sm-1">
-          <label>Exposure #</label>
-          <input type="text" class="form-control" placeholder="Exposure #" name="exposureNumber" aria-describedby="Exposure Number"
-              value={{ exposure.exposureNumber }}
-          >
+          {{ form.exposureNumber.label }}
+          {{ form.exposureNumber(class="form-control", placeholder="#") }}
         </div>
         <div class="col-sm-2">
-          <label>Shutter</label>
-          <input type="text" class="form-control" placeholder="1/125&quot;, 2&quot;, B" name="shutter" aria-describedby="Shutter"
-            {% if exposure.shutter is defined %}
-              {% if exposure.shutter > 0 %}
-                value="1/{{ exposure.shutter }}"
-              {% elif exposure.shutter == 0 %}
-                value="B"
-              {% elif exposure.shutter %}
-                value="{{ exposure.shutter|abs }}&quot;"
-              {% endif %}
-            {% endif %}
-          >
+          {{ form.shutter.label }}
+          {{ form.shutter(class="form-control", placeholder="1/125, 2\", B") }}
         </div>
         <div class="col-sm-2">
-          <label>Aperture</label>
-          <input type="text" class="form-control" placeholder="2.8, 8, 32" name="aperture" aria-describedby="Aperture"
-            value={{ exposure.aperture }}
-          >
+          {{ form.aperture.label }}
+          {{ form.aperture(class="form-control", placeholder="2.8, 8, 32") }}
         </div>
         <div class="col-sm-2">
-          <label>Lens</label>
-          <select class="form-control" name="lens">
-              <option value=''> </option>
-              {% for lens in lenses %}
-                <option value="{{ lens.lensID }}"
-                  {% if lens.lensID == exposure.lensID %}
-                    selected
-                  {% endif %}
-                >{{ lens.name }}</option>
-              {% endfor %}
-          </select>
+          {{ form.lensID.label }}
+          {{ form.lensID(class="form-control") }}
         </div>
         <div class="col-sm-1">
-          <label>Flash</label>
-          <input type="checkbox" class="form-control" name="flash" value="Yes"
-            {% if exposure.flash == 'Yes' %}
-              checked
-            {% endif %}
-          >
+          {{ form.flash.label }}
+          {{ form.flash(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Metering</label>
-          <select class="form-control" name="metering">
-            <option value=''> </option>
-            <option value='Incident'
-              {% if exposure.metering == 'Incident' %}
-                selected
-              {% endif %}
-            >Incident</option>
-            <option value='Reflective'
-              {% if exposure.metering == 'Reflective' %}
-                selected
-              {% endif %}
-            >Reflective</option>
-          </select>
+          {{ form.metering.label }}
+          {{ form.metering(class="form-control") }}
         </div>
         <div class="col-sm-2">
-          <label>Filters</label><br />
-          {% for filter in filters %}
-            <input type="checkbox"
-                   name="filters"
-                   value="{{ filter.filterID }}"
-              {% if filter.checked == 'checked' %}
-                checked
-              {% endif %}
-            >{{ filter.name }}<br />
-          {% endfor %}
+          {{ form.filters.label }}
+          {{ form.filters(class="form-control list-unstyled") }}
         </div>
       </div>
       <div class="form-group row">
         {% if film.filmSize == '4x5' or film.filmSize == '8x10' %}
           <div class="col-sm-12">
-            <label>Subject</label><br />
-            <input type="text" class="form-control"
-              placeholder="Subject" name="subject" aria-describedby="Subject"
-              {% if exposure.subject %}
-                value="{{ exposure.subject }}"
-              {% endif %}
-            >
+            {{ form.subject.label }}
+            {{ form.subject(class="form-control") }}
           </div>
           <div class="col-sm-12">
-            <label>Development</label><br />
-            <input type="text" class="form-control"
-              placeholder="Development" name="development" aria-describedby="Development"
-              {% if exposure.development %}
-                value="{{ exposure.development }}"
-              {% endif %}
-            >
+            {{ form.development.label }}
+            {{ form.development(class="form-control") }}
           </div>
           <div class="col-sm-10">
-            <label>Film</label><br />
-            <select class="form-control" name="filmType">
-                <option value=''>Select Film </option>
-                {% for filmType in filmTypes %}
-                  <option value="{{ filmType.filmTypeID }}"
-                    {% if exposure.filmTypeID == filmType.filmTypeID %} selected {% endif %}>
-                    {{ filmType.brand }} {{ filmType.name }} {{ filmType.iso }}
-                  </option>
-                {% endfor %}
-            </select>
+            {{ form.filmTypeID.label }}
+            {{ form.filmTypeID(class="form-control") }}
           </div>
           <div class="col-sm-2">
-            <label>Shot ISO</label>
-            <input type="text" class="form-control" value="{{ exposure.iso }}" name="shotISO" aria-describedby="ShotISO">
+            {{ form.shotISO.label }}
+            {{ form.shotISO(class="form-control") }}
           </div>
         {% endif %}
         <div class="col-sm-12">
-          <label>Notes</label><br />
-          <input type="text" class="form-control"
-            placeholder="Notes" name="notes" aria-describedby="Notes"
-            {% if exposure.notes %}
-              value="{{ exposure.notes }}"
-            {% endif %}
-          >
+            {{ form.notes.label }}
+            {{ form.notes(class="form-control") }}
         </div>
 
       </div>
