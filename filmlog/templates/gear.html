@@ -21,9 +21,12 @@
   <div class="card">
     <div class="card-header">Add Camera</div>
     <div class="card-body">
+      {{ form_errors(camera_form) }}
       <form role="form" class="form-horizontal"
         action="/gear"
         method="POST">
+        {{ camera_form.csrf_token }}
+
         <div class="form-group">
           <div class="col-sm-6">
             <label>Name</label>
