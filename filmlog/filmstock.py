@@ -144,3 +144,14 @@ def filmstock():
                 stock_mf=stock_mf,
                 stock_sheets=stock_sheets,
                 films=films)
+
+@app.route('/filmtypes',  methods = ['GET'])
+@login_required
+def filmtypes():
+    connection = engine.connect()
+    qry = text("""SELECT filmTypeID, brand, name, iso, kind
+        FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        ORDER BY brand, name, iso, kind""")
+    filmtypes = connection.execute(qry).fetchall()
+    return render_template('filmtypes.html', filmtypes=filmtypes)

@@ -618,9 +618,3 @@ def expsoure(binderID, projectID, filmID, exposureNumber):
         binderID=binderID,
         projectID=projectID, filmID=filmID, exposureNumber=exposureNumber,
         film=film)
-
-@app.route('/filmtypes',  methods = ['GET'])
-@login_required
-def filmtypes():
-    filmtypes = get_film_types(engine.connect())
-    return render_template('filmtypes.html', filmtypes=filmtypes)
