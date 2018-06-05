@@ -26,20 +26,14 @@
         action="/gear"
         method="POST">
         {{ camera_form.csrf_token }}
-
         <div class="form-group">
           <div class="col-sm-6">
-            <label>Name</label>
-            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Name">
+            {{ camera_form.name.label }}
+            {{ camera_form.name(class="form-control", placeholder="Minolta X-700") }}
           </div>
           <div class="col-sm-6">
-            <label>Film Size</label>
-            <select class="form-control" name="filmSize">
-                <option value='35mm'>35mm</option>
-                <option value='120'>120</option>
-                <option value='4x5'>4x5</option>
-                <option value='8x10'>8x10</option>
-            </select>
+            {{ camera_form.filmSize.label }}
+            {{ camera_form.filmSize(class="form-control") }}
           </div>
         </div>
         <div class="button-bar">
@@ -71,28 +65,30 @@
     {% endfor %}
   </table>
 
-  <div class="card">
+  <div class="card my-4">
     <div class="card-header">Add Filter</div>
     <div class="card-body">
+      {{ form_errors(filter_form) }}
       <form role="form" class="form-horizontal"
         action="/gear"
         method="POST">
+        {{ filter_form.csrf_token }}
         <div class="form-group row">
           <div class="col-sm-6">
-            <label>Name</label>
-            <input type="text" class="form-control" placeholder="Name" name="name" aria-describedby="Name">
+            {{ filter_form.name.label }}
+            {{ filter_form.name(class="form-control", placeholder="Hoya Yellow 8") }}
           </div>
           <div class="col-sm-2">
-            <label>Code</label>
-            <input type="text" class="form-control" placeholder="YEL8" name="code" aria-describedby="Name">
+            {{ filter_form.code.label }}
+            {{ filter_form.code(class="form-control", placeholder="YEL8") }}
           </div>
           <div class="col-sm-2">
-            <label>EV</label>
-            <input type="text" class="form-control" placeholder="1" name="ev" aria-describedby="Name">
+            {{ filter_form.ev.label }}
+            {{ filter_form.ev(class="form-control", placeholder="1.0") }}
           </div>
           <div class="col-sm-2">
-            <label>Filter Factor</label>
-            <input type="text" class="form-control" placeholder="2.0" name="factor" aria-describedby="Name">
+            {{ filter_form.factor.label }}
+            {{ filter_form.factor(class="form-control", placeholder="2.0") }}
           </div>
         </div>
         <div class="button-bar">
@@ -101,7 +97,5 @@
       </form>
     </div>
   </div>
-
-
 
 {% endblock %}

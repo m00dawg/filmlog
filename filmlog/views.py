@@ -14,19 +14,11 @@ from wtforms import widgets
 from filmlog import app
 from filmlog import database
 from filmlog.functions import next_id, result_to_dict, get_film_details, \
-    optional_choices, zero_to_none
+    optional_choices, zero_to_none, get_film_types
 from filmlog import users, filmstock, darkroom, files, stats, gear, help
 engine = database.engine
 
 ## Functions
-def get_film_types(connection):
-    qry = text("""SELECT filmTypeID,
-        CONCAT(brand, " ", name, " ", iso)
-        FROM FilmTypes
-        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
-        ORDER BY brand, name""")
-    return connection.execute(qry).fetchall()
-
 def encode_shutter(shutter):
     if re.search(r'^1\/', shutter):
         return re.sub(r'^1\/', r'', shutter)

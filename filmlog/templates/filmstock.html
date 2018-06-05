@@ -25,6 +25,7 @@
           <form role="form" class="form-horizontal"
             action="/filmstock"
             method="POST">
+            {{ form.csrf_token }}
             <button name="button" value="increment" action="submit" class="btn btn-sm btn-primary">Increment</button>
             <button name="button" value="decrement" action="submit" class="btn btn-sm btn-danger">Decrement</button>
             <input type="hidden" name="filmTypeID" value="{{ film.filmTypeID }}" >
@@ -47,34 +48,23 @@
   <div class="card">
     <div class="card-header">Add Filmstock</div>
     <div class="card-body">
+      {{ form_errors(form) }}
       <form role="form" class="form-horizontal"
         action="/filmstock"
         method="POST">
+        {{ form.csrf_token }}
         <div class="form-group">
           <div class="col-sm-4">
-            <label>Films</label>
-            <select class="form-control" name="filmTypeID">
-                {% for film in films %}
-                  <option value="{{ film.filmTypeID }}">{{ film.brand }} {{ film.type }} {{ film.iso }}</option>
-                {% endfor %}
-            </select>
+            {{ form.filmTypeID.label }}
+            {{ form.filmTypeID(class="form-control") }}
           </div>
           <div class="col-sm-2">
-            <label>Size</label>
-            <select class="form-control" name="filmSize">
-                <option value="35mm 24">35mm 24</option>
-                <option value="35mm 36">35mm 36</option>
-                <option value="35mm Hand Roll">35mm Hand Roll</option>
-                <option value="35mm 100' Bulk Roll">35m 100' Bulk Roll</option>
-                <option value="120">120</option>
-                <option value="220">220</option>
-                <option value="4x5">4x5</option>
-                <option value="8x10">8x10</option>
-            </select>
+            {{ form.filmSize.label }}
+            {{ form.filmSize(class="form-control") }}
           </div>
           <div class="col-sm-2">
-            <label>Qty</label>
-            <input type="text" class="form-control" placeholder="" name="qty" aria-describedby="Quantity">
+            {{ form.qty.label }}
+            {{ form.qty(class="form-control") }}
           </div>
         </div>
         <div class="button-bar">

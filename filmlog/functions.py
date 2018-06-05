@@ -17,6 +17,14 @@ def next_id(connection, field, table):
     else:
         return 1
 
+def get_film_types(connection):
+    qry = text("""SELECT filmTypeID,
+        CONCAT(brand, " ", name, " ", iso)
+        FROM FilmTypes
+        JOIN FilmBrands ON FilmBrands.filmBrandID = FilmTypes.filmBrandID
+        ORDER BY brand, name""")
+    return connection.execute(qry).fetchall()
+
 def get_film_details(connection, binderID, projectID, filmID):
     userID = current_user.get_id()
 
