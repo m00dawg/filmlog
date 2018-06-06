@@ -1,8 +1,0 @@
-[global]
-docker=1
-
-[database]
-url=mysql+mysqldb://tim:e9xlb18@192.168.100.2/FilmLogDev?charset=utf8
-#url=mysql+mysqldb://filmlog:filmlogpw@mariadb/FilmLog
-
-pool_recycle=3600
